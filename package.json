@@ -44,9 +44,9 @@
     "tokens:export-backend": "node scripts/build-backend.js",
     "tokens:export-figma": "node scripts/optimize-for-figma.js",
     "tokens:export-utils": "node scripts/build-utilities.js",
-    "site:build": "vite build --outDir docs",
+    "site:build": "vite build",
     "site:serve": "vite",
-    "site:preview": "vite preview",
+    "site:preview": "npm run site:build && vite preview",
     "tasks:archive": "node scripts/archive-tasks.js"
   },
   "keywords": [

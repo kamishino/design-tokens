@@ -49,6 +49,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Site Preview Command**: Fixed `site:preview` missing directory error
+  - **Auto-Build**: Command now runs `site:build` before `vite preview` to ensure `docs/` exists
+  - **Script Cleanup**: Removed `--outDir` flag from `site:build` to use vite.config.ts value consistently
+  - **Path Alignment**: Verified build output targets repo root `docs/` directory (GitHub Pages compatible)
+  - **Directory Cleanup**: Removed confusing `site/docs/` directory to prevent path confusion
+  - **Robustness**: Preview command never fails due to missing build artifacts
+  - **Developer Experience**: Single command now handles build + preview automatically
 - **Infinite Build Loop**: Resolved watch mode infinite rebuild cycle
   - **Root Cause**: Type scale generator modified source files that watcher monitored
   - **Solution**: Separated generated tokens to `tokens/generated/` directory
