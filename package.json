@@ -27,7 +27,7 @@
     "WORKFLOW.md"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run tokens:watch\" \"npm run site:serve\" --names \"tokens,site\" --prefix-colors \"cyan,green\"",
+    "dev": "npm run build:core && concurrently \"npm run server:dev\" \"npm run site:serve\" --names \"server,site\" --prefix-colors \"blue,green\"",
     "build": "npm run clean && npm run build:core && npm run build:exports && npm run build:site",
     "build:core": "npm run tokens:scale && npm run tokens:validate && npm run tokens:compile",
     "build:exports": "npm run tokens:export-backend && npm run tokens:export-utils && npm run tokens:export-figma",
@@ -39,13 +39,15 @@
     "tokens:scale": "node scripts/generate-type-scale.js",
     "tokens:compile": "node scripts/build-tokens.js",
     "tokens:validate": "node scripts/validate-tokens.js",
-    "tokens:test": "node scripts/test-tokens.js",
+    "tokens:test": "node scripts/validate-tokens.js",
     "tokens:watch": "nodemon --watch tokens --ignore tokens/generated --ext json --exec \"npm run build:core && npm run build:exports\"",
     "tokens:export-backend": "node scripts/build-backend.js",
     "tokens:export-figma": "node scripts/optimize-for-figma.js",
     "tokens:export-utils": "node scripts/build-utilities.js",
+    "server:dev": "nodemon server/index.js",
+    "server:start": "node server/index.js",
     "site:build": "vite build",
-    "site:serve": "vite",
+    "site:serve": "vite --open /design-tokens/",
     "site:preview": "npm run site:build && vite preview",
     "tasks:archive": "node scripts/archive-tasks.js"
   },
@@ -68,14 +70,23 @@
     "url": "https://github.com/your-org/kami-design-tokens/issues"
   },
   "homepage": "https://github.com/your-org/kami-design-tokens#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
   "devDependencies": {
     "@types/node": "^20.10.0",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
     "ajv": "^8.12.0",
     "chalk": "^4.1.2",
     "concurrently": "^9.2.1",
     "fs-extra": "^11.1.0",
     "glob": "^8.1.0",
     "nodemon": "^3.1.11",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "rimraf": "^3.0.2",
     "style-dictionary": "^3.8.0",
     "typescript": "^5.3.3",

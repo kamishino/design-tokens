@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Dev Workflow Improvements**: Fixed development startup sequence and asset loading
+  - **Sequential Startup**: `npm run dev` now builds tokens first, preventing 404 errors
+  - **Auto-open Browser**: Dev server automatically opens to correct path `/design-tokens/`
+  - **BASE_URL Support**: Asset fetching uses `import.meta.env.BASE_URL` for correct path resolution
+  - **Fixed Entry Point**: HTML now correctly loads React dashboard from `/src/main.tsx`
+  - **Guaranteed Assets**: Tokens always built before dev servers start
+  - **No Race Conditions**: Eliminates timing issues between token builds and server startup
+- **Token Management Dashboard**: Full-featured CRUD interface for design token management
+  - **Backend API**: Express server with REST endpoints for file operations
+    - `GET /api/files` - List all editable token files
+    - `GET /api/tokens?file={path}` - Read token file content
+    - `POST /api/tokens` - Write token file content
+    - `POST /api/build` - Trigger build pipeline
+  - **Frontend Interface**: React-based dashboard with live editing
+    - **File Browser**: Sidebar navigation grouped by category (primitives, semantic, themes)
+    - **Token Editor**: Recursive tree view with inline editing
+    - **Draft System**: Track changes before committing
+    - **Visual Indicators**: Green dots show modified files
+    - **Commit Workflow**: Save all changes and trigger build in one action
+  - **Development Workflow**: Concurrent backend/frontend with hot reload
+    - Run `npm run dev` to start both servers
+    - Backend: http://localhost:3001
+    - Frontend: http://localhost:5173
+  - **Security**: Path validation, no directory traversal, local-only access
+  - **Documentation**: Comprehensive setup guide in SETUP_DASHBOARD.md
 - **Figma Token Studio Grid & Breakpoint Optimization**: Enhanced Figma export with proper scoping
   - **Grid Tokens**: Intelligent scope detection for grid primitives
     - `gutter` tokens → `spacing` scope (mobile: 16px, tablet: 24px, desktop: 32px)

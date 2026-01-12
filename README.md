@@ -430,6 +430,32 @@ kami-design-tokens/
 └── README.md
 ```
 
+## Token Management Dashboard
+
+🎨 **NEW**: Visual interface for managing design tokens with full CRUD capabilities.
+
+### Quick Start
+
+```bash
+npm install          # Install dependencies
+npm run build:core   # Build tokens first
+npm run dev          # Start dashboard (backend + frontend)
+```
+
+Open http://localhost:5173 to access the dashboard.
+
+### Features
+
+- **Visual Editor**: Click to edit token values inline
+- **File Browser**: Navigate tokens by category (primitives, semantic, themes)
+- **Draft System**: Preview changes before committing
+- **Build Integration**: Automatic build trigger after saving
+- **Real-time Updates**: Changes reflect immediately in the UI
+
+### Documentation
+
+See [SETUP_DASHBOARD.md](./SETUP_DASHBOARD.md) for detailed setup and usage instructions.
+
 ## Development
 
 ### Prerequisites
