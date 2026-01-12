@@ -1,0 +1,64 @@
+{
+  "name": "@your-org/kami-design-tokens",
+  "version": "1.0.0",
+  "description": "Centralized design tokens repository - Single Source of Truth for design values across all platforms",
+  "main": "dist/js/tokens.js",
+  "module": "dist/js/tokens.mjs",
+  "types": "dist/js/tokens.d.ts",
+  "style": "dist/css/variables.css",
+  "exports": {
+    ".": {
+      "import": "./dist/js/tokens.mjs",
+      "require": "./dist/js/tokens.js",
+      "types": "./dist/js/tokens.d.ts"
+    },
+    "./css": "./dist/css/variables.css",
+    "./scss": "./dist/scss/_variables.scss",
+    "./json": "./dist/json/tokens.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "tokens",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "npm run clean && npm run validate && node scripts/build-tokens.js",
+    "clean": "rimraf dist",
+    "validate": "node scripts/validate-tokens.js",
+    "test": "node scripts/test-tokens.js",
+    "prepublishOnly": "npm run build && npm test",
+    "pack:dry": "npm pack --dry-run"
+  },
+  "keywords": [
+    "design-tokens",
+    "design-system",
+    "tokens",
+    "theme",
+    "css-variables",
+    "scss",
+    "style-dictionary"
+  ],
+  "author": "Your Organization",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/kami-design-tokens.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/kami-design-tokens/issues"
+  },
+  "homepage": "https://github.com/your-org/kami-design-tokens#readme",
+  "devDependencies": {
+    "chalk": "^4.1.2",
+    "fs-extra": "^11.1.0",
+    "glob": "^8.1.0",
+    "rimraf": "^3.0.2",
+    "style-dictionary": "^3.8.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

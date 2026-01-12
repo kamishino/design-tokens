@@ -1,0 +1,40 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Force LF for all text files
+*.js text eol=lf
+*.ts text eol=lf
+*.json text eol=lf
+*.scss text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Force LF for generated token files specifically
+src/js/core/utils/tokens.js text eol=lf
+src/js/core/utils/tokens.d.ts text eol=lf
+src/styles/core/abstracts/variables/_grid.scss text eol=lf
+src/styles/core/abstracts/variables/generated/_root.scss text eol=lf
+src/styles/core/abstracts/variables/generated/_tokens.scss text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.flv binary
+*.fla binary
+*.swf binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.woff2 binary

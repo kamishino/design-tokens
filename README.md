@@ -1,0 +1,224 @@
+# 🎨 Kami Design Tokens
+
+> Centralized design tokens repository - Single Source of Truth for design values across all platforms
+
+[![Version](https://img.shields.io/npm/v/@your-org/kami-design-tokens.svg)](https://www.npmjs.com/package/@your-org/kami-design-tokens)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Overview
+
+This repository serves as the Single Source of Truth (SSOT) for all design tokens used across the Kami platform. It syncs with Figma and distributes versioned artifacts to Frontend, Backend, and Mobile applications.
+
+## Features
+
+- 🔄 **Figma Sync**: Automated synchronization with Figma Token Studio
+- 🎯 **Multi-Platform**: Generate tokens for Web (CSS, SCSS, JS) and Backend (JSON)
+- 📦 **Versioned**: Semantic versioning for design updates
+- 🚀 **Automated CI/CD**: GitHub Actions for build and release
+- 🔧 **Type-Safe**: TypeScript definitions included
+
+## Installation
+
+### Via Git URL (Recommended for private repos)
+```bash
+npm install git+ssh://git@github.com:your-org/kami-design-tokens.git
+```
+
+### Via NPM (if published)
+```bash
+npm install @your-org/kami-design-tokens
+```
+
+## Usage
+
+### CSS Variables
+```css
+/* Import in your CSS */
+@import '@your-org/kami-design-tokens/css';
+
+/* Use tokens */
+.button {
+  background-color: var(--color-primary);
+  padding: var(--spacing-md);
+}
+```
+
+### SCSS Variables
+```scss
+// Import in your SCSS
+@import '@your-org/kami-design-tokens/scss/variables';
+
+// Use tokens
+.button {
+  background-color: $color-primary;
+  padding: $spacing-md;
+}
+```
+
+### JavaScript/TypeScript
+```javascript
+// ES Modules
+import tokens from '@your-org/kami-design-tokens';
+
+// Use tokens with full autocomplete
+const primaryColor = tokens.color.primary;
+const spacing = tokens.spacing.md;
+```
+
+#### TypeScript with Strict Types
+```typescript
+// Full type safety and IDE autocomplete
+import tokens from '@your-org/kami-design-tokens';
+
+// TypeScript knows the exact structure
+const buttonPadding: string = tokens.button['padding-x'];
+const primaryColor: string = tokens.color.primary;
+
+// Compile-time error if token doesn't exist
+// const invalid = tokens.nonExistent.token; // ❌ TypeScript error
+```
+
+### Backend JSON
+```javascript
+// Node.js
+const tokens = require('@your-org/kami-design-tokens/json');
+
+// Validate theme colors
+app.post('/theme', (req, res) => {
+  const userColor = req.body.color;
+  if (tokens.colors[userColor]) {
+    // Valid color
+  }
+});
+```
+
+## Repository Structure
+
+```
+kami-design-tokens/
+├── tokens/                    # Source token files (W3C DTCG format)
+│   ├── primitives/           # Raw values (core palette, spacing)
+│   │   ├── colors.json
+│   │   ├── spacing.json
+│   │   └── typography.json
+│   └── semantic/             # Intent-based values (usage mapping)
+│       ├── colors.json
+│       └── components.json
+├── scripts/                   # Build utilities
+│   ├── build-tokens.js       # Unified Style Dictionary build
+│   ├── validate-tokens.js    # Token validation & reference checking
+│   └── test-tokens.js        # Build output tests
+├── dist/                      # Generated artifacts (gitignored, included in npm)
+│   ├── css/                  # CSS variables (:root)
+│   ├── scss/                 # SCSS variables ($var)
+│   ├── js/                   # JS/TS modules with strict types
+│   └── json/                 # JSON format
+├── style-dictionary.config.js # Style Dictionary configuration
+├── package.json
+└── README.md
+```
+
+## Development
+
+### Prerequisites
+- Node.js 16+
+- NPM 8+
+
+### Setup
+```bash
+# Clone repository
+git clone https://github.com/your-org/kami-design-tokens.git
+cd kami-design-tokens
+
+# Install dependencies
+npm install
+
+# Build tokens
+npm run build
+```
+
+### Scripts
+```bash
+npm run build         # Validate and build all artifacts (CSS, SCSS, JS, JSON)
+npm run validate      # Validate token structure and references
+npm test              # Run build output tests
+npm run clean         # Clean dist folder
+npm run pack:dry      # Preview package contents before publishing
+```
+
+## Token Structure
+
+### Primitives
+Raw foundational values:
+```json
+{
+  "color": {
+    "blue": {
+      "50": "#e3f2fd",
+      "500": "#2196f3",
+      "900": "#0d47a1"
+    }
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "16px"
+  }
+}
+```
+
+### Semantic
+Intent-based tokens:
+```json
+{
+  "color": {
+    "primary": "{color.blue.500}",
+    "background": "{color.neutral.50}"
+  },
+  "spacing": {
+    "button-padding": "{spacing.md}"
+  }
+}
+```
+
+## Versioning
+
+This project follows [Semantic Versioning](https://semver.org/):
+- **MAJOR**: Breaking changes (e.g., token removal, structure change)
+- **MINOR**: New tokens added (backward compatible)
+- **PATCH**: Bug fixes, token value updates
+
+## Migration Guide
+
+If you're migrating from an embedded token system, see [`MIGRATION_GUIDE.md`](./MIGRATION_GUIDE.md) for detailed instructions.
+
+## CI/CD
+
+GitHub Actions automatically:
+1. Builds tokens on every push to `main`
+2. Runs validation tests
+3. (Optional) Publishes to NPM on release tags
+
+## Contributing
+
+1. Create a feature branch
+2. Update tokens in `tokens/` directory
+3. Run `npm run build` to generate artifacts
+4. Test in consumer projects
+5. Submit a pull request
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/your-org/kami-design-tokens/issues)
+- **Documentation**: [Wiki](https://github.com/your-org/kami-design-tokens/wiki)
+- **PRD**: See `tasks/0040-prd-design-tokens-repo.md`
+
+## License
+
+MIT © Your Organization
+
+---
+
+**Related Projects:**
+- [front-end-starter](https://github.com/your-org/front-end-starter) - Consumes these tokens
+- [backend-api](https://github.com/your-org/backend-api) - Uses JSON tokens for validation
