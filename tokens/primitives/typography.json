@@ -1,24 +1,97 @@
 {
-  "fontSize": {
-    "xs": { "$value": "12px", "$type": "dimension" },
-    "sm": { "$value": "14px", "$type": "dimension" },
-    "base": { "$value": "16px", "$type": "dimension" },
-    "lg": { "$value": "18px", "$type": "dimension" },
-    "xl": { "$value": "20px", "$type": "dimension" },
-    "2xl": { "$value": "24px", "$type": "dimension" },
-    "3xl": { "$value": "30px", "$type": "dimension" },
-    "4xl": { "$value": "36px", "$type": "dimension" },
-    "5xl": { "$value": "48px", "$type": "dimension" }
-  },
-  "fontWeight": {
-    "normal": { "$value": "400", "$type": "number" },
-    "medium": { "$value": "500", "$type": "number" },
-    "semibold": { "$value": "600", "$type": "number" },
-    "bold": { "$value": "700", "$type": "number" }
-  },
-  "lineHeight": {
-    "tight": { "$value": "1.25", "$type": "number" },
-    "normal": { "$value": "1.5", "$type": "number" },
-    "relaxed": { "$value": "1.75", "$type": "number" }
+  "font": {
+    "family": {
+      "base": {
+        "value": "-apple-system, BlinkMacSystemFont, sans-serif",
+        "$type": "fontFamilies"
+      },
+      "mono": {
+        "value": "SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+        "$type": "fontFamilies"
+      },
+      "serif": {
+        "value": "Georgia, 'Times New Roman', Times, serif",
+        "$type": "fontFamilies"
+      }
+    },
+    "size": {
+      "root": {
+        "value": "16px",
+        "$type": "fontSizes",
+        "$description": "Browser default font size for rem calculations"
+      },
+      "xs": { "value": "12px", "$type": "fontSizes" },
+      "sm": { "value": "14px", "$type": "fontSizes" },
+      "base": { "value": "16px", "$type": "fontSizes" },
+      "md": { "value": "18px", "$type": "fontSizes" },
+      "lg": { "value": "20px", "$type": "fontSizes" },
+      "xl": { "value": "24px", "$type": "fontSizes" },
+      "2xl": { "value": "28px", "$type": "fontSizes" },
+      "3xl": { "value": "32px", "$type": "fontSizes" },
+      "4xl": { "value": "36px", "$type": "fontSizes" },
+      "5xl": { "value": "40px", "$type": "fontSizes" },
+      "6xl": { "value": "48px", "$type": "fontSizes" },
+      "7xl": { "value": "56px", "$type": "fontSizes" },
+      "8xl": { "value": "64px", "$type": "fontSizes" },
+      "9xl": { "value": "72px", "$type": "fontSizes" }
+    },
+    "weight": {
+      "thin": { "value": "100", "$type": "fontWeights" },
+      "extralight": { "value": "200", "$type": "fontWeights" },
+      "light": { "value": "300", "$type": "fontWeights" },
+      "normal": { "value": "400", "$type": "fontWeights" },
+      "medium": { "value": "500", "$type": "fontWeights" },
+      "semibold": { "value": "600", "$type": "fontWeights" },
+      "bold": { "value": "700", "$type": "fontWeights" },
+      "extrabold": { "value": "800", "$type": "fontWeights" },
+      "black": { "value": "900", "$type": "fontWeights" }
+    },
+    "leading": {
+      "none": { "value": "1", "$type": "lineHeights" },
+      "tight": { "value": "1.25", "$type": "lineHeights" },
+      "snug": { "value": "1.375", "$type": "lineHeights" },
+      "normal": {
+        "value": "1.5",
+        "$type": "lineHeights",
+        "$description": "Default leading ratio for baseline calculations"
+      },
+      "relaxed": { "value": "1.625", "$type": "lineHeights" },
+      "loose": { "value": "2", "$type": "lineHeights" }
+    },
+    "letterSpacing": {
+      "tighter": {
+        "value": "-0.05em",
+        "$type": "dimension",
+        "$description": "For condensed fonts or tight tracking"
+      },
+      "tight": {
+        "value": "-0.025em",
+        "$type": "dimension",
+        "$description": "Slightly tight tracking"
+      },
+      "normal": {
+        "value": "0",
+        "$type": "dimension",
+        "$description": "Default letter spacing"
+      },
+      "wide": {
+        "value": "0.025em",
+        "$type": "dimension",
+        "$description": "Slightly loose tracking"
+      },
+      "wider": {
+        "value": "0.05em",
+        "$type": "dimension",
+        "$description": "Loose tracking"
+      },
+      "widest": {
+        "value": "0.1em",
+        "$type": "dimension",
+        "$description": "Very loose tracking or all caps"
+      }
+    },
+    "spacing": {
+      "paragraph": { "value": "0px", "$type": "dimension" }
+    }
   }
 }

@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/design-tokens.schema.json",
+  "title": "Design Token Schema",
+  "description": "JSON Schema for design tokens following Token Studio and W3C DTCG format",
+  "type": "object",
+  "patternProperties": {
+    "^[a-zA-Z0-9_-]+$": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/tokenValue"
+        },
+        {
+          "$ref": "#/definitions/tokenGroup"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "tokenValue": {
+      "type": "object",
+      "required": ["value"],
+      "properties": {
+        "value": {
+          "description": "The token value - can be a string, number, or reference to another token",
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" },
+            { "type": "boolean" },
+            { "type": "object" }
+          ]
+        },
+        "$type": {
+          "description": "The type of token (W3C DTCG format)",
+          "type": "string",
+          "enum": [
+            "color",
+            "dimension",
+            "fontFamily",
+            "fontWeight",
+            "duration",
+            "cubicBezier",
+            "number",
+            "string",
+            "spacing",
+            "sizing",
+            "typography",
+            "border",
+            "shadow",
+            "transition"
+          ]
+        },
+        "type": {
+          "description": "The type of token (Token Studio format)",
+          "type": "string",
+          "enum": [
+            "color",
+            "dimension",
+            "fontFamily",
+            "fontWeight",
+            "duration",
+            "cubicBezier",
+            "number",
+            "string",
+            "spacing",
+            "sizing",
+            "typography",
+            "border",
+            "shadow",
+            "transition"
+          ]
+        },
+        "description": {
+          "description": "Optional description of the token",
+          "type": "string"
+        },
+        "$description": {
+          "description": "Optional description of the token (W3C format)",
+          "type": "string"
+        },
+        "extensions": {
+          "description": "Optional extensions for additional metadata",
+          "type": "object"
+        },
+        "$extensions": {
+          "description": "Optional extensions for additional metadata (W3C format)",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "tokenGroup": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/tokenValue"
+            },
+            {
+              "$ref": "#/definitions/tokenGroup"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

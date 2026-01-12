@@ -1,38 +1,90 @@
 /**
- * Unified Build Script using Style Dictionary
- * Replaces individual build-css.js, build-scss.js, etc.
+ * Build Design Tokens using Style Dictionary
+ * Generates CSS, SCSS, JavaScript, and JSON artifacts
+ * Supports multi-theme builds
  */
 
 const StyleDictionary = require('style-dictionary');
 const chalk = require('chalk');
+const fs = require('fs-extra');
 const path = require('path');
 
-// Load the configuration
-const config = require('../style-dictionary.config.js');
+// Load the base configuration
+const baseConfig = require('../style-dictionary.config.js');
 
-async function build() {
-  console.log(chalk.blue('🎨 Building design tokens with Style Dictionary...\n'));
+async function buildTokens() {
+  console.log(chalk.blue('🎨 Building design tokens...\n'));
 
   try {
-    // Extend Style Dictionary with our config
-    const sd = StyleDictionary.extend(config);
+    // Build base tokens (primitives + semantic)
+    console.log(chalk.gray('Building base tokens...'));
+    const sd = StyleDictionary.extend(baseConfig);
+    await sd.buildAllPlatforms();
+    console.log(chalk.green('✓ Base tokens built\n'));
 
-    // Build all platforms
-    sd.buildAllPlatforms();
+    // Check for themes and build them
+    const themesDir = path.join(__dirname, '../tokens/themes');
+    
+    if (await fs.pathExists(themesDir)) {
+      const themeFiles = await fs.readdir(themesDir);
+      const jsonThemes = themeFiles.filter(f => f.endsWith('.json'));
+      
+      if (jsonThemes.length > 0) {
+        console.log(chalk.gray('Found ' + jsonThemes.length + ' theme(s), building...\n'));
+        
+        for (const themeFile of jsonThemes) {
+          const themeName = path.basename(themeFile, '.json');
+          await buildTheme(themeName);
+        }
+      }
+    }
 
-    console.log(chalk.green('\n✓ All token artifacts generated successfully!'));
-    console.log(chalk.gray('  Output locations:'));
-    console.log(chalk.gray('  - CSS:  dist/css/variables.css'));
-    console.log(chalk.gray('  - SCSS: dist/scss/_variables.scss'));
-    console.log(chalk.gray('  - JS:   dist/js/tokens.js, tokens.mjs, tokens.d.ts'));
-    console.log(chalk.gray('  - JSON: dist/json/tokens.json'));
-
+    console.log(chalk.green('\n✓ All design tokens built successfully!'));
+    console.log(chalk.gray('  Check the dist/ directory for generated files'));
   } catch (error) {
-    console.error(chalk.red('\n✗ Build failed:'), error.message);
+    console.error(chalk.red('✗ Build failed:'), error.message);
     console.error(error.stack);
     process.exit(1);
   }
 }
 
-// Run the build
-build();
+async function buildTheme(themeName) {
+  console.log(chalk.gray('Building theme: ' + themeName + '...'));
+  
+  const themeConfig = {
+    source: [
+      'tokens/primitives/**/*.json',
+      'tokens/themes/' + themeName + '.json'
+    ],
+    platforms: {
+      css: {
+        transformGroup: 'css',
+        buildPath: 'dist/css/',
+        files: [{
+          destination: 'theme-' + themeName + '.css',
+          format: 'css/theme-scoped',
+          options: {
+            themeName: themeName,
+            selector: '[data-theme="' + themeName + '"]',
+            outputReferences: true
+          }
+        }]
+      },
+      json: {
+        transformGroup: 'js',
+        buildPath: 'dist/json/',
+        files: [{
+          destination: 'theme-' + themeName + '.json',
+          format: 'json/nested'
+        }]
+      }
+    }
+  };
+
+  const sd = StyleDictionary.extend(themeConfig);
+  await sd.buildAllPlatforms();
+  
+  console.log(chalk.green('✓ Theme "' + themeName + '" built'));
+}
+
+buildTokens();

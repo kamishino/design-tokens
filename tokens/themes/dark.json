@@ -1,0 +1,17 @@
+﻿{
+  "bg": {
+    "body": { "value": "{color.neutral.950}", "$type": "color" },
+    "surface": { "value": "{color.neutral.900}", "$type": "color" },
+    "muted": { "value": "{color.neutral.800}", "$type": "color" }
+  },
+  "text": {
+    "primary": { "value": "{color.neutral.50}", "$type": "color" },
+    "secondary": { "value": "{color.neutral.300}", "$type": "color" },
+    "muted": { "value": "{color.neutral.500}", "$type": "color" },
+    "inverse": { "value": "{color.neutral.900}", "$type": "color" }
+  },
+  "border": {
+    "default": { "value": "{color.neutral.700}", "$type": "color" },
+    "muted": { "value": "{color.neutral.800}", "$type": "color" }
+  }
+}

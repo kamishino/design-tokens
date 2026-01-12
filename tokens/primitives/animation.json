@@ -1,0 +1,71 @@
+{
+  "ease": {
+    "linear": { "value": "cubic-bezier(0, 0, 1, 1)", "$type": "cubicBezier" },
+    "standard": {
+      "default": { "value": "cubic-bezier(0.25, 0.1, 0.25, 1)", "$type": "cubicBezier" },
+      "in": { "value": "cubic-bezier(0.42, 0, 1, 1)", "$type": "cubicBezier" },
+      "out": { "value": "cubic-bezier(0, 0, 0.58, 1)", "$type": "cubicBezier" },
+      "in-out": { "value": "cubic-bezier(0.42, 0, 0.58, 1)", "$type": "cubicBezier" }
+    },
+    "sine": {
+      "in": { "value": "cubic-bezier(0.47, 0, 0.745, 0.715)", "$type": "cubicBezier" },
+      "out": { "value": "cubic-bezier(0.39, 0.575, 0.565, 1)", "$type": "cubicBezier" },
+      "in-out": { "value": "cubic-bezier(0.445, 0.05, 0.55, 0.95)", "$type": "cubicBezier" }
+    },
+    "quad": {
+      "in": { "value": "cubic-bezier(0.55, 0.085, 0.68, 0.53)", "$type": "cubicBezier" },
+      "out": { "value": "cubic-bezier(0.25, 0.46, 0.45, 0.94)", "$type": "cubicBezier" },
+      "in-out": { "value": "cubic-bezier(0.455, 0.03, 0.515, 0.955)", "$type": "cubicBezier" }
+    },
+    "cubic": {
+      "in": { "value": "cubic-bezier(0.55, 0.055, 0.675, 0.19)", "$type": "cubicBezier" },
+      "out": { "value": "cubic-bezier(0.215, 0.61, 0.355, 1)", "$type": "cubicBezier" },
+      "in-out": { "value": "cubic-bezier(0.645, 0.045, 0.355, 1)", "$type": "cubicBezier" }
+    },
+    "quart": {
+      "in": { "value": "cubic-bezier(0.895, 0.03, 0.685, 0.22)", "$type": "cubicBezier" },
+      "out": { "value": "cubic-bezier(0.165, 0.84, 0.44, 1)", "$type": "cubicBezier" },
+      "in-out": { "value": "cubic-bezier(0.77, 0, 0.175, 1)", "$type": "cubicBezier" }
+    },
+    "quint": {
+      "in": { "value": "cubic-bezier(0.755, 0.05, 0.855, 0.06)", "$type": "cubicBezier" },
+      "out": { "value": "cubic-bezier(0.23, 1, 0.32, 1)", "$type": "cubicBezier" },
+      "in-out": { "value": "cubic-bezier(0.86, 0, 0.07, 1)", "$type": "cubicBezier" }
+    },
+    "expo": {
+      "in": { "value": "cubic-bezier(0.95, 0.05, 0.795, 0.035)", "$type": "cubicBezier" },
+      "out": { "value": "cubic-bezier(0.19, 1, 0.22, 1)", "$type": "cubicBezier" },
+      "in-out": { "value": "cubic-bezier(1, 0, 0, 1)", "$type": "cubicBezier" }
+    },
+    "circ": {
+      "in": { "value": "cubic-bezier(0.6, 0.04, 0.98, 0.335)", "$type": "cubicBezier" },
+      "out": { "value": "cubic-bezier(0.075, 0.82, 0.165, 1)", "$type": "cubicBezier" },
+      "in-out": { "value": "cubic-bezier(0.785, 0.135, 0.15, 0.86)", "$type": "cubicBezier" }
+    },
+    "back": {
+      "in": { "value": "cubic-bezier(0.6, -0.28, 0.735, 0.045)", "$type": "cubicBezier" },
+      "out": { "value": "cubic-bezier(0.175, 0.885, 0.32, 1.275)", "$type": "cubicBezier" },
+      "in-out": { "value": "cubic-bezier(0.68, -0.55, 0.265, 1.55)", "$type": "cubicBezier" }
+    }
+  },
+  "duration": {
+    "instant": { "value": "0ms", "$type": "duration" },
+    "fast": { "value": "75ms", "$type": "duration" },
+    "faster": { "value": "100ms", "$type": "duration" },
+    "normal": { "value": "150ms", "$type": "duration" },
+    "slow": { "value": "200ms", "$type": "duration" },
+    "slower": { "value": "300ms", "$type": "duration" },
+    "slowest": { "value": "500ms", "$type": "duration" },
+    "gentle": { "value": "700ms", "$type": "duration" },
+    "smooth": { "value": "1000ms", "$type": "duration" },
+    "0": { "value": "0ms", "$type": "duration" },
+    "75": { "value": "75ms", "$type": "duration" },
+    "100": { "value": "100ms", "$type": "duration" },
+    "150": { "value": "150ms", "$type": "duration" },
+    "200": { "value": "200ms", "$type": "duration" },
+    "300": { "value": "300ms", "$type": "duration" },
+    "500": { "value": "500ms", "$type": "duration" },
+    "700": { "value": "700ms", "$type": "duration" },
+    "1000": { "value": "1000ms", "$type": "duration" }
+  }
+}

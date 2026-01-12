@@ -112,6 +112,53 @@ app.post('/theme', (req, res) => {
 - **Spacing**: `.p-{size}`, `.m-{size}`, `.px-{size}`, `.py-{size}`, `.gap-{size}`
 - **Typography**: `.text-{size}`, `.font-{weight}`, `.leading-{height}`
 
+## Multi-Theme Support
+
+The repository supports multiple themes (e.g., light/dark mode) through theme override files.
+
+### Using Themes
+
+**In CSS:**
+```html
+<!-- Light theme (default) -->
+<body>
+  <link rel="stylesheet" href="node_modules/@your-org/kami-design-tokens/dist/css/variables.css">
+  <!-- Content uses default theme -->
+</body>
+
+<!-- Dark theme -->
+<body data-theme="dark">
+  <link rel="stylesheet" href="node_modules/@your-org/kami-design-tokens/dist/css/variables.css">
+  <link rel="stylesheet" href="node_modules/@your-org/kami-design-tokens/dist/css/theme-dark.css">
+  <!-- Dark theme overrides are applied -->
+</body>
+```
+
+**In JavaScript:**
+```javascript
+// Toggle theme
+document.body.setAttribute('data-theme', 'dark');
+
+// Load theme tokens
+import darkTheme from '@your-org/kami-design-tokens/json/theme-dark.json';
+```
+
+### Creating New Themes
+
+1. Create a new file in `tokens/themes/` (e.g., `high-contrast.json`)
+2. Define token overrides using references to primitives:
+```json
+{
+  "bg": {
+    "body": { "value": "{color.black}", "$type": "color" }
+  },
+  "text": {
+    "primary": { "value": "{color.white}", "$type": "color" }
+  }
+}
+```
+3. Run `npm run build` to generate theme artifacts
+
 ## Documentation
 
 📚 **[Live Token Documentation](https://kamishino.github.io/design-tokens/)**
@@ -123,27 +170,41 @@ View all design tokens visually with color swatches, typography specimens, spaci
 ```
 kami-design-tokens/
 ├── tokens/                    # Source token files (W3C DTCG format)
-│   ├── primitives/           # Raw values (core palette, spacing)
+│   ├── primitives/           # Raw values (core palette, spacing, typography, etc.)
 │   │   ├── colors.json
 │   │   ├── spacing.json
-│   │   └── typography.json
-│   └── semantic/             # Intent-based values (usage mapping)
-│       ├── colors.json
-│       └── components.json
+│   │   ├── typography.json
+│   │   ├── animation.json
+│   │   ├── breakpoints.json
+│   │   ├── grid.json
+│   │   ├── radius.json
+│   │   ├── scale.json
+│   │   └── shadows.json
+│   ├── semantic/             # Intent-based values (usage mapping)
+│   │   ├── colors.json
+│   │   ├── typography.json
+│   │   └── animation.json
+│   ├── themes/               # Theme overrides (dark mode, high contrast, etc.)
+│   │   └── dark.json
+│   └── schema.json           # JSON Schema for validation
 ├── site/                      # Preview site source (Vite + TypeScript)
 │   ├── index.html            # Entry point
 │   ├── main.ts               # Client-side rendering logic
 │   └── style.css             # Preview-specific styles
 ├── scripts/                   # Build utilities
-│   ├── build-tokens.js       # Unified Style Dictionary build
+│   ├── build-tokens.js       # Multi-theme Style Dictionary build
 │   ├── build-utilities.js    # Utility classes generator
-│   ├── validate-tokens.js    # Token validation & reference checking
+│   ├── validate-tokens.js    # Schema & reference validation
 │   └── test-tokens.js        # Build output tests
 ├── dist/                      # Generated artifacts (gitignored, included in npm)
-│   ├── css/                  # CSS variables (:root)
+│   ├── css/                  # CSS variables
+│   │   ├── variables.css     # Base tokens (:root)
+│   │   └── theme-*.css       # Theme overrides ([data-theme="*"])
 │   ├── scss/                 # SCSS variables ($var)
 │   ├── js/                   # JS/TS modules with strict types
 │   ├── json/                 # JSON format
+│   │   ├── tokens.json       # Base tokens
+│   │   └── theme-*.json      # Theme tokens
 │   └── utilities.css         # Pre-built utility classes
 ├── docs/                      # Visual documentation site (GitHub Pages)
 │   └── index.html            # Built preview site

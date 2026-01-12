@@ -1,0 +1,22 @@
+{
+  "scale": {
+    "phi": { "value": "1.618", "$type": "number" },
+    "golden": { "value": "1.618", "$type": "number" },
+    "double-octave": { "value": "4", "$type": "number" },
+    "major-twelfth": { "value": "3", "$type": "number" },
+    "major-eleventh": { "value": "2.667", "$type": "number" },
+    "major-tenth": { "value": "2.5", "$type": "number" },
+    "octave": { "value": "2", "$type": "number" },
+    "major-seventh": { "value": "1.875", "$type": "number" },
+    "minor-seventh": { "value": "1.778", "$type": "number" },
+    "major-sixth": { "value": "1.667", "$type": "number" },
+    "minor-sixth": { "value": "1.6", "$type": "number" },
+    "fifth": { "value": "1.5", "$type": "number" },
+    "augmented-fourth": { "value": "1.414", "$type": "number" },
+    "fourth": { "value": "1.333", "$type": "number" },
+    "major-third": { "value": "1.25", "$type": "number" },
+    "minor-third": { "value": "1.2", "$type": "number" },
+    "major-second": { "value": "1.125", "$type": "number" },
+    "minor-second": { "value": "1.067", "$type": "number" }
+  }
+}

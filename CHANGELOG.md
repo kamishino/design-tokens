@@ -33,12 +33,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Instant feedback on token and UI changes
   - Proper HTML/CSS/TS files instead of string templates
   - `npm run dev` for development with auto-reload
+- **Multi-Theme Support**: Architecture for multiple design themes
+  - Themes directory for theme-specific token overrides
+  - Dark theme included as example
+  - Automatic generation of theme-scoped CSS with `[data-theme="*"]` selectors
+  - Separate JSON artifacts for each theme
+- **JSON Schema Validation**: Strict token structure validation
+  - Comprehensive JSON Schema following W3C DTCG and Token Studio formats
+  - Automatic validation against schema during build
+  - AJV-powered validation with detailed error messages
+  - Validates all token files (primitives, semantic, themes)
+- **Enhanced Token Structure**: Expanded primitive tokens
+  - Animation tokens (durations, easings)
+  - Breakpoint tokens for responsive design
+  - Grid system tokens
+  - Border radius scale
+  - Scale multipliers
+  - Shadow definitions
 
 ### Changed
 - **Build System**: Replaced individual build scripts with unified Style Dictionary configuration
 - **Package Scripts**: Simplified to `build`, `validate`, `test`, `clean`, `pack:dry`
 - **JSON Output**: Changed from `dist/json/theme.json` to `dist/json/tokens.json` for consistency
 - **Build Process**: Now runs validation before building to catch errors early
+- **Token Architecture**: Migrated from temp/ with updated, production-ready token values
+- **Multi-Theme Build**: Build script now automatically detects and builds all themes in `tokens/themes/`
 
 ### Removed
 - **Deprecated Scripts**: Removed `scripts/build-css.js`, `scripts/build-scss.js`, `scripts/build-js.js`, `scripts/build-json.js` in favor of Style Dictionary

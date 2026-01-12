@@ -1,5 +1,5 @@
 {
-  "spacing": {
+  "radius": {
     "0": { "value": "0px", "$type": "dimension" },
     "px": { "value": "1px", "$type": "dimension" },
     "0.5": { "value": "2px", "$type": "dimension" },
@@ -18,6 +18,7 @@
     "20": { "value": "80px", "$type": "dimension" },
     "24": { "value": "96px", "$type": "dimension" },
     "28": { "value": "112px", "$type": "dimension" },
-    "32": { "value": "128px", "$type": "dimension" }
+    "32": { "value": "128px", "$type": "dimension" },
+    "full": { "value": "9999px", "$type": "dimension" }
   }
 }

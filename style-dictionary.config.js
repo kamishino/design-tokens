@@ -142,8 +142,35 @@ module.exports = ${JSON.stringify(tokens, null, 2)};
   }
 });
 
+// Custom format for theme-scoped CSS
+StyleDictionary.registerFormat({
+  name: 'css/theme-scoped',
+  formatter: function({ dictionary, options }) {
+    const themeName = options.themeName || 'default';
+    const selector = options.selector || `[data-theme="${themeName}"]`;
+    
+    return `/**
+ * Theme: ${themeName}
+ * Generated: ${new Date().toISOString()}
+ * DO NOT EDIT MANUALLY
+ */
+
+${selector} {
+${dictionary.allTokens.map(token => {
+  const cssVarName = `--${token.path.join('-')}`;
+  const value = token.value;
+  return `  ${cssVarName}: ${value};`;
+}).join('\n')}
+}
+`;
+  }
+});
+
 module.exports = {
-  source: ['tokens/**/*.json'],
+  source: [
+    'tokens/primitives/**/*.json',
+    'tokens/semantic/**/*.json'
+  ],
   platforms: {
     css: {
       transformGroup: 'css',

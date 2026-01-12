@@ -255,8 +255,10 @@ function flattenObject(obj: any, prefix = ''): Record<string, any> {
     const currentPath = prefix ? `${prefix}.${key}` : key;
     
     if (typeof value === 'object' && value !== null) {
-      if (value.$value !== undefined) {
-        result[currentPath] = value;
+      if ((value as any).$value !== undefined) {
+        result[currentPath] = (value as any).$value;
+      } else if ((value as any).value !== undefined) {
+        result[currentPath] = (value as any).value;
       } else {
         Object.assign(result, flattenObject(value, currentPath));
       }
