@@ -515,35 +515,31 @@ The design system features a comprehensive typography system with three layers: 
 
 **Stability**: These values are **manually defined** and never change, even if you modify the modular scale ratio.
 
-### 2. Modular Scale (`font.size.scale.*`)
+### 2. Dynamic Modular Scale (`font.size.scale.*`)
 
-**Purpose**: Mathematically harmonious sizes for content hierarchy (headings, display text, hero sections)
+**Purpose**: Complete typography hierarchy calculated using a mathematical ratio
 
-**How It Works**:
+**How it works**:
 
-1. **Define the ratio** in `tokens/primitives/scale.json` (e.g., `1.25` for Major Third)
-2. **Run the generator**: `npm run generate:type-scale`
-3. **Font sizes are calculated** automatically using: `base × (ratio ^ step)`
+1. Script reads base size from `font.size.basic.base` (16px)
+2. Reads scale ratio from `semantic/typography.json` (1.25 = Major Third by default)
+3. Generates modular scale: **Steps -2 to 8** (11 harmonious sizes)
 
-**Available Scale Ratios**:
+**Generated Steps**:
 
-- **Major Third** (`1.25`) - Harmonious, moderate contrast
-- **Perfect Fourth** (`1.333`) - Balanced progression
-- **Golden Ratio** (`1.618`) - Natural, dramatic scaling
-- **Major Second** (`1.125`) - Subtle, tight scaling
+- **Step -2**: 10px (base × 1.25⁻²) - Small print, legal text
+- **Step -1**: 13px (base × 1.25⁻¹) - Captions, footnotes
+- **Step 0**: 16px (base × 1.25⁰) - Base/body text reference
+- **Step 1**: 20px (base × 1.25¹) - Small heading/H6
+- **Step 2**: 25px (base × 1.25²) - H5
+- **Step 3**: 31px (base × 1.25³) - H4
+- **Step 4**: 39px (base × 1.25⁴) - H3
+- **Step 5**: 49px (base × 1.25⁵) - H2
+- **Step 6**: 61px (base × 1.25⁶) - H1
+- **Step 7**: 76px (base × 1.25⁷) - Display
+- **Step 8**: 95px (base × 1.25⁸) - Hero
 
-**Generated Sizes** (16px base × 1.25 ratio):
-
-- `scale.1` → 20px (H6 level) - `16 × 1.25¹`
-- `scale.2` → 25px (H5 level) - `16 × 1.25²`
-- `scale.3` → 31px (H4 level) - `16 × 1.25³`
-- `scale.4` → 39px (H3 level) - `16 × 1.25⁴`
-- `scale.5` → 49px (H2 level) - `16 × 1.25⁵`
-- `scale.6` → 61px (H1 level) - `16 × 1.25⁶`
-- `scale.7` → 76px (Display) - `16 × 1.25⁷`
-- `scale.8` → 95px (Hero) - `16 × 1.25⁸`
-
-**CSS Variables**: `--font-size-scale-1` through `--font-size-scale-8`
+**CSS Variables**: `--font-size-scale-2`, `--font-size-scale-1`, `--font-size-scale-0` through `--font-size-scale-8`
 
 **Dynamic**: Change the ratio in `scale.json` and rebuild to update only the modular scale sizes without affecting UI components!
 

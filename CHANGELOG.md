@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Base and Negative Type Scale Steps**: Extended modular scale with smaller font sizes
+  - **Step 0**: Base size (16px) - `ratio^0` equals base size exactly
+  - **Step -1**: Caption text (13px) - `baseSize / ratio` for smaller labels
+  - **Step -2**: Small print (10px) - `baseSize / ratio^2` for fine print and metadata
+  - **Complete Range**: Now spans from -2 to 8, providing 11 harmonious font sizes
+  - **Generated Token**: `tokens/generated/typography-scale.json` includes all steps
+  - **Use Cases**: Enables consistent small text sizing (captions, footnotes, legal text)
 - **Dot-Free Naming Validation**: Enforced hyphenated naming convention for token keys
   - **Validation Rule**: Token keys can no longer contain dots (.) character
   - **Error Detection**: `validate-tokens.js` now throws errors if dots are found in keys

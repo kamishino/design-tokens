@@ -14,19 +14,10 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const TYPOGRAPHY_PATH = path.join(
-  __dirname,
-  "../tokens/primitives/typography.json"
-);
+const TYPOGRAPHY_PATH = path.join(__dirname, "../tokens/primitives/typography.json");
 const SCALE_PATH = path.join(__dirname, "../tokens/primitives/scale.json");
-const SEMANTIC_TYPOGRAPHY_PATH = path.join(
-  __dirname,
-  "../tokens/semantic/typography.json"
-);
-const GENERATED_SCALE_PATH = path.join(
-  __dirname,
-  "../tokens/generated/typography-scale.json"
-);
+const SEMANTIC_TYPOGRAPHY_PATH = path.join(__dirname, "../tokens/semantic/typography.json");
+const GENERATED_SCALE_PATH = path.join(__dirname, "../tokens/generated/typography-scale.json");
 
 /**
  * Resolve a token reference to its actual value
@@ -39,9 +30,7 @@ function resolveRatio(reference, scaleData) {
   const match = reference.match(/\{scale\.([^}]+)\}/);
 
   if (!match) {
-    throw new Error(
-      `Invalid reference format: ${reference}. Expected format: {scale.xxx}`
-    );
+    throw new Error(`Invalid reference format: ${reference}. Expected format: {scale.xxx}`);
   }
 
   const scaleName = match[1];
@@ -60,9 +49,14 @@ function resolveRatio(reference, scaleData) {
  * @returns {Object} - Calculated modular scale sizes
  */
 function calculateModularScale(baseSize, ratio) {
-  // Define modular scale steps (1-8 for content hierarchy)
-  // These are for headings, display text, and content typography
+  // Define modular scale steps (-2 to 8 for complete typography hierarchy)
+  // Negative steps: Small text, captions
+  // Step 0: Base size
+  // Positive steps: Headings, display text, and content typography
   const steps = {
+    "-2": -2, // base * ratio^-2 (Small print)
+    "-1": -1, // base * ratio^-1 (Caption text)
+    0: 0, // base * ratio^0 (Base/body text)
     1: 1, // base * ratio^1 (H6 level)
     2: 2, // base * ratio^2 (H5 level)
     3: 3, // base * ratio^3 (H4 level)
@@ -115,24 +109,15 @@ async function generateTypeScale() {
       const semanticTypography = await fs.readJSON(SEMANTIC_TYPOGRAPHY_PATH);
 
       if (semanticTypography.typography?.config?.["scale-ratio"]?.value) {
-        ratioReference =
-          semanticTypography.typography.config["scale-ratio"].value;
+        ratioReference = semanticTypography.typography.config["scale-ratio"].value;
         ratio = resolveRatio(ratioReference, scaleData);
       }
     } else {
-      console.log(
-        chalk.yellow(
-          "⚠ Semantic typography config not found, using default ratio"
-        )
-      );
+      console.log(chalk.yellow("⚠ Semantic typography config not found, using default ratio"));
     }
 
-    console.log(
-      chalk.gray(`Base size: ${baseSize}px (from font.size.basic.base)`)
-    );
-    console.log(
-      chalk.gray(`Scale ratio: ${ratio} (${getRatioName(ratio, scaleData)})`)
-    );
+    console.log(chalk.gray(`Base size: ${baseSize}px (from font.size.basic.base)`));
+    console.log(chalk.gray(`Scale ratio: ${ratio} (${getRatioName(ratio, scaleData)})`));
     console.log(chalk.gray(`Configured via: ${ratioReference}`));
     console.log("");
 
@@ -141,8 +126,7 @@ async function generateTypeScale() {
 
     // Update only the scale section (preserve root and basic)
     const scaleObject = {
-      $description:
-        "Modular scale sizes for content hierarchy - generated dynamically from scale.json ratio",
+      $description: "Modular scale sizes for content hierarchy - generated dynamically from scale.json ratio",
     };
 
     for (const [step, size] of Object.entries(calculatedSizes)) {
@@ -166,9 +150,7 @@ async function generateTypeScale() {
     let shouldWrite = true;
     if (await fs.pathExists(GENERATED_SCALE_PATH)) {
       const existingContent = await fs.readJSON(GENERATED_SCALE_PATH);
-      if (
-        JSON.stringify(existingContent) === JSON.stringify(generatedContent)
-      ) {
+      if (JSON.stringify(existingContent) === JSON.stringify(generatedContent)) {
         shouldWrite = false;
         console.log(chalk.gray("✓ No changes detected, skipping write\n"));
       }
@@ -186,44 +168,15 @@ async function generateTypeScale() {
     }
 
     console.log(chalk.cyan("  Fixed UI Sizes (font.size.basic.*):"));
-    console.log(
-      chalk.gray(
-        `    xs:   ${typography.font.size.basic.xs.value.padEnd(
-          6
-        )} → UI labels, captions`
-      )
-    );
-    console.log(
-      chalk.gray(
-        `    sm:   ${typography.font.size.basic.sm.value.padEnd(
-          6
-        )} → Buttons, inputs`
-      )
-    );
-    console.log(
-      chalk.gray(
-        `    base: ${typography.font.size.basic.base.value.padEnd(
-          6
-        )} → Body text`
-      )
-    );
-    console.log(
-      chalk.gray(
-        `    lg:   ${typography.font.size.basic.lg.value.padEnd(
-          6
-        )} → Emphasized labels`
-      )
-    );
+    console.log(chalk.gray(`    xs:   ${typography.font.size.basic.xs.value.padEnd(6)} → UI labels, captions`));
+    console.log(chalk.gray(`    sm:   ${typography.font.size.basic.sm.value.padEnd(6)} → Buttons, inputs`));
+    console.log(chalk.gray(`    base: ${typography.font.size.basic.base.value.padEnd(6)} → Body text`));
+    console.log(chalk.gray(`    lg:   ${typography.font.size.basic.lg.value.padEnd(6)} → Emphasized labels`));
     console.log("");
 
     console.log(chalk.cyan("  Modular Scale (font.size.scale.*):"));
     for (const [step, size] of Object.entries(calculatedSizes)) {
-      console.log(
-        chalk.gray(
-          `    ${step}:    ${size}px`.padEnd(20) +
-            ` → ${baseSize} × ${ratio}^${step}`
-        )
-      );
+      console.log(chalk.gray(`    ${step}:    ${size}px`.padEnd(20) + ` → ${baseSize} × ${ratio}^${step}`));
     }
 
     console.log("\n" + chalk.green("✓ Typography separation complete!\n"));
