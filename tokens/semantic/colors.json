@@ -1,0 +1,204 @@
+{
+  "bg": {
+    "canvas": {
+      "value": "{color.neutral.50}",
+      "$type": "color",
+      "$description": "Page background - lightest neutral"
+    },
+    "surface": {
+      "value": "{color.white}",
+      "$type": "color",
+      "$description": "Card/panel background - pure white"
+    },
+    "subtle": {
+      "value": "{color.neutral.100}",
+      "$type": "color",
+      "$description": "Sidebar/header background - subtle gray"
+    },
+    "brand-section": {
+      "value": "{color.blue.100}",
+      "$type": "color",
+      "$description": "Brand-colored section background"
+    }
+  },
+  "text": {
+    "primary": {
+      "value": "{color.neutral.900}",
+      "$type": "color",
+      "$description": "Main body text - highest contrast"
+    },
+    "secondary": {
+      "value": "{color.neutral.600}",
+      "$type": "color",
+      "$description": "Metadata/secondary text"
+    },
+    "tertiary": {
+      "value": "{color.neutral.400}",
+      "$type": "color",
+      "$description": "Disabled/placeholder text"
+    },
+    "inverse": {
+      "value": "{color.white}",
+      "$type": "color",
+      "$description": "Text on dark backgrounds"
+    },
+    "on-brand": {
+      "value": "{color.white}",
+      "$type": "color",
+      "$description": "Text on brand-colored backgrounds"
+    }
+  },
+  "border": {
+    "subtle": {
+      "value": "{color.neutral.200}",
+      "$type": "color",
+      "$description": "Subtle borders - minimal contrast"
+    },
+    "default": {
+      "value": "{color.neutral.300}",
+      "$type": "color",
+      "$description": "Default border color"
+    },
+    "strong": {
+      "value": "{color.neutral.500}",
+      "$type": "color",
+      "$description": "Strong borders - higher contrast"
+    },
+    "focus": {
+      "value": "{color.blue.600}",
+      "$type": "color",
+      "$description": "Focus ring/outline color"
+    }
+  },
+  "action": {
+    "primary-bg": {
+      "value": "{color.blue.600}",
+      "$type": "color",
+      "$description": "Primary action button background"
+    },
+    "primary-text": {
+      "value": "{color.white}",
+      "$type": "color",
+      "$description": "Text on primary action button"
+    },
+    "primary-hover": {
+      "value": "{color.blue.700}",
+      "$type": "color",
+      "$description": "Primary action button hover state"
+    },
+    "secondary-bg": {
+      "value": "{color.neutral.100}",
+      "$type": "color",
+      "$description": "Secondary action button background"
+    },
+    "secondary-text": {
+      "value": "{color.neutral.900}",
+      "$type": "color",
+      "$description": "Text on secondary action button"
+    },
+    "secondary-hover": {
+      "value": "{color.neutral.200}",
+      "$type": "color",
+      "$description": "Secondary action button hover state"
+    }
+  },
+  "status": {
+    "success-bg": {
+      "value": "{color.emerald.100}",
+      "$type": "color",
+      "$description": "Success message/banner background"
+    },
+    "success-text": {
+      "value": "{color.emerald.800}",
+      "$type": "color",
+      "$description": "Success message text"
+    },
+    "success-border": {
+      "value": "{color.emerald.300}",
+      "$type": "color",
+      "$description": "Success message border"
+    },
+    "success-icon": {
+      "value": "{color.emerald.600}",
+      "$type": "color",
+      "$description": "Success icon color"
+    },
+    "warning-bg": {
+      "value": "{color.amber.100}",
+      "$type": "color",
+      "$description": "Warning message/banner background"
+    },
+    "warning-text": {
+      "value": "{color.amber.900}",
+      "$type": "color",
+      "$description": "Warning message text"
+    },
+    "warning-border": {
+      "value": "{color.amber.300}",
+      "$type": "color",
+      "$description": "Warning message border"
+    },
+    "warning-icon": {
+      "value": "{color.amber.600}",
+      "$type": "color",
+      "$description": "Warning icon color"
+    },
+    "error-bg": {
+      "value": "{color.red.100}",
+      "$type": "color",
+      "$description": "Error message/banner background"
+    },
+    "error-text": {
+      "value": "{color.red.800}",
+      "$type": "color",
+      "$description": "Error message text"
+    },
+    "error-border": {
+      "value": "{color.red.300}",
+      "$type": "color",
+      "$description": "Error message border"
+    },
+    "error-icon": {
+      "value": "{color.red.600}",
+      "$type": "color",
+      "$description": "Error icon color"
+    },
+    "info-bg": {
+      "value": "{color.blue.100}",
+      "$type": "color",
+      "$description": "Info message/banner background"
+    },
+    "info-text": {
+      "value": "{color.blue.800}",
+      "$type": "color",
+      "$description": "Info message text"
+    },
+    "info-border": {
+      "value": "{color.blue.300}",
+      "$type": "color",
+      "$description": "Info message border"
+    },
+    "info-icon": {
+      "value": "{color.blue.600}",
+      "$type": "color",
+      "$description": "Info icon color"
+    }
+  },
+  "brand": {
+    "primary": {
+      "value": "{color.blue.600}",
+      "$type": "color",
+      "$description": "Primary brand color"
+    },
+    "secondary": {
+      "value": "{color.blue.500}",
+      "$type": "color",
+      "$description": "Secondary brand color"
+    },
+    "accent": {
+      "value": "{color.emerald.500}",
+      "$type": "color",
+      "$description": "Brand accent color"
+    }
+  }
+}

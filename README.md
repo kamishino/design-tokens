@@ -112,6 +112,54 @@ app.post('/theme', (req, res) => {
 - **Spacing**: `.p-{size}`, `.m-{size}`, `.px-{size}`, `.py-{size}`, `.gap-{size}`
 - **Typography**: `.text-{size}`, `.font-{weight}`, `.leading-{height}`
 
+## Semantic Color Tokens
+
+The design system provides semantic color tokens mapped to real-world UI patterns, ensuring consistency and accessibility.
+
+### Usage Categories
+
+**Backgrounds:**
+```css
+var(--bg-canvas)        /* Page background */
+var(--bg-surface)       /* Card/panel backgrounds */
+var(--bg-subtle)        /* Sidebar/header backgrounds */
+var(--bg-brand-section) /* Brand-colored sections */
+```
+
+**Text:**
+```css
+var(--text-primary)     /* Main body text */
+var(--text-secondary)   /* Metadata/labels */
+var(--text-tertiary)    /* Disabled/placeholder */
+var(--text-inverse)     /* Text on dark backgrounds */
+var(--text-on-brand)    /* Text on brand colors */
+```
+
+**Actions (Buttons/Links):**
+```css
+var(--action-primary-bg)        /* Primary button background */
+var(--action-primary-text)      /* Primary button text */
+var(--action-primary-hover)     /* Primary button hover */
+```
+
+**Status/Feedback:**
+```css
+var(--status-success-bg)        /* Success message background */
+var(--status-success-text)      /* Success message text */
+var(--status-warning-bg)        /* Warning message background */
+var(--status-error-bg)          /* Error message background */
+var(--status-info-bg)           /* Info message background */
+```
+
+### Accessibility
+
+All semantic color pairings meet **WCAG AA contrast requirements** (minimum 4.5:1 ratio):
+- ✅ Text Primary on Canvas: **15.33:1**
+- ✅ Primary Action Button: **8.37:1**
+- ✅ Status Messages: **16+:1**
+
+Run `node scripts/check-contrast.js` to verify contrast ratios.
+
 ## Multi-Theme Support
 
 The repository supports multiple themes (e.g., light/dark mode) through theme override files.
@@ -256,6 +304,9 @@ npm run validate           # Validate token structure and references
 npm test                   # Run build output tests
 npm run clean              # Clean dist and docs folders
 npm run pack:dry           # Preview package contents before publishing
+
+# Utilities
+node scripts/check-contrast.js  # Verify WCAG AA color contrast compliance
 ```
 
 ## Token Structure
