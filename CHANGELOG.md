@@ -72,8 +72,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Backend consumption examples (validation, email templates, PDF generation)
   - Manual export process from Figma to Git repository
   - Clear instructions for designers, maintainers, and developers
+- **Comprehensive Typography System**: Three-layer architecture with full range and semantic configuration
+  - **Expanded Basic Sizes** (`font.size.basic.*`): Complete utility range from 12px to 72px (11 sizes: xs-7xl)
+  - **Modular Scale** (`font.size.scale.*`): Dynamic content hierarchy (20px-95px) calculated from configurable ratio
+  - **Semantic Layer** (`tokens/semantic/typography.json`): Developer-friendly names and configuration
+    - `typography.config.scale-ratio`: Single token to configure modular scale ratio
+    - `typography.ui.text.*`: Semantic UI text mappings (xs, sm, body, lg)
+    - `typography.heading.*`: Semantic heading mappings (h1-h6, display, hero)
+  - **Dynamic Ratio Resolution**: Generator reads `{scale.major-third}` reference and resolves actual value
+  - **Configurability**: Change `scale-ratio` token, rebuild, all headings update automatically
+  - CSS variables: `--font-size-basic-*`, `--font-size-scale-*`, `--typography-heading-*`, `--typography-ui-text-*`
+  - Integrated into build pipeline, runs before Style Dictionary
+- **Primitive Token Standardization**: Consistent, best-practice token structure
+  - Breakpoints updated to mobile-first standards (640px, 768px, 1024px, 1280px, 1536px)
+  - Grid tokens now reference spacing scale for gutter and margin
+  - Animation tokens already follow industry standards (durations, easing curves)
+  - Scale tokens provide musical/mathematical ratios for modular scaling
 
 ### Changed
+- **Breakpoints**: Updated from Bootstrap-style to Tailwind-style mobile-first breakpoints
+- **Grid System**: Gutter now references `spacing.6` (24px), added margin token referencing `spacing.8`
+- **Typography Structure**: Separated `font.size` into `basic` (fixed UI) and `scale` (dynamic content) namespaces
+- **Type Scale Generation**: Now targets only `font.size.scale.*`, preserving `font.size.basic.*` stability
 - **Build System**: Replaced individual build scripts with unified Style Dictionary configuration
 - **Package Scripts**: Simplified to `build`, `validate`, `test`, `clean`, `pack:dry`
 - **JSON Output**: Changed from `dist/json/theme.json` to `dist/json/tokens.json` for consistency

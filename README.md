@@ -328,21 +328,129 @@ npm run dev
 
 ### Scripts
 ```bash
-npm run dev                # Start Vite dev server with HMR for preview site
-npm run build              # Build all artifacts (tokens, backend, utilities, preview site)
-npm run build:tokens       # Build tokens only (CSS, SCSS, JS, JSON)
-npm run build:backend      # Build backend artifacts (token-names.json, token-values.json)
-npm run build:utilities    # Generate utility classes
-npm run build:preview      # Build documentation site (Vite production build)
-npm run preview            # Preview production build locally
-npm run validate           # Validate token structure and references
-npm test                   # Run build output tests
-npm run clean              # Clean dist and docs folders
-npm run pack:dry           # Preview package contents before publishing
+npm run dev                     # Start Vite dev server with HMR for preview site
+npm run build                   # Build all artifacts (type scale, tokens, backend, utilities, preview)
+npm run generate:type-scale     # Generate font sizes from modular scale ratio
+npm run build:tokens            # Build tokens only (CSS, SCSS, JS, JSON)
+npm run build:backend           # Build backend artifacts (token-names.json, token-values.json)
+npm run build:utilities         # Generate utility classes
+npm run build:preview           # Build documentation site (Vite production build)
+npm run preview                 # Preview production build locally
+npm run validate                # Validate token structure and references
+npm test                        # Run build output tests
+npm run clean                   # Clean dist and docs folders
+npm run pack:dry                # Preview package contents before publishing
 
 # Utilities
 node scripts/check-contrast.js  # Verify WCAG AA color contrast compliance
 ```
+
+## Typography System
+
+The design system features a comprehensive typography system with three layers: **Primitives**, **Semantic Configuration**, and **Dynamic Generation**.
+
+### 1. Fixed UI Sizes (`font.size.basic.*`)
+
+**Purpose**: Predictable, stable sizes for UI components and static content
+
+**Complete Range** (12px-72px):
+- `basic.xs` → 12px - Captions, labels, helper text
+- `basic.sm` → 14px - Button labels, form inputs
+- `basic.base` → 16px - Body text, standard components
+- `basic.lg` → 18px - Emphasized text, section labels
+- `basic.xl` → 20px - Subheadings, callouts
+- `basic.2xl` → 24px - Section headers, card titles
+- `basic.3xl` → 30px - Page titles, feature headlines
+- `basic.4xl` → 36px - Major section headers
+- `basic.5xl` → 48px - Hero elements, large displays
+- `basic.6xl` → 60px - Major hero text
+- `basic.7xl` → 72px - Giant displays, hero numbers
+
+**CSS Variables**: `--font-size-basic-xs` through `--font-size-basic-7xl`
+
+**Stability**: These values are **manually defined** and never change, even if you modify the modular scale ratio.
+
+### 2. Modular Scale (`font.size.scale.*`)
+
+**Purpose**: Mathematically harmonious sizes for content hierarchy (headings, display text, hero sections)
+
+**How It Works**:
+1. **Define the ratio** in `tokens/primitives/scale.json` (e.g., `1.25` for Major Third)
+2. **Run the generator**: `npm run generate:type-scale`
+3. **Font sizes are calculated** automatically using: `base × (ratio ^ step)`
+
+**Available Scale Ratios**:
+- **Major Third** (`1.25`) - Harmonious, moderate contrast
+- **Perfect Fourth** (`1.333`) - Balanced progression
+- **Golden Ratio** (`1.618`) - Natural, dramatic scaling
+- **Major Second** (`1.125`) - Subtle, tight scaling
+
+**Generated Sizes** (16px base × 1.25 ratio):
+- `scale.1` → 20px (H6 level) - `16 × 1.25¹`
+- `scale.2` → 25px (H5 level) - `16 × 1.25²`
+- `scale.3` → 31px (H4 level) - `16 × 1.25³`
+- `scale.4` → 39px (H3 level) - `16 × 1.25⁴`
+- `scale.5` → 49px (H2 level) - `16 × 1.25⁵`
+- `scale.6` → 61px (H1 level) - `16 × 1.25⁶`
+- `scale.7` → 76px (Display) - `16 × 1.25⁷`
+- `scale.8` → 95px (Hero) - `16 × 1.25⁸`
+
+**CSS Variables**: `--font-size-scale-1` through `--font-size-scale-8`
+
+**Dynamic**: Change the ratio in `scale.json` and rebuild to update only the modular scale sizes without affecting UI components!
+
+### 3. Semantic Typography (`typography.*`)
+
+**Purpose**: Developer-friendly names that map to appropriate primitive sizes
+
+**Configuration**:
+```json
+{
+  "typography.config.scale-ratio": "{scale.major-third}"
+}
+```
+Change this single token to switch the entire modular scale ratio!
+
+**UI Text Mappings**:
+- `typography.ui.text.xs` → `font.size.basic.xs`
+- `typography.ui.text.sm` → `font.size.basic.sm`
+- `typography.ui.text.body` → `font.size.basic.base`
+- `typography.ui.text.lg` → `font.size.basic.lg`
+
+**Heading Mappings**:
+- `typography.heading.h1` → `font.size.scale.6` (61px with Major Third)
+- `typography.heading.h2` → `font.size.scale.5` (49px)
+- `typography.heading.h3` → `font.size.scale.4` (39px)
+- `typography.heading.h4` → `font.size.scale.3` (31px)
+- `typography.heading.h5` → `font.size.scale.2` (25px)
+- `typography.heading.h6` → `font.size.scale.1` (20px)
+- `typography.heading.display` → `font.size.scale.7` (76px)
+- `typography.heading.hero` → `font.size.scale.8` (95px)
+
+**CSS Variables**: `--typography-heading-h1`, `--typography-ui-text-body`, etc.
+
+**Usage**:
+```css
+h1 { font-size: var(--typography-heading-h1); }
+button { font-size: var(--typography-ui-text-sm); }
+```
+
+### Configuring the Scale Ratio
+
+Edit `tokens/semantic/typography.json`:
+```json
+{
+  "typography": {
+    "config": {
+      "scale-ratio": {
+        "value": "{scale.golden}"  // Change to any ratio from scale.json
+      }
+    }
+  }
+}
+```
+
+Run `npm run generate:type-scale` to regenerate modular scale sizes with the new ratio!
 
 ## Token Structure
 

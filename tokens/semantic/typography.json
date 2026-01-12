@@ -1,0 +1,77 @@
+{
+  "typography": {
+    "config": {
+      "scale-ratio": {
+        "value": "{scale.major-third}",
+        "$type": "other",
+        "$description": "Modular scale ratio for content typography - change this to adjust heading sizes"
+      }
+    },
+    "ui": {
+      "text": {
+        "xs": {
+          "value": "{font.size.basic.xs}",
+          "$type": "fontSizes",
+          "$description": "Extra small UI text"
+        },
+        "sm": {
+          "value": "{font.size.basic.sm}",
+          "$type": "fontSizes",
+          "$description": "Small UI text"
+        },
+        "body": {
+          "value": "{font.size.basic.base}",
+          "$type": "fontSizes",
+          "$description": "Standard body text"
+        },
+        "lg": {
+          "value": "{font.size.basic.lg}",
+          "$type": "fontSizes",
+          "$description": "Large UI text"
+        }
+      }
+    },
+    "heading": {
+      "h1": {
+        "value": "{font.size.scale.6}",
+        "$type": "fontSizes",
+        "$description": "H1 heading - largest heading level"
+      },
+      "h2": {
+        "value": "{font.size.scale.5}",
+        "$type": "fontSizes",
+        "$description": "H2 heading"
+      },
+      "h3": {
+        "value": "{font.size.scale.4}",
+        "$type": "fontSizes",
+        "$description": "H3 heading"
+      },
+      "h4": {
+        "value": "{font.size.scale.3}",
+        "$type": "fontSizes",
+        "$description": "H4 heading"
+      },
+      "h5": {
+        "value": "{font.size.scale.2}",
+        "$type": "fontSizes",
+        "$description": "H5 heading"
+      },
+      "h6": {
+        "value": "{font.size.scale.1}",
+        "$type": "fontSizes",
+        "$description": "H6 heading - smallest heading level"
+      },
+      "display": {
+        "value": "{font.size.scale.7}",
+        "$type": "fontSizes",
+        "$description": "Display text - larger than H1"
+      },
+      "hero": {
+        "value": "{font.size.scale.8}",
+        "$type": "fontSizes",
+        "$description": "Hero text - largest content text"
+      }
+    }
+  }
+}

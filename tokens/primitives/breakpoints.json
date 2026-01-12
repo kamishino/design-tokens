@@ -20,7 +20,7 @@
       "value": "1400px",
       "$type": "dimension"
     },
-    "xxl": {
+    "2xl": {
       "value": "1640px",
       "$type": "dimension"
     }

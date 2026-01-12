@@ -20,43 +20,171 @@
         "$type": "fontSizes",
         "$description": "Browser default font size for rem calculations"
       },
-      "xs": { "value": "12px", "$type": "fontSizes" },
-      "sm": { "value": "14px", "$type": "fontSizes" },
-      "base": { "value": "16px", "$type": "fontSizes" },
-      "md": { "value": "18px", "$type": "fontSizes" },
-      "lg": { "value": "20px", "$type": "fontSizes" },
-      "xl": { "value": "24px", "$type": "fontSizes" },
-      "2xl": { "value": "28px", "$type": "fontSizes" },
-      "3xl": { "value": "32px", "$type": "fontSizes" },
-      "4xl": { "value": "36px", "$type": "fontSizes" },
-      "5xl": { "value": "40px", "$type": "fontSizes" },
-      "6xl": { "value": "48px", "$type": "fontSizes" },
-      "7xl": { "value": "56px", "$type": "fontSizes" },
-      "8xl": { "value": "64px", "$type": "fontSizes" },
-      "9xl": { "value": "72px", "$type": "fontSizes" }
+      "basic": {
+        "xs": {
+          "value": "12px",
+          "$type": "fontSizes",
+          "$description": "Extra small - captions, labels, helper text"
+        },
+        "sm": {
+          "value": "14px",
+          "$type": "fontSizes",
+          "$description": "Small - button labels, form inputs, secondary text"
+        },
+        "base": {
+          "value": "16px",
+          "$type": "fontSizes",
+          "$description": "Base - body text, standard UI components"
+        },
+        "lg": {
+          "value": "18px",
+          "$type": "fontSizes",
+          "$description": "Large - emphasized text, section labels"
+        },
+        "xl": {
+          "value": "20px",
+          "$type": "fontSizes",
+          "$description": "Extra large - subheadings, callouts"
+        },
+        "2xl": {
+          "value": "24px",
+          "$type": "fontSizes",
+          "$description": "2X large - section headers, card titles"
+        },
+        "3xl": {
+          "value": "30px",
+          "$type": "fontSizes",
+          "$description": "3X large - page titles, feature headlines"
+        },
+        "4xl": {
+          "value": "36px",
+          "$type": "fontSizes",
+          "$description": "4X large - major section headers"
+        },
+        "5xl": {
+          "value": "48px",
+          "$type": "fontSizes",
+          "$description": "5X large - hero elements, large displays"
+        },
+        "6xl": {
+          "value": "60px",
+          "$type": "fontSizes",
+          "$description": "6X large - major hero text"
+        },
+        "7xl": {
+          "value": "72px",
+          "$type": "fontSizes",
+          "$description": "7X large - giant displays, hero numbers"
+        }
+      },
+      "scale": {
+        "1": {
+          "value": "20px",
+          "$type": "fontSizes",
+          "$description": "Step 1: 16px × 1.25^1 = 20px"
+        },
+        "2": {
+          "value": "25px",
+          "$type": "fontSizes",
+          "$description": "Step 2: 16px × 1.25^2 = 25px"
+        },
+        "3": {
+          "value": "31px",
+          "$type": "fontSizes",
+          "$description": "Step 3: 16px × 1.25^3 = 31px"
+        },
+        "4": {
+          "value": "39px",
+          "$type": "fontSizes",
+          "$description": "Step 4: 16px × 1.25^4 = 39px"
+        },
+        "5": {
+          "value": "49px",
+          "$type": "fontSizes",
+          "$description": "Step 5: 16px × 1.25^5 = 49px"
+        },
+        "6": {
+          "value": "61px",
+          "$type": "fontSizes",
+          "$description": "Step 6: 16px × 1.25^6 = 61px"
+        },
+        "7": {
+          "value": "76px",
+          "$type": "fontSizes",
+          "$description": "Step 7: 16px × 1.25^7 = 76px"
+        },
+        "8": {
+          "value": "95px",
+          "$type": "fontSizes",
+          "$description": "Step 8: 16px × 1.25^8 = 95px"
+        },
+        "$description": "Modular scale sizes for content hierarchy - generated dynamically from scale.json ratio"
+      }
     },
     "weight": {
-      "thin": { "value": "100", "$type": "fontWeights" },
-      "extralight": { "value": "200", "$type": "fontWeights" },
-      "light": { "value": "300", "$type": "fontWeights" },
-      "normal": { "value": "400", "$type": "fontWeights" },
-      "medium": { "value": "500", "$type": "fontWeights" },
-      "semibold": { "value": "600", "$type": "fontWeights" },
-      "bold": { "value": "700", "$type": "fontWeights" },
-      "extrabold": { "value": "800", "$type": "fontWeights" },
-      "black": { "value": "900", "$type": "fontWeights" }
+      "thin": {
+        "value": "100",
+        "$type": "fontWeights"
+      },
+      "extralight": {
+        "value": "200",
+        "$type": "fontWeights"
+      },
+      "light": {
+        "value": "300",
+        "$type": "fontWeights"
+      },
+      "normal": {
+        "value": "400",
+        "$type": "fontWeights"
+      },
+      "medium": {
+        "value": "500",
+        "$type": "fontWeights"
+      },
+      "semibold": {
+        "value": "600",
+        "$type": "fontWeights"
+      },
+      "bold": {
+        "value": "700",
+        "$type": "fontWeights"
+      },
+      "extrabold": {
+        "value": "800",
+        "$type": "fontWeights"
+      },
+      "black": {
+        "value": "900",
+        "$type": "fontWeights"
+      }
     },
     "leading": {
-      "none": { "value": "1", "$type": "lineHeights" },
-      "tight": { "value": "1.25", "$type": "lineHeights" },
-      "snug": { "value": "1.375", "$type": "lineHeights" },
+      "none": {
+        "value": "1",
+        "$type": "lineHeights"
+      },
+      "tight": {
+        "value": "1.25",
+        "$type": "lineHeights"
+      },
+      "snug": {
+        "value": "1.375",
+        "$type": "lineHeights"
+      },
       "normal": {
         "value": "1.5",
         "$type": "lineHeights",
         "$description": "Default leading ratio for baseline calculations"
       },
-      "relaxed": { "value": "1.625", "$type": "lineHeights" },
-      "loose": { "value": "2", "$type": "lineHeights" }
+      "relaxed": {
+        "value": "1.625",
+        "$type": "lineHeights"
+      },
+      "loose": {
+        "value": "2",
+        "$type": "lineHeights"
+      }
     },
     "letterSpacing": {
       "tighter": {
@@ -91,7 +219,10 @@
       }
     },
     "spacing": {
-      "paragraph": { "value": "0px", "$type": "dimension" }
+      "paragraph": {
+        "value": "0px",
+        "$type": "dimension"
+      }
     }
   }
 }

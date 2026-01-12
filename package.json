@@ -27,7 +27,8 @@
   ],
   "scripts": {
     "dev": "npm run build:tokens && npm run build:utilities && vite",
-    "build": "npm run clean && npm run validate && npm run build:tokens && npm run build:backend && npm run build:utilities && npm run build:preview",
+    "build": "npm run clean && npm run validate && npm run generate:type-scale && npm run build:tokens && npm run build:backend && npm run build:utilities && npm run build:preview",
+    "generate:type-scale": "node scripts/generate-type-scale.js",
     "build:tokens": "node scripts/build-tokens.js",
     "build:backend": "node scripts/build-backend.js",
     "build:utilities": "node scripts/build-utilities.js",
