@@ -1,0 +1,67 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- **Style Dictionary Integration**: Migrated from custom build scripts to Style Dictionary for better maintainability and standards compliance
+- **Strict TypeScript Definitions**: Auto-generated type definitions that mirror the exact token structure (not `any`)
+- **Enhanced Validation**: Token validation now checks for:
+  - Broken references (semantic tokens pointing to non-existent primitives)
+  - Invalid color formats
+  - Placeholder values (e.g., `{TODO}`)
+  - Empty token values
+- **Reference Checking**: Validates that all `{token.path}` references resolve correctly
+- **Unified Build Command**: Single `npm run build` command that validates and builds all platforms
+
+### Changed
+- **Build System**: Replaced individual build scripts with unified Style Dictionary configuration
+- **Package Scripts**: Simplified to `build`, `validate`, `test`, `clean`, `pack:dry`
+- **JSON Output**: Changed from `dist/json/theme.json` to `dist/json/tokens.json` for consistency
+- **Build Process**: Now runs validation before building to catch errors early
+
+### Removed
+- **Deprecated Scripts**: Removed `scripts/build-css.js`, `scripts/build-scss.js`, `scripts/build-js.js`, `scripts/build-json.js` in favor of Style Dictionary
+- **Sync Script**: Removed from main scripts (to be implemented separately with Figma integration)
+
+### Improved
+- **TypeScript Experience**: Full IDE autocomplete and type safety for all tokens
+- **Error Messages**: More descriptive validation errors with file names and token paths
+- **Documentation**: Added TypeScript usage examples and updated structure documentation
+
+## [1.0.0] - TBD
+
+### Release Notes
+First stable release of the centralized design tokens repository. This version establishes the Single Source of Truth (SSOT) for design values across all Kami platform projects.
+
+**Breaking Changes:** N/A (initial release)
+
+**Migration Required:** Projects using embedded design tokens should follow the MIGRATION_GUIDE.md
+
+---
+
+## Version History Template
+
+### [Version] - YYYY-MM-DD
+
+#### Added
+- New features or tokens
+
+#### Changed
+- Changes to existing tokens (non-breaking)
+
+#### Deprecated
+- Tokens marked for future removal
+
+#### Removed
+- Tokens that have been removed (breaking change)
+
+#### Fixed
+- Bug fixes
+
+#### Security
+- Security improvements

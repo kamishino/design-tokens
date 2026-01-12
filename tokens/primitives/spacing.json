@@ -1,0 +1,12 @@
+{
+  "spacing": {
+    "0": { "$value": "0", "$type": "dimension" },
+    "xs": { "$value": "4px", "$type": "dimension" },
+    "sm": { "$value": "8px", "$type": "dimension" },
+    "md": { "$value": "16px", "$type": "dimension" },
+    "lg": { "$value": "24px", "$type": "dimension" },
+    "xl": { "$value": "32px", "$type": "dimension" },
+    "2xl": { "$value": "48px", "$type": "dimension" },
+    "3xl": { "$value": "64px", "$type": "dimension" }
+  }
+}
