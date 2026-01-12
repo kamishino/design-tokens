@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Component examples
 - **Workflow Documentation**: Comprehensive `WORKFLOW.md` documenting the Figma-to-Code process
 - **GitHub Pages Support**: Documentation site ready for deployment via GitHub Pages
+- **Vite Development Environment**: Modern dev server with Hot Module Replacement (HMR)
+  - Preview site now built with Vite + TypeScript
+  - Instant feedback on token and UI changes
+  - Proper HTML/CSS/TS files instead of string templates
+  - `npm run dev` for development with auto-reload
 
 ### Changed
 - **Build System**: Replaced individual build scripts with unified Style Dictionary configuration
@@ -37,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - **Deprecated Scripts**: Removed `scripts/build-css.js`, `scripts/build-scss.js`, `scripts/build-js.js`, `scripts/build-json.js` in favor of Style Dictionary
+- **Legacy Preview Generator**: Removed `scripts/build-preview.js` in favor of Vite-based build
 - **Sync Script**: Removed from main scripts (to be implemented separately with Figma integration)
 
 ### Improved

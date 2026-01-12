@@ -130,10 +130,13 @@ kami-design-tokens/
 │   └── semantic/             # Intent-based values (usage mapping)
 │       ├── colors.json
 │       └── components.json
+├── site/                      # Preview site source (Vite + TypeScript)
+│   ├── index.html            # Entry point
+│   ├── main.ts               # Client-side rendering logic
+│   └── style.css             # Preview-specific styles
 ├── scripts/                   # Build utilities
 │   ├── build-tokens.js       # Unified Style Dictionary build
 │   ├── build-utilities.js    # Utility classes generator
-│   ├── build-preview.js      # Documentation site generator
 │   ├── validate-tokens.js    # Token validation & reference checking
 │   └── test-tokens.js        # Build output tests
 ├── dist/                      # Generated artifacts (gitignored, included in npm)
@@ -143,7 +146,9 @@ kami-design-tokens/
 │   ├── json/                 # JSON format
 │   └── utilities.css         # Pre-built utility classes
 ├── docs/                      # Visual documentation site (GitHub Pages)
-│   └── index.html            # Token preview and reference
+│   └── index.html            # Built preview site
+├── vite.config.ts            # Vite configuration
+├── tsconfig.json             # TypeScript configuration
 ├── style-dictionary.config.js # Style Dictionary configuration
 ├── WORKFLOW.md               # End-to-end workflow documentation
 ├── package.json
@@ -169,12 +174,23 @@ npm install
 npm run build
 ```
 
+### Development Workflow
+```bash
+# Start dev server with hot reload for preview site
+npm run dev
+
+# The preview site will open at http://localhost:5173
+# Changes to tokens or site code will automatically reload
+```
+
 ### Scripts
 ```bash
+npm run dev                # Start Vite dev server with HMR for preview site
 npm run build              # Build all artifacts (tokens, utilities, preview site)
 npm run build:tokens       # Build tokens only (CSS, SCSS, JS, JSON)
 npm run build:utilities    # Generate utility classes
-npm run build:preview      # Generate documentation site
+npm run build:preview      # Build documentation site (Vite production build)
+npm run preview            # Preview production build locally
 npm run validate           # Validate token structure and references
 npm test                   # Run build output tests
 npm run clean              # Clean dist and docs folders

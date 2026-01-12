@@ -1,0 +1,245 @@
+/* Design Tokens Preview Site Styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  color: var(--color-text, #333);
+  background-color: var(--color-background, #fff);
+  padding: 2rem;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+header {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border, #e0e0e0);
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--color-primary, #2196f3);
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 3rem 0 1.5rem;
+  color: var(--color-text, #333);
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem;
+  color: var(--color-text-secondary, #666);
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary, #666);
+}
+
+.section {
+  margin-bottom: 4rem;
+}
+
+/* Loading State */
+.loading {
+  text-align: center;
+  padding: 4rem;
+  color: var(--color-text-secondary, #666);
+  font-size: 1.125rem;
+}
+
+/* Color Swatches */
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.color-card {
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.color-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.color-swatch {
+  height: 120px;
+  width: 100%;
+}
+
+.color-info {
+  padding: 1rem;
+  background: white;
+}
+
+.color-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  color: #333;
+}
+
+.color-value {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: #666;
+}
+
+/* Typography Specimens */
+.type-specimen {
+  padding: 1.5rem;
+  margin: 1rem 0;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  background: white;
+}
+
+.type-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-tertiary, #999);
+  margin-bottom: 0.5rem;
+}
+
+/* Spacing Visualization */
+.spacing-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.spacing-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spacing-label {
+  min-width: 100px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.spacing-visual {
+  height: 40px;
+  background: linear-gradient(135deg, var(--color-primary, #2196f3), var(--color-primary-hover, #1976d2));
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.spacing-visual:hover {
+  transform: scaleX(1.05);
+}
+
+.spacing-value {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+/* Component Examples */
+.component-grid {
+  display: grid;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.component-demo {
+  padding: 2rem;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  background: var(--color-background-secondary, #fafafa);
+}
+
+.demo-button {
+  display: inline-block;
+  padding: var(--button-padding-y, 0.5rem) var(--button-padding-x, 1rem);
+  background-color: var(--color-primary, #2196f3);
+  color: white;
+  border: none;
+  border-radius: var(--button-border-radius, 4px);
+  font-size: var(--button-font-size, 1rem);
+  font-weight: var(--button-font-weight, 500);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.demo-button:hover {
+  background-color: var(--color-primary-hover, #1976d2);
+}
+
+.demo-input {
+  width: 100%;
+  padding: var(--input-padding-y, 0.5rem) var(--input-padding-x, 1rem);
+  border: var(--input-border-width, 1px) solid var(--color-border, #e0e0e0);
+  border-radius: var(--input-border-radius, 4px);
+  font-size: var(--input-font-size, 1rem);
+}
+
+.demo-card {
+  padding: var(--card-padding, 1.5rem);
+  background: white;
+  border-radius: var(--card-border-radius, 8px);
+  box-shadow: var(--card-shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
+}
+
+/* Footer */
+footer {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border, #e0e0e0);
+  text-align: center;
+  color: var(--color-text-secondary, #666);
+}
+
+footer p {
+  margin-top: 0.5rem;
+}
+
+footer a {
+  color: var(--color-primary, #2196f3);
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .color-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}

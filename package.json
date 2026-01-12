@@ -26,10 +26,12 @@
     "WORKFLOW.md"
   ],
   "scripts": {
+    "dev": "npm run build:tokens && npm run build:utilities && vite",
     "build": "npm run clean && npm run validate && npm run build:tokens && npm run build:utilities && npm run build:preview",
     "build:tokens": "node scripts/build-tokens.js",
     "build:utilities": "node scripts/build-utilities.js",
-    "build:preview": "node scripts/build-preview.js",
+    "build:preview": "vite build",
+    "preview": "vite preview",
     "clean": "rimraf dist docs",
     "validate": "node scripts/validate-tokens.js",
     "test": "node scripts/test-tokens.js",
@@ -56,11 +58,14 @@
   },
   "homepage": "https://github.com/your-org/kami-design-tokens#readme",
   "devDependencies": {
+    "@types/node": "^20.10.0",
     "chalk": "^4.1.2",
     "fs-extra": "^11.1.0",
     "glob": "^8.1.0",
     "rimraf": "^3.0.2",
-    "style-dictionary": "^3.8.0"
+    "style-dictionary": "^3.8.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8"
   },
   "engines": {
     "node": ">=16.0.0",
