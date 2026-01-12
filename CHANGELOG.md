@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Figma Token Studio Optimization**: Automated token enrichment for seamless Figma integration
+  - **Scoping Metadata**: Auto-inject `$extensions.studio.scope` for proper variable categorization
+  - **$themes.json Generation**: Automatically generate Token Studio configuration from directory structure
+  - **Token Enrichment**: Radius scoped to `borderRadius`, spacing to `spacing`, colors to `color`
+  - **Multi-Theme Support**: Generates configurations for all theme files with proper enable/disable states
+  - **Code → Figma Sync**: Optimized tokens in `dist/figma/` ready for direct Token Studio import
+  - **Native Variables Ready**: Compatible with Figma Native Variables via Token Studio
 - **CI/CD Pipeline Enhancement**: Production-ready automated build and deployment
   - **Strict Schema Validation**: Enabled validation in CI pipeline to catch invalid tokens before merge
   - **GitHub Pages Deployment**: Automatic documentation site deployment on push to main or release tags

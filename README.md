@@ -18,6 +18,48 @@ This repository serves as the Single Source of Truth (SSOT) for all design token
 - 🔧 **Type-Safe**: TypeScript definitions included
 - **Organized Output**: CSS grouped by category with headers, JSON alphabetically sorted
 
+## Figma Integration (Token Studio)
+
+This repository is optimized for **Figma Token Studio** with automated token enrichment and configuration generation.
+
+### Quick Start for Designers
+
+1. **Clone or download** the repository
+2. In Figma, open **Token Studio** plugin
+3. **Settings** → **Add new** → **Local folder**
+4. Point to `dist/figma/` directory
+5. **Import** - all token sets will be automatically configured!
+
+### What's Included
+
+**Token Sets** (auto-configured in `$themes.json`):
+- ✅ `primitives/colors` - Base color palette with `color` scope
+- ✅ `primitives/radius` - Border radius values with `borderRadius` scope
+- ✅ `primitives/spacing` - Spacing scale with `spacing` scope
+- ✅ `primitives/typography` - Font sizes with `fontSizes` scope
+- ✅ `semantic/*` - Semantic tokens mapped to UI roles
+- ✅ `themes/*` - Theme overrides (dark mode, etc.)
+
+**Scoping** (automatic):
+- **Radius variables** only appear when editing border radius properties
+- **Spacing variables** only appear when editing gaps, padding, margins
+- **Color variables** only appear when editing color properties
+
+### Building for Figma
+
+```bash
+# Generate optimized tokens
+npm run build:figma
+
+# Output: dist/figma/ with enriched tokens and $themes.json
+```
+
+**Code → Figma Workflow**:
+1. Update tokens in `tokens/` directory
+2. Run `npm run build:figma`
+3. Designers sync in Token Studio
+4. Tokens automatically scoped and configured
+
 ## CI/CD Pipeline
 
 The repository includes a GitHub Actions workflow that automatically:
@@ -354,6 +396,7 @@ npm run build:tokens            # Build tokens only (CSS, SCSS, JS, JSON)
 npm run build:backend           # Build backend artifacts (token-names.json, token-values.json)
 npm run build:utilities         # Generate utility classes
 npm run build:preview           # Build documentation site (Vite production build)
+npm run build:figma             # Generate Figma-optimized tokens with scoping
 npm run preview                 # Preview production build locally
 npm run validate                # Validate token structure and references
 npm test                        # Run build output tests
