@@ -25,9 +25,6 @@ async function validate() {
       errors.push("Tokens directory does not exist");
       hasErrors = true;
     } else {
-      // Schema validation temporarily disabled - primitives need format updates
-      warnings.push("Schema validation temporarily disabled");
-
       // Load all tokens
       console.log(chalk.gray("Loading tokens..."));
       await loadAllTokens(TOKENS_DIR, allTokens);
@@ -35,6 +32,20 @@ async function validate() {
       console.log(
         chalk.gray(`Loaded ${Object.keys(allTokens).length} token files\n`)
       );
+
+      // Schema validation
+      if (await fs.pathExists(SCHEMA_PATH)) {
+        console.log(chalk.gray("Validating against schema..."));
+        const schema = await fs.readJSON(SCHEMA_PATH);
+        const ajv = new Ajv({ allErrors: true, verbose: true });
+        await validateAgainstSchema(allTokens, schema, ajv, errors);
+        
+        if (errors.length > 0) {
+          hasErrors = true;
+        }
+      } else {
+        warnings.push("schema.json not found - skipping schema validation");
+      }
 
       // Third pass: Validate structure and references
       const primitivesDir = path.join(TOKENS_DIR, "primitives");

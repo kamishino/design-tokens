@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- **CI/CD Pipeline Enhancement**: Production-ready automated build and deployment
+  - **Strict Schema Validation**: Enabled validation in CI pipeline to catch invalid tokens before merge
+  - **GitHub Pages Deployment**: Automatic documentation site deployment on push to main or release tags
+  - **Artifact Verification**: Added logging to verify dist/ contents before upload
+  - **Quality Gates**: Build fails immediately if tokens don't meet schema requirements
+  - **Automated Docs**: Preview site automatically updated on every merge to main
 - **Style Dictionary Integration**: Migrated from custom build scripts to Style Dictionary for better maintainability and standards compliance
 - **Strict TypeScript Definitions**: Auto-generated type definitions that mirror the exact token structure (not `any`)
 - **Enhanced Validation**: Token validation now checks for:

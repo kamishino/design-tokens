@@ -18,6 +18,24 @@ This repository serves as the Single Source of Truth (SSOT) for all design token
 - 🔧 **Type-Safe**: TypeScript definitions included
 - **Organized Output**: CSS grouped by category with headers, JSON alphabetically sorted
 
+## CI/CD Pipeline
+
+The repository includes a GitHub Actions workflow that automatically:
+
+- ✅ **Validates tokens** against schema on every push and PR
+- ✅ **Builds all artifacts** (CSS, SCSS, JS, JSON, utilities, preview site)
+- ✅ **Runs tests** to verify output integrity
+- ✅ **Deploys documentation** to GitHub Pages on push to `main` or release tags
+- ✅ **Uploads dist artifacts** for download and verification
+- 🚧 **NPM publishing** (commented out, ready to enable)
+
+**Quality Gates**: The build will fail if:
+- Token files don't pass schema validation
+- References point to non-existent tokens
+- Test suite fails
+
+**Live Documentation**: Preview site is automatically deployed to GitHub Pages at `https://[your-org].github.io/design-tokens/`
+
 ## Installation
 
 ### Via Git URL (Recommended for private repos)
