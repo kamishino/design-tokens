@@ -35,6 +35,19 @@ This repository is optimized for **Figma Token Studio** with automated token enr
 
 **Token Sets** (auto-configured in `$themes.json`):
 
+**Enhanced Scoping for Figma Token Studio**:
+
+- **Grid Tokens** (`primitives/grid`):
+  - `gutter.*` → `spacing` scope - Apply to spacing/padding properties
+  - `container.*` → `sizing` scope - Apply to width/max-width properties
+  - `container-fluid.padding.*` → `sizing` scope - Apply to padding properties
+  - `columns` → `other` scope - Numerical reference value
+- **Breakpoint Tokens** (`primitives/breakpoints`):
+  - All breakpoints → `sizing` scope - Use for frame width/viewport sizing
+  - Quick resize frames to standard device widths (xs: 576px, sm: 768px, etc.)
+
+**Token Sets** (auto-configured in `$themes.json`):
+
 - ✅ `primitives/colors` - Base color palette with `color` scope
 - ✅ `primitives/radius` - Border radius values with `borderRadius` scope
 - ✅ `primitives/spacing` - Spacing scale with `spacing` scope

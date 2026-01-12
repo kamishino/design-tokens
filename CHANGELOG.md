@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Figma Token Studio Grid & Breakpoint Optimization**: Enhanced Figma export with proper scoping
+  - **Grid Tokens**: Intelligent scope detection for grid primitives
+    - `gutter` tokens → `spacing` scope (mobile: 16px, tablet: 24px, desktop: 32px)
+    - `container` tokens → `sizing` scope (sm through 2xl)
+    - `container-fluid.padding` → `sizing` scope
+    - `columns` → `other` scope (numerical value)
+  - **Breakpoint Tokens**: All breakpoints properly scoped as `sizing`
+    - Enables easy frame resizing to standard device widths in Figma
+    - xs: 576px, sm: 768px, md: 992px, lg: 1200px, xl: 1400px, 2xl: 1640px
+  - **Script Enhancement**: `optimize-for-figma.js` now handles mixed scope files
+    - Added `injectGridScopes()` function for deep scoping logic
+    - Path-based scope detection for nested token structures
+  - **Output**: `dist/figma/primitives/grid.json` and `dist/figma/primitives/breakpoints.json`
+  - **Use Case**: Designers can import and apply grid/breakpoint tokens in Figma Token Studio
 - **Responsive Grid Gutters**: Breakpoint-specific gutter widths for improved mobile-to-desktop scaling
   - **Mobile**: 16px gutter for xs/sm breakpoints (compact spacing)
   - **Tablet**: 24px gutter for md breakpoint (balanced spacing)
