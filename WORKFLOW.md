@@ -66,6 +66,21 @@ Figma Design → Token Export → Git Sync → Build Process → NPM Package →
 
 **Output:** Updated token JSON files in appropriate directories
 
+**Code → Figma Flow (Recommended):**
+
+For the best designer experience, use the optimized tokens:
+
+1. Developer runs `npm run tokens:export-figma` after updating tokens
+2. Share `dist/figma/` folder with designers (or commit to repository)
+3. Designer points Token Studio to `dist/figma/` folder
+4. Import - token sets automatically configured via `$themes.json`!
+
+**Benefits:**
+- ✅ Automatic scoping (radius only shows for border radius properties)
+- ✅ Pre-configured theme sets
+- ✅ All metadata included
+- ✅ No manual Token Studio configuration needed
+
 ---
 
 ### Step 2: Sync Tokens to Repository 🔄
@@ -97,26 +112,48 @@ git commit -m "feat: update primary color palette"
 
 ```bash
 # Validate token structure and references
-npm run validate
+npm run tokens:validate
 
-# Build all artifacts (CSS, SCSS, JS, JSON, utilities, preview)
+# Build all artifacts (grouped workflow)
 npm run build
+# Internally runs:
+#   1. npm run build:core (validate → scale → compile)
+#   2. npm run build:exports (backend → utils → figma)
+#   3. npm run build:site
 
 # Run tests to verify outputs
 npm test
 ```
 
 **What Gets Generated:**
-- `dist/css/variables.css` - CSS custom properties
-- `dist/scss/_variables.scss` - SCSS variables
+- `dist/css/variables.css` - CSS custom properties (base tokens)
+- `dist/css/theme-*.css` - CSS theme overrides (e.g., theme-dark.css)
+- `dist/scss/_variables.scss` - SCSS variables (base tokens)
+- `dist/scss/theme-*.scss` - SCSS theme maps (e.g., $theme-dark)
 - `dist/js/tokens.js` - CommonJS module
 - `dist/js/tokens.mjs` - ES Module
 - `dist/js/tokens.d.ts` - TypeScript definitions
 - `dist/json/tokens.json` - Raw JSON (nested structure)
 - `dist/json/token-names.json` - Flat array of valid token keys (for backend validation)
 - `dist/json/token-values.json` - Flat object of token values (for backend rendering)
+- `dist/figma/` - Figma Token Studio optimized tokens with scoping and $themes.json
 - `dist/utilities.css` - Utility classes
 - `docs/index.html` - Visual documentation site
+
+**Build Scripts (Running Automatically):**
+
+*Core Pipeline (`build:core`):*
+- `tokens:validate` - Validates token structure and references
+- `tokens:scale` - Generates modular typography scale from configured ratio
+- `tokens:compile` - Builds CSS, SCSS, JS, JSON from Style Dictionary
+
+*Export Pipeline (`build:exports`):*
+- `tokens:export-backend` - Generates flattened JSON for backend validation/rendering
+- `tokens:export-utils` - Creates utility CSS classes
+- `tokens:export-figma` - Optimizes tokens for Figma Token Studio with scoping metadata
+
+*Site Pipeline (`build:site`):*
+- `site:build` - Builds visual documentation site with Vite
 
 **Validation Checks:**
 - ✅ No broken token references
@@ -353,15 +390,126 @@ git push origin main
 
 ### Release Checklist
 
-- [ ] Run `npm run validate` - No errors
+- [ ] Run `npm run tokens:validate` - No errors
 - [ ] Run `npm run build` - Successful build
 - [ ] Run `npm test` - All tests pass
 - [ ] Review `docs/index.html` - Visual verification
+- [ ] Verify `dist/figma/` has updated tokens and $themes.json
 - [ ] Update `CHANGELOG.md` - Document changes
 - [ ] Bump version with `npm version [patch|minor|major]`
 - [ ] Push with tags: `git push origin main --tags`
 - [ ] Verify GitHub Pages deployment
 - [ ] Notify consuming teams of new version
+
+### Theme Management
+
+**Adding a New Theme:**
+
+1. Create a new theme file in `tokens/themes/`:
+   ```bash
+   # Example: high-contrast.json
+   touch tokens/themes/high-contrast.json
+   ```
+
+2. Define token overrides:
+   ```json
+   {
+     "bg": {
+       "body": { "value": "{color.black}", "$type": "color" },
+       "surface": { "value": "{color.neutral.950}", "$type": "color" }
+     },
+     "text": {
+       "primary": { "value": "{color.white}", "$type": "color" }
+     },
+     "border": {
+       "default": { "value": "{color.neutral.300}", "$type": "color" }
+     }
+   }
+   ```
+
+3. Build tokens:
+   ```bash
+   npm run build
+   ```
+
+**What Gets Generated:**
+- `dist/css/theme-high-contrast.css` - CSS theme overrides with selector `[data-theme="high-contrast"]`
+- `dist/scss/theme-high-contrast.scss` - SCSS theme map `$theme-high-contrast`
+- `dist/json/theme-high-contrast.json` - JSON theme tokens
+- Updated `dist/figma/$themes.json` - Includes new theme configuration
+
+**Using Themes in Applications:**
+
+CSS:
+```html
+<body data-theme="high-contrast">
+  <link rel="stylesheet" href="dist/css/variables.css">
+  <link rel="stylesheet" href="dist/css/theme-high-contrast.css">
+</body>
+```
+
+JavaScript:
+```javascript
+// Toggle theme
+document.body.setAttribute('data-theme', 'high-contrast');
+
+// Load theme tokens
+import highContrastTheme from '@your-org/kami-design-tokens/json/theme-high-contrast.json';
+```
+
+### Typography Configuration
+
+The typography system has two layers optimized for different use cases:
+
+**1. Fixed UI Sizes (`font.size.basic.*`)**
+- Purpose: Stable sizes for UI components
+- Range: 12px - 72px (xs to 7xl)
+- Use for: Buttons, form inputs, navigation, labels
+- Location: `tokens/primitives/typography.json`
+
+**2. Modular Scale (`font.size.scale.*`)**
+- Purpose: Harmonious content hierarchy
+- Generated: Dynamically from configurable ratio
+- Use for: Headings (H1-H6), display text, hero sections
+- Location: Auto-generated by script
+
+**Changing the Modular Scale Ratio:**
+
+1. Edit `tokens/semantic/typography.json`:
+   ```json
+   {
+     "typography": {
+       "config": {
+         "scale-ratio": {
+           "value": "{scale.golden}",
+           "$type": "other",
+           "$description": "Change to any ratio from scale.json"
+         }
+       }
+     }
+   }
+   ```
+
+2. Available ratios (in `tokens/primitives/scale.json`):
+   - `{scale.major-third}` - 1.25 (default, moderate contrast)
+   - `{scale.perfect-fourth}` - 1.333 (balanced)
+   - `{scale.golden}` - 1.618 (dramatic scaling)
+   - `{scale.major-second}` - 1.125 (subtle)
+
+3. Rebuild tokens:
+   ```bash
+   npm run build
+   ```
+
+**Result:** All heading sizes automatically recalculate! UI component sizes remain unchanged.
+
+**Example Output:**
+- With Major Third (1.25): H1 = 61px, H2 = 49px, H3 = 39px
+- With Golden Ratio (1.618): H1 = 107px, H2 = 66px, H3 = 41px
+
+**Semantic Mappings:**
+- `typography.ui.text.body` → `font.size.basic.base` (16px, never changes)
+- `typography.heading.h1` → `font.size.scale.6` (recalculates with ratio)
 
 ---
 
@@ -458,19 +606,37 @@ ls docs/variables.css
 ### Common Commands
 
 ```bash
-npm run build         # Build everything
-npm run validate      # Check token structure
-npm test              # Run tests
-npm run clean         # Clean dist/ folder
-npm run pack:dry      # Preview package contents
+npm run build              # Build everything (grouped: core → exports → site)
+npm run build:core         # Core pipeline (validate → scale → compile)
+npm run build:exports      # Export pipeline (backend → utils → figma)
+npm run build:site         # Site build only
+npm run tokens:compile     # Build tokens only (CSS, SCSS, JS, JSON)
+npm run tokens:validate    # Check token structure and references
+npm run tokens:scale       # Generate modular typography scale
+npm run tokens:test        # Run build output tests
+npm run tokens:export-backend   # Build backend artifacts
+npm run tokens:export-figma     # Build Figma-optimized tokens
+npm run tokens:export-utils     # Generate utility classes
+npm run site:build         # Build documentation site
+npm run site:serve         # Preview production build locally
+npm test                   # Run all tests
+npm run clean              # Clean dist/ and docs/ folders
+npm run pack:dry           # Preview package contents
+npm run tasks:archive      # Archive completed task files
 ```
 
 ### Important Files
 
-- `tokens/primitives/` - Raw token values
-- `tokens/semantic/` - Usage-based tokens
+- `tokens/primitives/` - Raw token values (colors, spacing, typography, etc.)
+- `tokens/semantic/` - Usage-based tokens (semantic colors, typography config)
+- `tokens/themes/` - Theme overrides (dark.json, etc.)
 - `dist/` - Generated artifacts (not in Git)
-- `docs/` - Visual documentation site
+  - `dist/css/` - CSS variables and theme files
+  - `dist/scss/` - SCSS variables and theme maps
+  - `dist/json/` - JSON tokens and backend artifacts
+  - `dist/figma/` - Figma Token Studio optimized tokens
+- `docs/` - Visual documentation site (GitHub Pages)
+- `scripts/` - Build and utility scripts
 - `style-dictionary.config.js` - Build configuration
 
 ### Links

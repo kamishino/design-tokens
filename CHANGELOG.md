@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Workflow Documentation Enhancement**: Comprehensive updates to WORKFLOW.md
+  - **Code → Figma Flow**: Added instructions for using optimized dist/figma/ tokens
+  - **Theme Management Guide**: Step-by-step instructions for creating and deploying themes
+  - **Typography Configuration**: Detailed explanation of dual-layer system and ratio changes
+  - **Updated Build Scripts**: Documented all automated scripts (type-scale, backend, figma)
+  - **Expanded Outputs**: Listed all generated artifacts including themes and Figma tokens
+  - **Quick Reference**: Updated commands and file structure for current architecture
 - **Figma Token Studio Optimization**: Automated token enrichment for seamless Figma integration
   - **Scoping Metadata**: Auto-inject `$extensions.studio.scope` for proper variable categorization
   - **$themes.json Generation**: Automatically generate Token Studio configuration from directory structure

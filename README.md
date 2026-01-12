@@ -49,14 +49,14 @@ This repository is optimized for **Figma Token Studio** with automated token enr
 
 ```bash
 # Generate optimized tokens
-npm run build:figma
+npm run tokens:export-figma
 
 # Output: dist/figma/ with enriched tokens and $themes.json
 ```
 
 **Code → Figma Workflow**:
 1. Update tokens in `tokens/` directory
-2. Run `npm run build:figma`
+2. Run `npm run tokens:export-figma`
 3. Designers sync in Token Studio
 4. Tokens automatically scoped and configured
 
@@ -390,24 +390,32 @@ npm run dev
 ### Scripts
 ```bash
 npm run dev                     # Start Vite dev server with HMR for preview site
-npm run build                   # Build all artifacts (type scale, tokens, backend, utilities, preview)
-npm run generate:type-scale     # Generate font sizes from modular scale ratio
-npm run build:tokens            # Build tokens only (CSS, SCSS, JS, JSON)
-npm run build:backend           # Build backend artifacts (token-names.json, token-values.json)
-npm run build:utilities         # Generate utility classes
-npm run build:preview           # Build documentation site (Vite production build)
-npm run build:figma             # Generate Figma-optimized tokens with scoping
-npm run preview                 # Preview production build locally
-npm run validate                # Validate token structure and references
-npm test                        # Run build output tests
+npm run build                   # Build all artifacts (grouped: core → exports → site)
+npm run build:core              # Build core tokens (validate → scale → compile)
+npm run build:exports           # Build all exports (backend, utils, figma)
+npm run build:site              # Build documentation site only
+npm run tokens:scale            # Generate font sizes from modular scale ratio
+npm run tokens:compile          # Build tokens only (CSS, SCSS, JS, JSON)
+npm run tokens:validate         # Validate token structure and references
+npm run tokens:test             # Run build output tests
+npm run tokens:export-backend   # Build backend artifacts (token-names.json, token-values.json)
+npm run tokens:export-figma     # Generate Figma-optimized tokens with scoping
+npm run tokens:export-utils     # Generate utility classes
+npm run site:build              # Build documentation site (Vite production build)
+npm run site:serve              # Preview production build locally
+npm test                        # Run all tests (alias for tokens:test)
 npm run clean                   # Clean dist and docs folders
 npm run pack:dry                # Preview package contents before publishing
 
 # Maintenance
-npm run archive:tasks           # Archive completed task files to tasks/_archived/
+npm run tasks:archive           # Archive completed task files to tasks/_archived/
 
 # Utilities
 node scripts/check-contrast.js  # Verify WCAG AA color contrast compliance
+
+# Script Groups (for internal reference)
+npm run build:core              # tokens:validate → tokens:scale → tokens:compile
+npm run build:exports           # tokens:export-backend → tokens:export-utils → tokens:export-figma
 ```
 
 ## Typography System
@@ -515,7 +523,7 @@ Edit `tokens/semantic/typography.json`:
 }
 ```
 
-Run `npm run generate:type-scale` to regenerate modular scale sizes with the new ratio!
+Run `npm run tokens:scale` to regenerate modular scale sizes with the new ratio!
 
 ## Token Structure
 
