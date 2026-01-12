@@ -92,6 +92,32 @@ app.post('/theme', (req, res) => {
 });
 ```
 
+### Utility Classes (Quick Prototyping)
+```html
+<!-- Import utilities CSS for rapid development -->
+<link rel="stylesheet" href="node_modules/@your-org/kami-design-tokens/dist/utilities.css">
+
+<!-- Use pre-built utility classes -->
+<div class="bg-primary text-white p-md rounded-button">
+  Primary Card
+</div>
+
+<button class="bg-primary-hover text-white px-lg py-sm rounded-button">
+  Click Me
+</button>
+```
+
+**Available Utility Classes:**
+- **Colors**: `.bg-{color}`, `.text-{color}`, `.border-{color}`
+- **Spacing**: `.p-{size}`, `.m-{size}`, `.px-{size}`, `.py-{size}`, `.gap-{size}`
+- **Typography**: `.text-{size}`, `.font-{weight}`, `.leading-{height}`
+
+## Documentation
+
+📚 **[Live Token Documentation](https://kamishino.github.io/design-tokens/)**
+
+View all design tokens visually with color swatches, typography specimens, spacing scales, and component examples. Perfect for designers and developers to verify token values.
+
 ## Repository Structure
 
 ```
@@ -106,14 +132,20 @@ kami-design-tokens/
 │       └── components.json
 ├── scripts/                   # Build utilities
 │   ├── build-tokens.js       # Unified Style Dictionary build
+│   ├── build-utilities.js    # Utility classes generator
+│   ├── build-preview.js      # Documentation site generator
 │   ├── validate-tokens.js    # Token validation & reference checking
 │   └── test-tokens.js        # Build output tests
 ├── dist/                      # Generated artifacts (gitignored, included in npm)
 │   ├── css/                  # CSS variables (:root)
 │   ├── scss/                 # SCSS variables ($var)
 │   ├── js/                   # JS/TS modules with strict types
-│   └── json/                 # JSON format
+│   ├── json/                 # JSON format
+│   └── utilities.css         # Pre-built utility classes
+├── docs/                      # Visual documentation site (GitHub Pages)
+│   └── index.html            # Token preview and reference
 ├── style-dictionary.config.js # Style Dictionary configuration
+├── WORKFLOW.md               # End-to-end workflow documentation
 ├── package.json
 └── README.md
 ```
@@ -139,11 +171,14 @@ npm run build
 
 ### Scripts
 ```bash
-npm run build         # Validate and build all artifacts (CSS, SCSS, JS, JSON)
-npm run validate      # Validate token structure and references
-npm test              # Run build output tests
-npm run clean         # Clean dist folder
-npm run pack:dry      # Preview package contents before publishing
+npm run build              # Build all artifacts (tokens, utilities, preview site)
+npm run build:tokens       # Build tokens only (CSS, SCSS, JS, JSON)
+npm run build:utilities    # Generate utility classes
+npm run build:preview      # Generate documentation site
+npm run validate           # Validate token structure and references
+npm test                   # Run build output tests
+npm run clean              # Clean dist and docs folders
+npm run pack:dry           # Preview package contents before publishing
 ```
 
 ## Token Structure

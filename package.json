@@ -19,13 +19,18 @@
   },
   "files": [
     "dist",
+    "docs",
     "tokens",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "WORKFLOW.md"
   ],
   "scripts": {
-    "build": "npm run clean && npm run validate && node scripts/build-tokens.js",
-    "clean": "rimraf dist",
+    "build": "npm run clean && npm run validate && npm run build:tokens && npm run build:utilities && npm run build:preview",
+    "build:tokens": "node scripts/build-tokens.js",
+    "build:utilities": "node scripts/build-utilities.js",
+    "build:preview": "node scripts/build-preview.js",
+    "clean": "rimraf dist docs",
     "validate": "node scripts/validate-tokens.js",
     "test": "node scripts/test-tokens.js",
     "prepublishOnly": "npm run build && npm test",

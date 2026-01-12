@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Empty token values
 - **Reference Checking**: Validates that all `{token.path}` references resolve correctly
 - **Unified Build Command**: Single `npm run build` command that validates and builds all platforms
+- **Utility Classes Generator**: Automatic generation of utility CSS classes for rapid prototyping
+  - Background, text, and border color utilities
+  - Spacing utilities (padding, margin, gap)
+  - Typography utilities (font size, weight, line height)
+- **Visual Documentation Site**: Auto-generated HTML preview site showing:
+  - Color swatches with names and values
+  - Typography specimens
+  - Spacing visualizations
+  - Component examples
+- **Workflow Documentation**: Comprehensive `WORKFLOW.md` documenting the Figma-to-Code process
+- **GitHub Pages Support**: Documentation site ready for deployment via GitHub Pages
 
 ### Changed
 - **Build System**: Replaced individual build scripts with unified Style Dictionary configuration
