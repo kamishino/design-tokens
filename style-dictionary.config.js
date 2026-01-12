@@ -14,14 +14,12 @@ StyleDictionary.registerFormat({
       let output = "";
 
       for (const [key, value] of Object.entries(obj)) {
-        const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key)
-          ? key
-          : `"${key}"`;
+        const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `"${key}"`;
 
-        if (value.value !== undefined) {
-          // Leaf node - actual token value
-          const valueType =
-            typeof value.value === "number" ? "number" : "string";
+        if (value.$value !== undefined || value.value !== undefined) {
+          // Leaf node - actual token value (support both W3C $value and legacy value)
+          const tokenValue = value.$value !== undefined ? value.$value : value.value;
+          const valueType = typeof tokenValue === "number" ? "number" : "string";
           output += `${spaces}${safeKey}: ${valueType};\n`;
         } else {
           // Nested object
@@ -283,8 +281,7 @@ StyleDictionary.registerFormat({
       categories[category].forEach((prop, propIndex) => {
         const value = prop.value;
         const isLastInCategory = propIndex === categories[category].length - 1;
-        const isLastCategory =
-          category === sortedCategories[sortedCategories.length - 1];
+        const isLastCategory = category === sortedCategories[sortedCategories.length - 1];
         const needsComma = !(isLastInCategory && isLastCategory);
 
         output += `  '${prop.name}': ${value}${needsComma ? "," : ""}\n`;
@@ -297,11 +294,7 @@ StyleDictionary.registerFormat({
 });
 
 export default {
-  source: [
-    "tokens/primitives/**/*.json",
-    "tokens/generated/**/*.json",
-    "tokens/semantic/**/*.json",
-  ],
+  source: ["tokens/primitives/**/*.json", "tokens/generated/**/*.json", "tokens/semantic/**/*.json"],
   platforms: {
     css: {
       transformGroup: "css",

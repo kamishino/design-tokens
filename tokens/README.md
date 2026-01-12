@@ -9,47 +9,68 @@ tokens/
 ├── primitives/       # Raw foundational values
 │   ├── colors.json
 │   ├── spacing.json
-│   └── typography.json
+│   ├── typography.json
+│   ├── radius.json
+│   ├── shadows.json
+│   ├── opacity.json      # NEW: Opacity scale (0-100)
+│   ├── z-index.json      # NEW: Z-index layer system
+│   ├── animation.json
+│   ├── breakpoints.json
+│   ├── grid.json
+│   └── scale.json
 ├── semantic/         # Intent-based mappings
 │   ├── colors.json
-│   └── components.json
-└── platforms/        # Platform-specific overrides (optional)
+│   └── typography.json
+├── themes/           # Theme overrides
+│   └── dark.json
+└── generated/        # Auto-generated tokens (type scales)
+    └── typography-scale.json
 ```
 
 ## Token Types
 
 ### Primitives
+
 **Purpose:** Define the raw, foundational values of your design system.
 
 **Examples:**
+
 - Color palettes (blue-50 through blue-900)
 - Spacing scales (xs, sm, md, lg, xl)
 - Typography scales (font sizes, weights, line heights)
 - Border radii
 - Shadows
+- Opacity values (0, 25, 50, 75, 100)
+- Z-index layers (10, 20, 50, 100, 999)
 
 **Guidelines:**
+
 - Use descriptive, literal names
 - Include numeric scales or size variants
 - These should rarely reference other tokens
 
 ### Semantic
+
 **Purpose:** Define how primitives are used throughout your application.
 
 **Examples:**
+
 - `color-primary` → references `color.blue.500`
 - `button-padding` → references `spacing.md`
 - `text-color` → references `color.neutral.900`
 
 **Guidelines:**
+
 - Always reference primitive tokens using `{token.path}` syntax
 - Use intent-based names (what it's for, not what it is)
 - These make it easier to rebrand or theme your application
 
 ### Platforms (Optional)
+
 **Purpose:** Override tokens for specific platforms or themes.
 
 **Examples:**
+
 - Mobile-specific spacing adjustments
 - Dark mode color overrides
 - Platform-specific typography
@@ -69,7 +90,9 @@ We follow the W3C Design Tokens Community Group (DTCG) format:
 ```
 
 ### Token References
+
 Reference other tokens using curly braces:
+
 ```json
 {
   "color": {
@@ -84,22 +107,29 @@ Reference other tokens using curly braces:
 ## Editing Tokens
 
 ### 1. Manual Editing
+
 Edit JSON files directly in this directory.
 
 ### 2. Figma Sync (if configured)
+
 Tokens can be synced from Figma using Token Studio plugin:
+
 ```bash
 npm run sync
 ```
 
 ### 3. Validation
+
 After editing, validate your changes:
+
 ```bash
 npm run validate
 ```
 
 ### 4. Build
+
 Generate platform artifacts:
+
 ```bash
 npm run build
 ```
@@ -107,18 +137,21 @@ npm run build
 ## Token Naming Conventions
 
 ### Colors
+
 - **Primitives:** `color-{hue}-{scale}`
   - Example: `color-blue-500`
 - **Semantic:** `color-{usage}-{variant}`
   - Example: `color-primary`, `color-text-secondary`
 
 ### Spacing
+
 - **Primitives:** `spacing-{size}`
   - Example: `spacing-xs`, `spacing-md`, `spacing-2xl`
 - **Semantic:** `{component}-{property}`
   - Example: `button-padding-x`, `card-gap`
 
 ### Typography
+
 - **Primitives:** `fontSize-{size}`, `fontWeight-{name}`
   - Example: `fontSize-lg`, `fontWeight-bold`
 - **Semantic:** `{component}-{property}`
@@ -127,6 +160,7 @@ npm run build
 ## Common Patterns
 
 ### Color System
+
 ```json
 {
   "color": {
@@ -140,6 +174,7 @@ npm run build
 ```
 
 ### Semantic Colors
+
 ```json
 {
   "color": {
@@ -151,6 +186,7 @@ npm run build
 ```
 
 ### Component Tokens
+
 ```json
 {
   "button": {
@@ -173,6 +209,7 @@ npm run build
 ## Questions?
 
 Refer to:
+
 - Main [README.md](../README.md)
 - [MIGRATION_GUIDE.md](../MIGRATION_GUIDE.md)
 - [CONTRIBUTING.md](../CONTRIBUTING.md)

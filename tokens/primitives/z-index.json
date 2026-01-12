@@ -1,0 +1,59 @@
+{
+  "zIndex": {
+    "0": {
+      "value": "0",
+      "$type": "number",
+      "$description": "Base layer"
+    },
+    "10": {
+      "value": "10",
+      "$type": "number",
+      "$description": "Low elevation"
+    },
+    "20": {
+      "value": "20",
+      "$type": "number",
+      "$description": "Medium-low elevation"
+    },
+    "30": {
+      "value": "30",
+      "$type": "number",
+      "$description": "Medium elevation"
+    },
+    "40": {
+      "value": "40",
+      "$type": "number",
+      "$description": "Medium-high elevation"
+    },
+    "50": {
+      "value": "50",
+      "$type": "number",
+      "$description": "High elevation - dropdowns, tooltips"
+    },
+    "100": {
+      "value": "100",
+      "$type": "number",
+      "$description": "Modal overlays"
+    },
+    "200": {
+      "value": "200",
+      "$type": "number",
+      "$description": "Notifications, toasts"
+    },
+    "999": {
+      "value": "999",
+      "$type": "number",
+      "$description": "Critical overlays"
+    },
+    "9999": {
+      "value": "9999",
+      "$type": "number",
+      "$description": "Top layer - loading screens"
+    },
+    "auto": {
+      "value": "auto",
+      "$type": "other",
+      "$description": "Browser default stacking"
+    }
+  }
+}

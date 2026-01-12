@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Opacity Tokens**: New primitive token set for opacity values
+  - **Token File**: `tokens/primitives/opacity.json` with 15 standardized opacity values
+  - **Scale**: 0, 5, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 95, 100
+  - **Utility Classes**: `.opacity-{value}` classes generated automatically
+  - **Use Cases**: Overlays, disabled states, hover effects, image transparency
+- **Z-Index Tokens**: New primitive token set for layer stacking
+  - **Token File**: `tokens/primitives/z-index.json` with standardized elevation values
+  - **Scale**: 0, 10, 20, 30, 40, 50, 100, 200, 999, 9999, auto
+  - **Utility Classes**: `.z-{value}` classes for controlling stack order
+  - **Use Cases**: Dropdowns (50), modals (100), notifications (200), loading screens (9999)
+- **Flexbox Utilities**: Comprehensive flexbox utility class generation
+  - **Display**: `.flex`, `.inline-flex`, `.grid`, `.block`, `.inline-block`, `.hidden`
+  - **Direction**: `.flex-row`, `.flex-col`, `.flex-row-reverse`, `.flex-col-reverse`
+  - **Wrap**: `.flex-wrap`, `.flex-nowrap`, `.flex-wrap-reverse`
+  - **Justify**: `.justify-start`, `.justify-center`, `.justify-between`, `.justify-around`, `.justify-evenly`
+  - **Align Items**: `.items-start`, `.items-center`, `.items-end`, `.items-baseline`, `.items-stretch`
+  - **Align Content**: `.content-start`, `.content-center`, `.content-between`, `.content-around`
+  - **Align Self**: `.self-auto`, `.self-start`, `.self-center`, `.self-end`, `.self-stretch`
+  - **Flex Grow/Shrink**: `.flex-1`, `.flex-auto`, `.flex-initial`, `.flex-none`, `.grow`, `.shrink`
+- **Enhanced Gap Utilities**: Added directional gap controls
+  - **New Classes**: `.gap-x-{size}` for column-gap, `.gap-y-{size}` for row-gap
+  - **Complements**: Existing `.gap-{size}` for both directions
 - **Live Reload Development Mode**: Enhanced developer experience with automatic rebuilds
   - **Watch Mode**: New `tokens:watch` script monitors `tokens/` folder for changes
   - **Parallel Execution**: `npm run dev` now runs token watcher + preview server concurrently
@@ -23,19 +45,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Reference Warnings**: Converted reference validation to warnings (resolved by Style Dictionary at build)
   - **Build Success**: Full pipeline now completes with exit code 0
 - **Script Organization**: Reorganized npm scripts with Noun-Verb convention for better maintainability
-  - **Logical Grouping**: Scripts now grouped by domain (tokens:*, site:*, tasks:*)
+  - **Logical Grouping**: Scripts now grouped by domain (tokens:_, site:_, tasks:\*)
   - **Composable Build**: Created build:core, build:exports, build:site groups
   - **Autocomplete Friendly**: Scripts cluster by noun for better IDE experience
   - **All Scripts Renamed**: generate:type-scale → tokens:scale, build:tokens → tokens:compile, etc.
 
 ### Changed
 
+- **W3C Design Token Format**: Enhanced compatibility with W3C Design Token specification
+  - **Format Support**: All tokens already use W3C format (`$value`, `$type`)
+  - **Style Dictionary**: Updated TypeScript formatter to support both `$value` and legacy `value`
+  - **Build Script**: Enhanced `build-utilities.js` with proper W3C token detection
+  - **Leaf Node Detection**: New `isLeafToken()` helper checks for `$value` presence
+  - **Future-Proof**: Ready for Style Dictionary v4 and design tool integrations
+- **Utility Class Naming**: Improved class name generation for better consistency
+  - **Category Prefixes**: Color utilities now include category (e.g., `.bg-color-blue-600` instead of `.bg-blue-600`)
+  - **No Suffix Leaks**: Fixed issue where `-value` or `-$type` appeared in class names
+  - **Semantic Support**: Proper handling of semantic tokens (`.bg-bg-surface`, `.text-text-primary`)
+  - **Collision Prevention**: Verbose nesting prevents naming conflicts across categories
 - **ESM Migration**: Modernized project to use ECMAScript Modules
   - **Package Type**: Added `"type": "module"` to package.json for native ESM support
   - **All Scripts**: Migrated 8 build scripts from CommonJS to ESM syntax
   - **Import Syntax**: Changed from `require()` to `import` statements throughout
   - **Export Syntax**: Changed from `module.exports` to `export default`
-  - **__dirname Shim**: Added ESM-compatible `__dirname` using fileURLToPath in all scripts
+  - **\_\_dirname Shim**: Added ESM-compatible `__dirname` using fileURLToPath in all scripts
   - **Style Dictionary**: Config file converted to ESM with dynamic import support
   - **Vite Warning**: Eliminated "CJS build of Vite's Node API is deprecated" warning
   - **Future-Proof**: Project now uses modern JavaScript module system
@@ -149,7 +182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Manual export process from Figma to Git repository
   - Clear instructions for designers, maintainers, and developers
 - **Token Output Formatting**: Improved readability and organization of generated files
-  - **CSS Category Headers**: Custom formatter groups tokens by category with comment headers (/* COLOR */, /* SPACING */, etc.)
+  - **CSS Category Headers**: Custom formatter groups tokens by category with comment headers (/_ COLOR _/, /_ SPACING _/, etc.)
   - **Theme CSS Formatting**: Theme files now use category separation matching base variables format
   - **Theme SCSS Maps**: New SCSS theme maps with category comments for better organization
   - **Alphabetical JSON Sorting**: Backend token-values.json now sorted alphabetically for cleaner diffs
@@ -174,6 +207,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Scale tokens provide musical/mathematical ratios for modular scaling
 
 ### Changed
+
 - **Breakpoints**: Updated from Bootstrap-style to Tailwind-style mobile-first breakpoints
 - **Grid System**: Gutter now references `spacing.6` (24px), added margin token referencing `spacing.8`
 - **Typography Structure**: Separated `font.size` into `basic` (fixed UI) and `scale` (dynamic content) namespaces
@@ -186,11 +220,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Multi-Theme Build**: Build script now automatically detects and builds all themes in `tokens/themes/`
 
 ### Removed
+
 - **Deprecated Scripts**: Removed `scripts/build-css.js`, `scripts/build-scss.js`, `scripts/build-js.js`, `scripts/build-json.js` in favor of Style Dictionary
 - **Legacy Preview Generator**: Removed `scripts/build-preview.js` in favor of Vite-based build
 - **Sync Script**: Removed from main scripts (to be implemented separately with Figma integration)
 
 ### Improved
+
 - **TypeScript Experience**: Full IDE autocomplete and type safety for all tokens
 - **Error Messages**: More descriptive validation errors with file names and token paths
 - **Documentation**: Added TypeScript usage examples and updated structure documentation
@@ -198,6 +234,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - TBD
 
 ### Release Notes
+
 First stable release of the centralized design tokens repository. This version establishes the Single Source of Truth (SSOT) for design values across all Kami platform projects.
 
 **Breaking Changes:** N/A (initial release)
@@ -211,19 +248,25 @@ First stable release of the centralized design tokens repository. This version e
 ### [Version] - YYYY-MM-DD
 
 #### Added
+
 - New features or tokens
 
 #### Changed
+
 - Changes to existing tokens (non-breaking)
 
 #### Deprecated
+
 - Tokens marked for future removal
 
 #### Removed
+
 - Tokens that have been removed (breaking change)
 
 #### Fixed
+
 - Bug fixes
 
 #### Security
+
 - Security improvements

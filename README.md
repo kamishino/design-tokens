@@ -33,6 +33,7 @@ This repository is optimized for **Figma Token Studio** with automated token enr
 ### What's Included
 
 **Token Sets** (auto-configured in `$themes.json`):
+
 - ✅ `primitives/colors` - Base color palette with `color` scope
 - ✅ `primitives/radius` - Border radius values with `borderRadius` scope
 - ✅ `primitives/spacing` - Spacing scale with `spacing` scope
@@ -41,6 +42,7 @@ This repository is optimized for **Figma Token Studio** with automated token enr
 - ✅ `themes/*` - Theme overrides (dark mode, etc.)
 
 **Scoping** (automatic):
+
 - **Radius variables** only appear when editing border radius properties
 - **Spacing variables** only appear when editing gaps, padding, margins
 - **Color variables** only appear when editing color properties
@@ -55,6 +57,7 @@ npm run tokens:export-figma
 ```
 
 **Code → Figma Workflow**:
+
 1. Update tokens in `tokens/` directory
 2. Run `npm run tokens:export-figma`
 3. Designers sync in Token Studio
@@ -72,6 +75,7 @@ The repository includes a GitHub Actions workflow that automatically:
 - 🚧 **NPM publishing** (commented out, ready to enable)
 
 **Quality Gates**: The build will fail if:
+
 - Token files don't pass schema validation
 - References point to non-existent tokens
 - Test suite fails
@@ -81,11 +85,13 @@ The repository includes a GitHub Actions workflow that automatically:
 ## Installation
 
 ### Via Git URL (Recommended for private repos)
+
 ```bash
 npm install git+ssh://git@github.com:your-org/kami-design-tokens.git
 ```
 
 ### Via NPM (if published)
+
 ```bash
 npm install @your-org/kami-design-tokens
 ```
@@ -93,9 +99,10 @@ npm install @your-org/kami-design-tokens
 ## Usage
 
 ### CSS Variables
+
 ```css
 /* Import in your CSS */
-@import '@your-org/kami-design-tokens/css';
+@import "@your-org/kami-design-tokens/css";
 
 /* Use tokens */
 .button {
@@ -105,9 +112,10 @@ npm install @your-org/kami-design-tokens
 ```
 
 ### SCSS Variables
+
 ```scss
 // Import in your SCSS
-@import '@your-org/kami-design-tokens/scss/variables';
+@import "@your-org/kami-design-tokens/scss/variables";
 
 // Use tokens
 .button {
@@ -117,9 +125,10 @@ npm install @your-org/kami-design-tokens
 ```
 
 ### JavaScript/TypeScript
+
 ```javascript
 // ES Modules
-import tokens from '@your-org/kami-design-tokens';
+import tokens from "@your-org/kami-design-tokens";
 
 // Use tokens with full autocomplete
 const primaryColor = tokens.color.primary;
@@ -127,12 +136,13 @@ const spacing = tokens.spacing.md;
 ```
 
 #### TypeScript with Strict Types
+
 ```typescript
 // Full type safety and IDE autocomplete
-import tokens from '@your-org/kami-design-tokens';
+import tokens from "@your-org/kami-design-tokens";
 
 // TypeScript knows the exact structure
-const buttonPadding: string = tokens.button['padding-x'];
+const buttonPadding: string = tokens.button["padding-x"];
 const primaryColor: string = tokens.color.primary;
 
 // Compile-time error if token doesn't exist
@@ -142,9 +152,10 @@ const primaryColor: string = tokens.color.primary;
 ### Backend JSON
 
 **For Validation:**
+
 ```javascript
 // Node.js - Validate user input against valid token names
-const validTokens = require('@your-org/kami-design-tokens/dist/json/token-names.json');
+const validTokens = require("@your-org/kami-design-tokens/dist/json/token-names.json");
 
 function validateToken(tokenName) {
   if (!validTokens.includes(tokenName)) {
@@ -154,9 +165,9 @@ function validateToken(tokenName) {
 }
 
 // API endpoint validation
-app.post('/theme', (req, res) => {
+app.post("/theme", (req, res) => {
   const { primaryColor } = req.body;
-  
+
   if (validateToken(primaryColor)) {
     res.json({ success: true });
   }
@@ -164,9 +175,10 @@ app.post('/theme', (req, res) => {
 ```
 
 **For Server-Side Rendering:**
+
 ```javascript
 // Node.js - Render tokens server-side (PDFs, emails, etc.)
-const tokenValues = require('@your-org/kami-design-tokens/dist/json/token-values.json');
+const tokenValues = require("@your-org/kami-design-tokens/dist/json/token-values.json");
 
 function getTokenValue(tokenPath) {
   return tokenValues[tokenPath];
@@ -174,38 +186,46 @@ function getTokenValue(tokenPath) {
 
 // Generate inline styles for email templates
 const emailStyles = `
-  background-color: ${getTokenValue('bg.surface')};
-  color: ${getTokenValue('text.primary')};
-  padding: ${getTokenValue('spacing.4')};
+  background-color: ${getTokenValue("bg.surface")};
+  color: ${getTokenValue("text.primary")};
+  padding: ${getTokenValue("spacing.4")};
 `;
 
 // PDF generation with brand colors
-const primaryColor = getTokenValue('action.primary-bg'); // "#2B4D86"
+const primaryColor = getTokenValue("action.primary-bg"); // "#2B4D86"
 ```
 
 **Available Backend Artifacts:**
+
 - `dist/json/token-names.json` - Flat array of 276+ valid token keys
 - `dist/json/token-values.json` - Flat object mapping keys to resolved values
 
 ### Utility Classes (Quick Prototyping)
+
 ```html
 <!-- Import utilities CSS for rapid development -->
-<link rel="stylesheet" href="node_modules/@your-org/kami-design-tokens/dist/utilities.css">
+<link rel="stylesheet" href="node_modules/@your-org/kami-design-tokens/dist/utilities.css" />
 
 <!-- Use pre-built utility classes -->
-<div class="bg-primary text-white p-md rounded-button">
-  Primary Card
-</div>
+<div class="bg-primary text-white p-md rounded-button">Primary Card</div>
 
-<button class="bg-primary-hover text-white px-lg py-sm rounded-button">
-  Click Me
-</button>
+<button class="bg-primary-hover text-white px-lg py-sm rounded-button">Click Me</button>
 ```
 
 **Available Utility Classes:**
+
 - **Colors**: `.bg-{color}`, `.text-{color}`, `.border-{color}`
+  - Example: `.bg-color-blue-600`, `.text-color-neutral-900`, `.bg-bg-surface`
 - **Spacing**: `.p-{size}`, `.m-{size}`, `.px-{size}`, `.py-{size}`, `.gap-{size}`
-- **Typography**: `.text-{size}`, `.font-{weight}`, `.leading-{height}`
+  - Example: `.p-4`, `.mt-8`, `.gap-x-2`
+- **Typography**: `.text-{size}`, `.font-{weight}`, `.leading-{height}`, `.font-{family}`
+  - Example: `.text-xl`, `.font-bold`, `.leading-loose`, `.font-mono`
+- **Flexbox**: `.flex`, `.flex-col`, `.items-center`, `.justify-between`, `.flex-wrap`
+  - Includes display, direction, wrap, justify, align, and flex grow/shrink utilities
+- **Opacity**: `.opacity-{value}` (0, 5, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 95, 100)
+  - Example: `.opacity-50`, `.opacity-75`
+- **Z-Index**: `.z-{value}` (0, 10, 20, 30, 40, 50, 100, 200, 999, 9999, auto)
+  - Example: `.z-10`, `.z-50`, `.z-auto`
 
 ## Semantic Color Tokens
 
@@ -214,6 +234,7 @@ The design system provides semantic color tokens mapped to real-world UI pattern
 ### Usage Categories
 
 **Backgrounds:**
+
 ```css
 var(--bg-canvas)        /* Page background */
 var(--bg-surface)       /* Card/panel backgrounds */
@@ -222,6 +243,7 @@ var(--bg-brand-section) /* Brand-colored sections */
 ```
 
 **Text:**
+
 ```css
 var(--text-primary)     /* Main body text */
 var(--text-secondary)   /* Metadata/labels */
@@ -231,6 +253,7 @@ var(--text-on-brand)    /* Text on brand colors */
 ```
 
 **Actions (Buttons/Links):**
+
 ```css
 var(--action-primary-bg)        /* Primary button background */
 var(--action-primary-text)      /* Primary button text */
@@ -238,6 +261,7 @@ var(--action-primary-hover)     /* Primary button hover */
 ```
 
 **Status/Feedback:**
+
 ```css
 var(--status-success-bg)        /* Success message background */
 var(--status-success-text)      /* Success message text */
@@ -249,6 +273,7 @@ var(--status-info-bg)           /* Info message background */
 ### Accessibility
 
 All semantic color pairings meet **WCAG AA contrast requirements** (minimum 4.5:1 ratio):
+
 - ✅ Text Primary on Canvas: **15.33:1**
 - ✅ Primary Action Button: **8.37:1**
 - ✅ Status Messages: **16+:1**
@@ -262,34 +287,37 @@ The repository supports multiple themes (e.g., light/dark mode) through theme ov
 ### Using Themes
 
 **In CSS:**
+
 ```html
 <!-- Light theme (default) -->
 <body>
-  <link rel="stylesheet" href="node_modules/@your-org/kami-design-tokens/dist/css/variables.css">
+  <link rel="stylesheet" href="node_modules/@your-org/kami-design-tokens/dist/css/variables.css" />
   <!-- Content uses default theme -->
 </body>
 
 <!-- Dark theme -->
 <body data-theme="dark">
-  <link rel="stylesheet" href="node_modules/@your-org/kami-design-tokens/dist/css/variables.css">
-  <link rel="stylesheet" href="node_modules/@your-org/kami-design-tokens/dist/css/theme-dark.css">
+  <link rel="stylesheet" href="node_modules/@your-org/kami-design-tokens/dist/css/variables.css" />
+  <link rel="stylesheet" href="node_modules/@your-org/kami-design-tokens/dist/css/theme-dark.css" />
   <!-- Dark theme overrides are applied -->
 </body>
 ```
 
 **In JavaScript:**
+
 ```javascript
 // Toggle theme
-document.body.setAttribute('data-theme', 'dark');
+document.body.setAttribute("data-theme", "dark");
 
 // Load theme tokens
-import darkTheme from '@your-org/kami-design-tokens/json/theme-dark.json';
+import darkTheme from "@your-org/kami-design-tokens/json/theme-dark.json";
 ```
 
 ### Creating New Themes
 
 1. Create a new file in `tokens/themes/` (e.g., `high-contrast.json`)
 2. Define token overrides using references to primitives:
+
 ```json
 {
   "bg": {
@@ -300,6 +328,7 @@ import darkTheme from '@your-org/kami-design-tokens/json/theme-dark.json';
   }
 }
 ```
+
 3. Run `npm run build` to generate theme artifacts
 
 ## Token Directory Structure
@@ -324,6 +353,7 @@ tokens/
 ```
 
 **Important Notes:**
+
 - **Source tokens** (`primitives/`, `semantic/`, `themes/`) are committed to Git and manually maintained
 - **Generated tokens** (`generated/`) are auto-created during build and committed to Git
 - **Watch mode** ignores `generated/` directory to prevent infinite rebuild loops
@@ -389,12 +419,14 @@ kami-design-tokens/
 ## Development
 
 ### Prerequisites
+
 - Node.js 16+ (Node.js 20+ recommended for ESM support)
 - NPM 8+
 
 **Note**: This project uses ECMAScript Modules (ESM). All build scripts use `import/export` syntax instead of `require/module.exports`.
 
 ### Setup
+
 ```bash
 # Clone repository
 git clone https://github.com/your-org/kami-design-tokens.git
@@ -408,6 +440,7 @@ npm run build
 ```
 
 ### Development Workflow
+
 ```bash
 # Start watch mode + dev server (recommended for development)
 npm run dev
@@ -422,6 +455,7 @@ npm run dev
 ```
 
 ### Scripts
+
 ```bash
 npm run dev                     # 🔥 Watch mode + preview server (parallel execution with live reload)
 npm run build                   # Build all artifacts (grouped: core → exports → site)
@@ -463,6 +497,7 @@ The design system features a comprehensive typography system with three layers: 
 **Purpose**: Predictable, stable sizes for UI components and static content
 
 **Complete Range** (12px-72px):
+
 - `basic.xs` → 12px - Captions, labels, helper text
 - `basic.sm` → 14px - Button labels, form inputs
 - `basic.base` → 16px - Body text, standard components
@@ -484,17 +519,20 @@ The design system features a comprehensive typography system with three layers: 
 **Purpose**: Mathematically harmonious sizes for content hierarchy (headings, display text, hero sections)
 
 **How It Works**:
+
 1. **Define the ratio** in `tokens/primitives/scale.json` (e.g., `1.25` for Major Third)
 2. **Run the generator**: `npm run generate:type-scale`
 3. **Font sizes are calculated** automatically using: `base × (ratio ^ step)`
 
 **Available Scale Ratios**:
+
 - **Major Third** (`1.25`) - Harmonious, moderate contrast
 - **Perfect Fourth** (`1.333`) - Balanced progression
 - **Golden Ratio** (`1.618`) - Natural, dramatic scaling
 - **Major Second** (`1.125`) - Subtle, tight scaling
 
 **Generated Sizes** (16px base × 1.25 ratio):
+
 - `scale.1` → 20px (H6 level) - `16 × 1.25¹`
 - `scale.2` → 25px (H5 level) - `16 × 1.25²`
 - `scale.3` → 31px (H4 level) - `16 × 1.25³`
@@ -513,20 +551,24 @@ The design system features a comprehensive typography system with three layers: 
 **Purpose**: Developer-friendly names that map to appropriate primitive sizes
 
 **Configuration**:
+
 ```json
 {
   "typography.config.scale-ratio": "{scale.major-third}"
 }
 ```
+
 Change this single token to switch the entire modular scale ratio!
 
 **UI Text Mappings**:
+
 - `typography.ui.text.xs` → `font.size.basic.xs`
 - `typography.ui.text.sm` → `font.size.basic.sm`
 - `typography.ui.text.body` → `font.size.basic.base`
 - `typography.ui.text.lg` → `font.size.basic.lg`
 
 **Heading Mappings**:
+
 - `typography.heading.h1` → `font.size.scale.6` (61px with Major Third)
 - `typography.heading.h2` → `font.size.scale.5` (49px)
 - `typography.heading.h3` → `font.size.scale.4` (39px)
@@ -539,20 +581,26 @@ Change this single token to switch the entire modular scale ratio!
 **CSS Variables**: `--typography-heading-h1`, `--typography-ui-text-body`, etc.
 
 **Usage**:
+
 ```css
-h1 { font-size: var(--typography-heading-h1); }
-button { font-size: var(--typography-ui-text-sm); }
+h1 {
+  font-size: var(--typography-heading-h1);
+}
+button {
+  font-size: var(--typography-ui-text-sm);
+}
 ```
 
 ### Configuring the Scale Ratio
 
 Edit `tokens/semantic/typography.json`:
+
 ```json
 {
   "typography": {
     "config": {
       "scale-ratio": {
-        "value": "{scale.golden}"  // Change to any ratio from scale.json
+        "value": "{scale.golden}" // Change to any ratio from scale.json
       }
     }
   }
@@ -564,7 +612,9 @@ Run `npm run tokens:scale` to regenerate modular scale sizes with the new ratio!
 ## Token Structure
 
 ### Primitives
+
 Raw foundational values:
+
 ```json
 {
   "color": {
@@ -583,7 +633,9 @@ Raw foundational values:
 ```
 
 ### Semantic
+
 Intent-based tokens:
+
 ```json
 {
   "color": {
@@ -599,6 +651,7 @@ Intent-based tokens:
 ## Versioning
 
 This project follows [Semantic Versioning](https://semver.org/):
+
 - **MAJOR**: Breaking changes (e.g., token removal, structure change)
 - **MINOR**: New tokens added (backward compatible)
 - **PATCH**: Bug fixes, token value updates
@@ -610,6 +663,7 @@ If you're migrating from an embedded token system, see [`MIGRATION_GUIDE.md`](./
 ## CI/CD
 
 GitHub Actions automatically:
+
 1. Builds tokens on every push to `main`
 2. Runs validation tests
 3. (Optional) Publishes to NPM on release tags
@@ -635,5 +689,6 @@ MIT © Your Organization
 ---
 
 **Related Projects:**
+
 - [front-end-starter](https://github.com/your-org/front-end-starter) - Consumes these tokens
 - [backend-api](https://github.com/your-org/backend-api) - Uses JSON tokens for validation
