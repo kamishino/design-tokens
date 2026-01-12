@@ -3,22 +3,25 @@
  * Defines how design tokens are transformed into platform-specific formats
  */
 
-const StyleDictionary = require('style-dictionary');
+const StyleDictionary = require("style-dictionary");
 
 // Custom format for strict TypeScript definitions
 StyleDictionary.registerFormat({
-  name: 'typescript/strict-definitions',
-  formatter: function({ dictionary }) {
+  name: "typescript/strict-definitions",
+  formatter: function ({ dictionary }) {
     const buildInterface = (obj, indent = 0) => {
-      const spaces = '  '.repeat(indent);
-      let output = '';
-      
+      const spaces = "  ".repeat(indent);
+      let output = "";
+
       for (const [key, value] of Object.entries(obj)) {
-        const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `"${key}"`;
-        
+        const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key)
+          ? key
+          : `"${key}"`;
+
         if (value.value !== undefined) {
           // Leaf node - actual token value
-          const valueType = typeof value.value === 'number' ? 'number' : 'string';
+          const valueType =
+            typeof value.value === "number" ? "number" : "string";
           output += `${spaces}${safeKey}: ${valueType};\n`;
         } else {
           // Nested object
@@ -27,18 +30,18 @@ StyleDictionary.registerFormat({
           output += `${spaces}};\n`;
         }
       }
-      
+
       return output;
     };
-    
+
     // Build nested structure from flat token array
     const buildTree = (tokens) => {
       const tree = {};
-      
-      tokens.forEach(token => {
+
+      tokens.forEach((token) => {
         const path = token.path;
         let current = tree;
-        
+
         for (let i = 0; i < path.length - 1; i++) {
           const key = path[i];
           if (!current[key]) {
@@ -46,16 +49,16 @@ StyleDictionary.registerFormat({
           }
           current = current[key];
         }
-        
+
         const lastKey = path[path.length - 1];
         current[lastKey] = { value: token.value };
       });
-      
+
       return tree;
     };
-    
+
     const tree = buildTree(dictionary.allTokens);
-    
+
     return `// Generated Design Tokens - DO NOT EDIT MANUALLY
 // Last updated: ${new Date().toISOString()}
 
@@ -65,20 +68,20 @@ ${buildInterface(tree, 1)}}
 declare const tokens: DesignTokens;
 export default tokens;
 `;
-  }
+  },
 });
 
 // Custom format for ES Module output
 StyleDictionary.registerFormat({
-  name: 'javascript/es6-strict',
-  formatter: function({ dictionary }) {
+  name: "javascript/es6-strict",
+  formatter: function ({ dictionary }) {
     const buildObject = (tokens) => {
       const tree = {};
-      
-      tokens.forEach(token => {
+
+      tokens.forEach((token) => {
         const path = token.path;
         let current = tree;
-        
+
         for (let i = 0; i < path.length - 1; i++) {
           const key = path[i];
           if (!current[key]) {
@@ -86,16 +89,16 @@ StyleDictionary.registerFormat({
           }
           current = current[key];
         }
-        
+
         const lastKey = path[path.length - 1];
         current[lastKey] = token.value;
       });
-      
+
       return tree;
     };
-    
+
     const tokens = buildObject(dictionary.allTokens);
-    
+
     return `// Generated Design Tokens - DO NOT EDIT MANUALLY
 // Last updated: ${new Date().toISOString()}
 
@@ -103,20 +106,20 @@ const tokens = ${JSON.stringify(tokens, null, 2)};
 
 export default tokens;
 `;
-  }
+  },
 });
 
 // Custom format for CommonJS output
 StyleDictionary.registerFormat({
-  name: 'javascript/commonjs-strict',
-  formatter: function({ dictionary }) {
+  name: "javascript/commonjs-strict",
+  formatter: function ({ dictionary }) {
     const buildObject = (tokens) => {
       const tree = {};
-      
-      tokens.forEach(token => {
+
+      tokens.forEach((token) => {
         const path = token.path;
         let current = tree;
-        
+
         for (let i = 0; i < path.length - 1; i++) {
           const key = path[i];
           if (!current[key]) {
@@ -124,31 +127,31 @@ StyleDictionary.registerFormat({
           }
           current = current[key];
         }
-        
+
         const lastKey = path[path.length - 1];
         current[lastKey] = token.value;
       });
-      
+
       return tree;
     };
-    
+
     const tokens = buildObject(dictionary.allTokens);
-    
+
     return `// Generated Design Tokens - DO NOT EDIT MANUALLY
 // Last updated: ${new Date().toISOString()}
 
 module.exports = ${JSON.stringify(tokens, null, 2)};
 `;
-  }
+  },
 });
 
 // Custom format for theme-scoped CSS
 StyleDictionary.registerFormat({
-  name: 'css/theme-scoped',
-  formatter: function({ dictionary, options }) {
-    const themeName = options.themeName || 'default';
+  name: "css/theme-scoped",
+  formatter: function ({ dictionary, options }) {
+    const themeName = options.themeName || "default";
     const selector = options.selector || `[data-theme="${themeName}"]`;
-    
+
     return `/**
  * Theme: ${themeName}
  * Generated: ${new Date().toISOString()}
@@ -156,108 +159,196 @@ StyleDictionary.registerFormat({
  */
 
 ${selector} {
-${dictionary.allTokens.map(token => {
-  const cssVarName = `--${token.path.join('-')}`;
-  const value = token.value;
-  return `  ${cssVarName}: ${value};`;
-}).join('\n')}
+${dictionary.allTokens
+  .map((token) => {
+    const cssVarName = `--${token.path.join("-")}`;
+    const value = token.value;
+    return `  ${cssVarName}: ${value};`;
+  })
+  .join("\n")}
 }
 `;
-  }
+  },
 });
+
+/**
+ * Helper function to group tokens by top-level category
+ * Returns an object with category names as keys and arrays of properties as values
+ */
+function getGroupedProperties(dictionary) {
+  const categories = {};
+
+  dictionary.allProperties.forEach((prop) => {
+    const category = prop.path[0]; // First part of path (e.g., 'color', 'spacing')
+    if (!categories[category]) {
+      categories[category] = [];
+    }
+    categories[category].push(prop);
+  });
+
+  return categories;
+}
 
 // Register custom format for categorized CSS variables
 StyleDictionary.registerFormat({
-  name: 'css/variables-separated',
-  formatter: function({ dictionary }) {
-    // Group tokens by top-level category
-    const categories = {};
-    
-    dictionary.allProperties.forEach(prop => {
-      const category = prop.path[0]; // First part of path (e.g., 'color', 'spacing')
-      if (!categories[category]) {
-        categories[category] = [];
-      }
-      categories[category].push(prop);
-    });
-    
-    // Sort category names for consistent output
+  name: "css/variables-separated",
+  formatter: function ({ dictionary }) {
+    const categories = getGroupedProperties(dictionary);
     const sortedCategories = Object.keys(categories).sort();
-    
+
     // Build CSS string with category headers
-    let output = ':root {\n';
-    
+    let output = ":root {\n";
+
     sortedCategories.forEach((category, index) => {
       // Add spacing before each category (except the first)
       if (index > 0) {
-        output += '\n';
+        output += "\n";
       }
-      
+
       // Add category header comment
       output += `  /* ${category.toUpperCase()} */\n`;
-      
+
       // Add all variables in this category
-      categories[category].forEach(prop => {
+      categories[category].forEach((prop) => {
         const value = prop.value;
         output += `  --${prop.name}: ${value};\n`;
       });
     });
-    
-    output += '}\n';
+
+    output += "}\n";
     return output;
-  }
+  },
+});
+
+// Register custom format for theme CSS with category separation
+StyleDictionary.registerFormat({
+  name: "css/theme-separated",
+  formatter: function ({ dictionary, options }) {
+    const themeName = options.themeName || "default";
+    const selector = options.selector || `[data-theme="${themeName}"]`;
+
+    const categories = getGroupedProperties(dictionary);
+    const sortedCategories = Object.keys(categories).sort();
+
+    // Build CSS string with selector and category headers
+    let output = `/**\n * Theme: ${themeName}\n * Generated: ${new Date().toISOString()}\n * DO NOT EDIT MANUALLY\n */\n\n`;
+    output += `${selector} {\n`;
+
+    sortedCategories.forEach((category, index) => {
+      // Add spacing before each category (except the first)
+      if (index > 0) {
+        output += "\n";
+      }
+
+      // Add category header comment
+      output += `  /* ${category.toUpperCase()} */\n`;
+
+      // Add all variables in this category
+      categories[category].forEach((prop) => {
+        const value = prop.value;
+        output += `  --${prop.name}: ${value};\n`;
+      });
+    });
+
+    output += "}\n";
+    return output;
+  },
+});
+
+// Register custom format for theme SCSS maps with category separation
+StyleDictionary.registerFormat({
+  name: "scss/theme-map-separated",
+  formatter: function ({ dictionary, options }) {
+    const themeName = options.themeName || "default";
+
+    const categories = getGroupedProperties(dictionary);
+    const sortedCategories = Object.keys(categories).sort();
+
+    // Build SCSS map with category comments
+    let output = `/**\n * Theme: ${themeName}\n * Generated: ${new Date().toISOString()}\n * DO NOT EDIT MANUALLY\n */\n\n`;
+    output += `$theme-${themeName}: (\n`;
+
+    let isFirstCategory = true;
+    sortedCategories.forEach((category) => {
+      // Add spacing before each category (except the first)
+      if (!isFirstCategory) {
+        output += "\n";
+      }
+      isFirstCategory = false;
+
+      // Add category comment
+      output += `  // ${category.toUpperCase()}\n`;
+
+      // Add all properties in this category
+      categories[category].forEach((prop, propIndex) => {
+        const value = prop.value;
+        const isLastInCategory = propIndex === categories[category].length - 1;
+        const isLastCategory =
+          category === sortedCategories[sortedCategories.length - 1];
+        const needsComma = !(isLastInCategory && isLastCategory);
+
+        output += `  '${prop.name}': ${value}${needsComma ? "," : ""}\n`;
+      });
+    });
+
+    output += ");\n";
+    return output;
+  },
 });
 
 module.exports = {
-  source: [
-    'tokens/primitives/**/*.json',
-    'tokens/semantic/**/*.json'
-  ],
+  source: ["tokens/primitives/**/*.json", "tokens/semantic/**/*.json"],
   platforms: {
     css: {
-      transformGroup: 'css',
-      buildPath: 'dist/css/',
-      files: [{
-        destination: 'variables.css',
-        format: 'css/variables-separated'
-      }]
-    },
-    scss: {
-      transformGroup: 'scss',
-      buildPath: 'dist/scss/',
-      files: [{
-        destination: '_variables.scss',
-        format: 'scss/variables',
-        options: {
-          outputReferences: true
-        }
-      }]
-    },
-    js: {
-      transformGroup: 'js',
-      buildPath: 'dist/js/',
+      transformGroup: "css",
+      buildPath: "dist/css/",
       files: [
         {
-          destination: 'tokens.mjs',
-          format: 'javascript/es6-strict'
+          destination: "variables.css",
+          format: "css/variables-separated",
+        },
+      ],
+    },
+    scss: {
+      transformGroup: "scss",
+      buildPath: "dist/scss/",
+      files: [
+        {
+          destination: "_variables.scss",
+          format: "scss/variables",
+          options: {
+            outputReferences: true,
+          },
+        },
+      ],
+    },
+    js: {
+      transformGroup: "js",
+      buildPath: "dist/js/",
+      files: [
+        {
+          destination: "tokens.mjs",
+          format: "javascript/es6-strict",
         },
         {
-          destination: 'tokens.js',
-          format: 'javascript/commonjs-strict'
+          destination: "tokens.js",
+          format: "javascript/commonjs-strict",
         },
         {
-          destination: 'tokens.d.ts',
-          format: 'typescript/strict-definitions'
-        }
-      ]
+          destination: "tokens.d.ts",
+          format: "typescript/strict-definitions",
+        },
+      ],
     },
     json: {
-      transformGroup: 'js',
-      buildPath: 'dist/json/',
-      files: [{
-        destination: 'tokens.json',
-        format: 'json/nested'
-      }]
-    }
-  }
+      transformGroup: "js",
+      buildPath: "dist/json/",
+      files: [
+        {
+          destination: "tokens.json",
+          format: "json/nested",
+        },
+      ],
+    },
+  },
 };

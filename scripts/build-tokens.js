@@ -53,32 +53,49 @@ async function buildTheme(themeName) {
   
   const themeConfig = {
     source: [
-      'tokens/primitives/**/*.json',
-      'tokens/themes/' + themeName + '.json'
+      "tokens/primitives/**/*.json",
+      "tokens/themes/" + themeName + ".json",
     ],
     platforms: {
       css: {
-        transformGroup: 'css',
-        buildPath: 'dist/css/',
-        files: [{
-          destination: 'theme-' + themeName + '.css',
-          format: 'css/theme-scoped',
-          options: {
-            themeName: themeName,
-            selector: '[data-theme="' + themeName + '"]',
-            outputReferences: true
-          }
-        }]
+        transformGroup: "css",
+        buildPath: "dist/css/",
+        files: [
+          {
+            destination: "theme-" + themeName + ".css",
+            format: "css/theme-separated",
+            options: {
+              themeName: themeName,
+              selector: '[data-theme="' + themeName + '"]',
+              outputReferences: true,
+            },
+          },
+        ],
+      },
+      scss: {
+        transformGroup: "scss",
+        buildPath: "dist/scss/",
+        files: [
+          {
+            destination: "theme-" + themeName + ".scss",
+            format: "scss/theme-map-separated",
+            options: {
+              themeName: themeName,
+            },
+          },
+        ],
       },
       json: {
-        transformGroup: 'js',
-        buildPath: 'dist/json/',
-        files: [{
-          destination: 'theme-' + themeName + '.json',
-          format: 'json/nested'
-        }]
-      }
-    }
+        transformGroup: "js",
+        buildPath: "dist/json/",
+        files: [
+          {
+            destination: "theme-" + themeName + ".json",
+            format: "json/nested",
+          },
+        ],
+      },
+    },
   };
 
   const sd = StyleDictionary.extend(themeConfig);
