@@ -48,9 +48,23 @@ Figma Design → Token Export → Git Sync → Build Process → NPM Package →
 2. Uses Tokens Studio plugin to manage design tokens
 3. Updates or adds new token values (colors, spacing, typography, etc.)
 4. Exports tokens as JSON files following W3C DTCG format
-5. Creates a PR or notifies maintainer of changes
 
-**Output:** Updated token JSON files
+**Export Instructions:**
+
+1. In Figma, open Tokens Studio plugin
+2. Click on the **Settings** (⚙️) icon
+3. Under **Storage**, select **Export to File**
+4. Choose export format:
+   - **Single File**: Exports all tokens to one JSON file (recommended for small systems)
+   - **Multi File**: Exports tokens by category (primitives, semantic, themes)
+5. Select export location:
+   - For primitives: Export to `tokens/primitives/`
+   - For semantic: Export to `tokens/semantic/`
+   - For themes: Export to `tokens/themes/`
+6. Ensure JSON structure uses `value` and `$type` properties
+7. Create a PR or notify maintainer of changes
+
+**Output:** Updated token JSON files in appropriate directories
 
 ---
 
@@ -98,7 +112,9 @@ npm test
 - `dist/js/tokens.js` - CommonJS module
 - `dist/js/tokens.mjs` - ES Module
 - `dist/js/tokens.d.ts` - TypeScript definitions
-- `dist/json/tokens.json` - Raw JSON
+- `dist/json/tokens.json` - Raw JSON (nested structure)
+- `dist/json/token-names.json` - Flat array of valid token keys (for backend validation)
+- `dist/json/token-values.json` - Flat object of token values (for backend rendering)
 - `dist/utilities.css` - Utility classes
 - `docs/index.html` - Visual documentation site
 
@@ -236,6 +252,51 @@ const buttonPadding = tokens.button['padding-x'];
   Hello World
 </div>
 ```
+
+**Backend (Node.js/Python/etc.):**
+```javascript
+// Validate user input against valid token names
+const validTokens = require('@your-org/kami-design-tokens/dist/json/token-names.json');
+
+function validateToken(tokenName) {
+  if (!validTokens.includes(tokenName)) {
+    throw new Error(`Invalid token: ${tokenName}`);
+  }
+  return true;
+}
+
+// Example: API endpoint validation
+app.post('/theme', (req, res) => {
+  const { primaryColor } = req.body;
+  
+  if (validateToken(primaryColor)) {
+    res.json({ success: true });
+  }
+});
+```
+
+```javascript
+// Render tokens server-side (PDFs, emails, etc.)
+const tokenValues = require('@your-org/kami-design-tokens/dist/json/token-values.json');
+
+function getTokenValue(tokenPath) {
+  return tokenValues[tokenPath];
+}
+
+// Example: Generate inline styles for email
+const emailStyles = `
+  background-color: ${getTokenValue('bg.surface')};
+  color: ${getTokenValue('text.primary')};
+  padding: ${getTokenValue('spacing.4')};
+`;
+
+// Example: PDF generation
+const primaryColor = getTokenValue('action.primary-bg'); // "#2B4D86"
+```
+
+**Backend Artifacts:**
+- `dist/json/token-names.json` - Array of valid token keys for validation
+- `dist/json/token-values.json` - Flat object mapping keys to resolved values
 
 ---
 

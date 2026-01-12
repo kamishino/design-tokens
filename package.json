@@ -27,10 +27,11 @@
   ],
   "scripts": {
     "dev": "npm run build:tokens && npm run build:utilities && vite",
-    "build": "npm run clean && npm run validate && npm run build:tokens && npm run build:utilities && npm run build:preview",
+    "build": "npm run clean && npm run validate && npm run build:tokens && npm run build:backend && npm run build:utilities && npm run build:preview",
     "build:tokens": "node scripts/build-tokens.js",
+    "build:backend": "node scripts/build-backend.js",
     "build:utilities": "node scripts/build-utilities.js",
-    "build:preview": "vite build",
+    "build:preview": "vite build --outDir docs",
     "preview": "vite preview",
     "clean": "rimraf dist docs",
     "validate": "node scripts/validate-tokens.js",

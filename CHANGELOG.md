@@ -62,6 +62,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All semantic pairings meet 4.5:1 minimum ratio
   - Contrast ratios ranging from 4.77:1 to 18.79:1
   - `check-contrast.js` script for validation
+- **Backend Artifact Generation**: Server-side validation and rendering support
+  - `token-names.json` - Flat array of 276+ valid token keys for input validation
+  - `token-values.json` - Flat object mapping keys to resolved values for SSR
+  - Automated flattening of nested token structure to dot notation
+  - `build-backend.js` script integrated into main build process
+- **Figma Workflow Documentation**: Comprehensive end-to-end process guide
+  - Updated `WORKFLOW.md` with Token Studio export instructions
+  - Backend consumption examples (validation, email templates, PDF generation)
+  - Manual export process from Figma to Git repository
+  - Clear instructions for designers, maintainers, and developers
 
 ### Changed
 - **Build System**: Replaced individual build scripts with unified Style Dictionary configuration

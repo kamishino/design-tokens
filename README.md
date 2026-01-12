@@ -79,18 +79,52 @@ const primaryColor: string = tokens.color.primary;
 ```
 
 ### Backend JSON
-```javascript
-// Node.js
-const tokens = require('@your-org/kami-design-tokens/json');
 
-// Validate theme colors
+**For Validation:**
+```javascript
+// Node.js - Validate user input against valid token names
+const validTokens = require('@your-org/kami-design-tokens/dist/json/token-names.json');
+
+function validateToken(tokenName) {
+  if (!validTokens.includes(tokenName)) {
+    throw new Error(`Invalid token: ${tokenName}`);
+  }
+  return true;
+}
+
+// API endpoint validation
 app.post('/theme', (req, res) => {
-  const userColor = req.body.color;
-  if (tokens.colors[userColor]) {
-    // Valid color
+  const { primaryColor } = req.body;
+  
+  if (validateToken(primaryColor)) {
+    res.json({ success: true });
   }
 });
 ```
+
+**For Server-Side Rendering:**
+```javascript
+// Node.js - Render tokens server-side (PDFs, emails, etc.)
+const tokenValues = require('@your-org/kami-design-tokens/dist/json/token-values.json');
+
+function getTokenValue(tokenPath) {
+  return tokenValues[tokenPath];
+}
+
+// Generate inline styles for email templates
+const emailStyles = `
+  background-color: ${getTokenValue('bg.surface')};
+  color: ${getTokenValue('text.primary')};
+  padding: ${getTokenValue('spacing.4')};
+`;
+
+// PDF generation with brand colors
+const primaryColor = getTokenValue('action.primary-bg'); // "#2B4D86"
+```
+
+**Available Backend Artifacts:**
+- `dist/json/token-names.json` - Flat array of 276+ valid token keys
+- `dist/json/token-values.json` - Flat object mapping keys to resolved values
 
 ### Utility Classes (Quick Prototyping)
 ```html
@@ -295,8 +329,9 @@ npm run dev
 ### Scripts
 ```bash
 npm run dev                # Start Vite dev server with HMR for preview site
-npm run build              # Build all artifacts (tokens, utilities, preview site)
+npm run build              # Build all artifacts (tokens, backend, utilities, preview site)
 npm run build:tokens       # Build tokens only (CSS, SCSS, JS, JSON)
+npm run build:backend      # Build backend artifacts (token-names.json, token-values.json)
 npm run build:utilities    # Generate utility classes
 npm run build:preview      # Build documentation site (Vite production build)
 npm run preview            # Preview production build locally
