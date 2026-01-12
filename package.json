@@ -28,7 +28,7 @@
   "scripts": {
     "dev": "npm run tokens:compile && npm run tokens:export-utils && npm run site:serve",
     "build": "npm run clean && npm run build:core && npm run build:exports && npm run build:site",
-    "build:core": "npm run tokens:validate && npm run tokens:scale && npm run tokens:compile",
+    "build:core": "npm run tokens:scale && npm run tokens:validate && npm run tokens:compile",
     "build:exports": "npm run tokens:export-backend && npm run tokens:export-utils && npm run tokens:export-figma",
     "build:site": "npm run site:build",
     "test": "npm run tokens:test",

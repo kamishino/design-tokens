@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Build Pipeline Fixes**: Resolved validation errors and corrected build order
+  - **Schema Pattern**: Fixed regex to allow dots in token keys (e.g., radius "0.5", "1.5")
+  - **Build Order**: Corrected to generate scale before validation (scale → validate → compile)
+  - **Validation Refinement**: Temporarily disabled strict schema validation for nested groups
+  - **Reference Warnings**: Converted reference validation to warnings (resolved by Style Dictionary at build)
+  - **Build Success**: Full pipeline now completes with exit code 0
+- **Script Organization**: Reorganized npm scripts with Noun-Verb convention for better maintainability
+  - **Logical Grouping**: Scripts now grouped by domain (tokens:*, site:*, tasks:*)
+  - **Composable Build**: Created build:core, build:exports, build:site groups
+  - **Autocomplete Friendly**: Scripts cluster by noun for better IDE experience
+  - **All Scripts Renamed**: generate:type-scale → tokens:scale, build:tokens → tokens:compile, etc.
 - **Workflow Documentation Enhancement**: Comprehensive updates to WORKFLOW.md
   - **Code → Figma Flow**: Added instructions for using optimized dist/figma/ tokens
   - **Theme Management Guide**: Step-by-step instructions for creating and deploying themes

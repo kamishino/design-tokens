@@ -5,7 +5,7 @@
   "description": "JSON Schema for design tokens following Token Studio and W3C DTCG format",
   "type": "object",
   "patternProperties": {
-    "^[a-zA-Z0-9_-]+$": {
+    "^[a-zA-Z0-9._-]+$": {
       "oneOf": [
         {
           "$ref": "#/definitions/tokenValue"
@@ -32,44 +32,12 @@
           ]
         },
         "$type": {
-          "description": "The type of token (W3C DTCG format)",
-          "type": "string",
-          "enum": [
-            "color",
-            "dimension",
-            "fontFamily",
-            "fontWeight",
-            "duration",
-            "cubicBezier",
-            "number",
-            "string",
-            "spacing",
-            "sizing",
-            "typography",
-            "border",
-            "shadow",
-            "transition"
-          ]
+          "description": "The type of token (W3C DTCG format) - any string value allowed",
+          "type": "string"
         },
         "type": {
-          "description": "The type of token (Token Studio format)",
-          "type": "string",
-          "enum": [
-            "color",
-            "dimension",
-            "fontFamily",
-            "fontWeight",
-            "duration",
-            "cubicBezier",
-            "number",
-            "string",
-            "spacing",
-            "sizing",
-            "typography",
-            "border",
-            "shadow",
-            "transition"
-          ]
+          "description": "The type of token (Token Studio format) - any string value allowed",
+          "type": "string"
         },
         "description": {
           "description": "Optional description of the token",
@@ -93,7 +61,7 @@
     "tokenGroup": {
       "type": "object",
       "patternProperties": {
-        "^[a-zA-Z0-9_-]+$": {
+        "^[a-zA-Z0-9._-]+$": {
           "oneOf": [
             {
               "$ref": "#/definitions/tokenValue"

@@ -236,3 +236,6 @@ $RECYCLE.BIN/
 .windsurf/
 .claude/
 .gemini/
+
+# Site
+site/docs/
