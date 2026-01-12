@@ -136,6 +136,11 @@ npm run build
 
 ## Token Naming Conventions
 
+**Important:** Token keys must NOT contain dots (`.`). Use hyphens (`-`) instead for fractional values.
+
+- Correct: `"0-5"`, `"1-5"`, `"2-5"`
+- Incorrect: `"0.5"`, `"1.5"`, `"2.5"`
+
 ### Colors
 
 - **Primitives:** `color-{hue}-{scale}`
@@ -146,7 +151,7 @@ npm run build
 ### Spacing
 
 - **Primitives:** `spacing-{size}`
-  - Example: `spacing-xs`, `spacing-md`, `spacing-2xl`
+  - Example: `spacing-xs`, `spacing-md`, `spacing-2xl`, `spacing-0-5`
 - **Semantic:** `{component}-{property}`
   - Example: `button-padding-x`, `card-gap`
 

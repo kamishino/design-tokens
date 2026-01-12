@@ -35,16 +35,12 @@ async function validate() {
       console.log(chalk.gray("Loading tokens..."));
       await loadAllTokens(TOKENS_DIR, allTokens);
 
-      console.log(
-        chalk.gray(`Loaded ${Object.keys(allTokens).length} token files\n`)
-      );
+      console.log(chalk.gray(`Loaded ${Object.keys(allTokens).length} token files\n`));
 
       // Schema validation (temporarily disabled - nested group structures need schema refinement)
       if (await fs.pathExists(SCHEMA_PATH)) {
         console.log(chalk.gray("Schema validation temporarily disabled"));
-        warnings.push(
-          "Schema validation disabled - nested token groups need schema refinement"
-        );
+        warnings.push("Schema validation disabled - nested token groups need schema refinement");
       } else {
         warnings.push("schema.json not found - skipping schema validation");
       }
@@ -52,39 +48,21 @@ async function validate() {
       // Third pass: Validate structure and references
       const primitivesDir = path.join(TOKENS_DIR, "primitives");
       if (await fs.pathExists(primitivesDir)) {
-        await validateDirectory(
-          primitivesDir,
-          "primitives",
-          errors,
-          warnings,
-          allTokens
-        );
+        await validateDirectory(primitivesDir, "primitives", errors, warnings, allTokens);
       } else {
         warnings.push("Primitives directory not found");
       }
 
       const semanticDir = path.join(TOKENS_DIR, "semantic");
       if (await fs.pathExists(semanticDir)) {
-        await validateDirectory(
-          semanticDir,
-          "semantic",
-          errors,
-          warnings,
-          allTokens
-        );
+        await validateDirectory(semanticDir, "semantic", errors, warnings, allTokens);
       } else {
         warnings.push("Semantic directory not found");
       }
 
       const themesDir = path.join(TOKENS_DIR, "themes");
       if (await fs.pathExists(themesDir)) {
-        await validateDirectory(
-          themesDir,
-          "themes",
-          errors,
-          warnings,
-          allTokens
-        );
+        await validateDirectory(themesDir, "themes", errors, warnings, allTokens);
       }
 
       // Fourth pass: Check for broken references
@@ -107,9 +85,7 @@ async function validate() {
 
     if (!hasErrors && errors.length === 0) {
       console.log(chalk.green("✓ All tokens are valid!"));
-      console.log(
-        chalk.gray(`  Total tokens validated: ${countTokens(allTokens)}`)
-      );
+      console.log(chalk.gray(`  Total tokens validated: ${countTokens(allTokens)}`));
     }
 
     process.exit(hasErrors ? 1 : 0);
@@ -145,9 +121,7 @@ async function validateAgainstSchema(allTokens, schema, ajv, errors) {
   if (schemaErrors === 0) {
     console.log(chalk.gray("Schema validation passed ✓\n"));
   } else {
-    console.log(
-      chalk.red(`Schema validation failed for ${schemaErrors} file(s)\n`)
-    );
+    console.log(chalk.red(`Schema validation failed for ${schemaErrors} file(s)\n`));
   }
 }
 
@@ -204,6 +178,11 @@ function validateTokenStructure(obj, fileName, tokenPath, errors, warnings) {
   for (const [key, value] of Object.entries(obj)) {
     const currentPath = tokenPath ? `${tokenPath}.${key}` : key;
 
+    // Check for dots in token keys (enforce dot-free naming convention)
+    if (key.includes(".")) {
+      errors.push(`${fileName} [${currentPath}]: Key "${key}" contains a forbidden dot. Replace dots with hyphens (e.g., "0.5" -> "0-5")`);
+    }
+
     if (typeof value === "object" && value !== null) {
       if (value.$value !== undefined) {
         // Token with $value (W3C DTCG format)
@@ -216,17 +195,13 @@ function validateTokenStructure(obj, fileName, tokenPath, errors, warnings) {
 
           // Check for placeholder values
           if (tokenValue.includes("{TODO}") || tokenValue.includes("TODO")) {
-            errors.push(
-              `${fileName} [${currentPath}]: Contains placeholder value "${tokenValue}"`
-            );
+            errors.push(`${fileName} [${currentPath}]: Contains placeholder value "${tokenValue}"`);
           }
 
           // Validate color format if type is color
           if (value.$type === "color" && !tokenValue.startsWith("{")) {
             if (!isValidColor(tokenValue)) {
-              errors.push(
-                `${fileName} [${currentPath}]: Invalid color format "${tokenValue}"`
-              );
+              errors.push(`${fileName} [${currentPath}]: Invalid color format "${tokenValue}"`);
             }
           }
         }
@@ -241,9 +216,7 @@ function validateTokenStructure(obj, fileName, tokenPath, errors, warnings) {
       }
 
       if (value.includes("{TODO}") || value.includes("TODO")) {
-        errors.push(
-          `${fileName} [${currentPath}]: Contains placeholder value "${value}"`
-        );
+        errors.push(`${fileName} [${currentPath}]: Contains placeholder value "${value}"`);
       }
     }
   }
@@ -269,9 +242,7 @@ function checkReferences(allTokens, errors, warnings) {
         if (!flatTokens[refKey]) {
           // Reference validation has false positives with nested structures
           // Make these warnings instead of errors for now
-          warnings.push(
-            `Token "${tokenPath}": References token "{${ref}}" (may be resolved at build time)`
-          );
+          warnings.push(`Token "${tokenPath}": References token "{${ref}}" (may be resolved at build time)`);
         }
       }
     }

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Dot-Free Naming Validation**: Enforced hyphenated naming convention for token keys
+  - **Validation Rule**: Token keys can no longer contain dots (.) character
+  - **Error Detection**: `validate-tokens.js` now throws errors if dots are found in keys
+  - **Error Message**: Clear guidance to replace dots with hyphens (e.g., "0.5" -> "0-5")
+  - **Build Integration**: Validation runs as part of build pipeline to prevent regressions
+  - **Prevents Ambiguity**: Eliminates confusion with dot-notation path separators in build tools
 - **Opacity Tokens**: New primitive token set for opacity values
   - **Token File**: `tokens/primitives/opacity.json` with 15 standardized opacity values
   - **Scale**: 0, 5, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 95, 100
@@ -52,6 +58,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Token Key Naming Convention**: Standardized fractional number keys to use hyphens
+  - **Spacing Keys**: Renamed `"0.5"` to `"0-5"` in `tokens/primitives/spacing.json`
+  - **Radius Keys**: Renamed `"0.5"` to `"0-5"` in `tokens/primitives/radius.json`
+  - **Utility Classes**: Generated classes now use hyphenated format (`.p-0-5`, `.m-0-5`, `.gap-0-5`)
+  - **CSS Variables**: Updated to `--spacing-0-5`, `--radius-0-5` for consistency
+  - **Rationale**: Prevents ambiguity with dot-notation in build tools and JavaScript access patterns
+  - **Breaking Change**: Existing code using `spacing["0.5"]` must update to `spacing["0-5"]`
 - **W3C Design Token Format**: Enhanced compatibility with W3C Design Token specification
   - **Format Support**: All tokens already use W3C format (`$value`, `$type`)
   - **Style Dictionary**: Updated TypeScript formatter to support both `$value` and legacy `value`
