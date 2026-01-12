@@ -106,9 +106,33 @@ git commit -m "feat: update primary color palette"
 
 ---
 
-### Step 3: Build & Validate 🔨
+### Step 3: Development & Build 🔨
 
-**Tool:** NPM Scripts
+#### Option A: Live Reload Development (Recommended)
+
+**For active token development with instant feedback:**
+
+```bash
+# Start watch mode + preview server
+npm run dev
+
+# This runs two parallel processes:
+# 1. Token watcher (nodemon) - monitors tokens/ folder
+# 2. Preview server (vite) - serves documentation at http://localhost:4173
+#
+# ✨ Edit any token file → auto-rebuild → browser refreshes
+# 🎯 Perfect for rapid iteration and visual verification
+```
+
+**What happens on file change:**
+1. Nodemon detects JSON file change in `tokens/`
+2. Auto-runs: `tokens:scale` → `tokens:validate` → `tokens:compile` → `tokens:export-*`
+3. Vite HMR detects `dist/` changes
+4. Browser automatically refreshes with new token values
+
+#### Option B: Manual Build & Validate
+
+**For one-time builds or CI/CD:**
 
 ```bash
 # Validate token structure and references
@@ -606,10 +630,17 @@ ls docs/variables.css
 ### Common Commands
 
 ```bash
+# Development
+npm run dev                # 🔥 Watch mode + preview server (live reload, parallel execution)
+npm run tokens:watch       # Watch tokens/ folder and rebuild on changes
+
+# Building
 npm run build              # Build everything (grouped: core → exports → site)
 npm run build:core         # Core pipeline (validate → scale → compile)
 npm run build:exports      # Export pipeline (backend → utils → figma)
 npm run build:site         # Site build only
+
+# Token Operations
 npm run tokens:compile     # Build tokens only (CSS, SCSS, JS, JSON)
 npm run tokens:validate    # Check token structure and references
 npm run tokens:scale       # Generate modular typography scale
@@ -617,8 +648,12 @@ npm run tokens:test        # Run build output tests
 npm run tokens:export-backend   # Build backend artifacts
 npm run tokens:export-figma     # Build Figma-optimized tokens
 npm run tokens:export-utils     # Generate utility classes
+
+# Site
 npm run site:build         # Build documentation site
 npm run site:serve         # Preview production build locally
+
+# Maintenance
 npm test                   # Run all tests
 npm run clean              # Clean dist/ and docs/ folders
 npm run pack:dry           # Preview package contents

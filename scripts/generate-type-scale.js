@@ -17,6 +17,10 @@ const SEMANTIC_TYPOGRAPHY_PATH = path.join(
   __dirname,
   "../tokens/semantic/typography.json"
 );
+const GENERATED_SCALE_PATH = path.join(
+  __dirname,
+  "../tokens/generated/typography-scale.json"
+);
 
 /**
  * Resolve a token reference to its actual value
@@ -143,13 +147,37 @@ async function generateTypeScale() {
       };
     }
 
-    // Update only the scale section, preserve root and basic
-    typography.font.size.scale = scaleObject;
+    // Create generated file structure (only scale, not modifying source)
+    const generatedContent = {
+      font: {
+        size: {
+          scale: scaleObject,
+        },
+      },
+    };
 
-    // Write back to file
-    await fs.writeJSON(TYPOGRAPHY_PATH, typography, { spaces: 2 });
+    // Diff check: only write if content has changed
+    let shouldWrite = true;
+    if (await fs.pathExists(GENERATED_SCALE_PATH)) {
+      const existingContent = await fs.readJSON(GENERATED_SCALE_PATH);
+      if (
+        JSON.stringify(existingContent) === JSON.stringify(generatedContent)
+      ) {
+        shouldWrite = false;
+        console.log(chalk.gray("✓ No changes detected, skipping write\n"));
+      }
+    }
 
-    console.log(chalk.green("✓ Modular scale generated:\n"));
+    if (shouldWrite) {
+      // Ensure generated directory exists
+      await fs.ensureDir(path.dirname(GENERATED_SCALE_PATH));
+
+      // Write to generated directory (not source)
+      await fs.writeJSON(GENERATED_SCALE_PATH, generatedContent, { spaces: 2 });
+      console.log(chalk.green("✓ Modular scale generated:\n"));
+    } else {
+      console.log(chalk.green("✓ Modular scale up-to-date:\n"));
+    }
 
     console.log(chalk.cyan("  Fixed UI Sizes (font.size.basic.*):"));
     console.log(

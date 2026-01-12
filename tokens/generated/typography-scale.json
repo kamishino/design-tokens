@@ -1,0 +1,49 @@
+{
+  "font": {
+    "size": {
+      "scale": {
+        "1": {
+          "value": "20px",
+          "$type": "fontSizes",
+          "$description": "Step 1: 16px × 1.25^1 = 20px"
+        },
+        "2": {
+          "value": "25px",
+          "$type": "fontSizes",
+          "$description": "Step 2: 16px × 1.25^2 = 25px"
+        },
+        "3": {
+          "value": "31px",
+          "$type": "fontSizes",
+          "$description": "Step 3: 16px × 1.25^3 = 31px"
+        },
+        "4": {
+          "value": "39px",
+          "$type": "fontSizes",
+          "$description": "Step 4: 16px × 1.25^4 = 39px"
+        },
+        "5": {
+          "value": "49px",
+          "$type": "fontSizes",
+          "$description": "Step 5: 16px × 1.25^5 = 49px"
+        },
+        "6": {
+          "value": "61px",
+          "$type": "fontSizes",
+          "$description": "Step 6: 16px × 1.25^6 = 61px"
+        },
+        "7": {
+          "value": "76px",
+          "$type": "fontSizes",
+          "$description": "Step 7: 16px × 1.25^7 = 76px"
+        },
+        "8": {
+          "value": "95px",
+          "$type": "fontSizes",
+          "$description": "Step 8: 16px × 1.25^8 = 95px"
+        },
+        "$description": "Modular scale sizes for content hierarchy - generated dynamically from scale.json ratio"
+      }
+    }
+  }
+}

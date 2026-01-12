@@ -302,6 +302,33 @@ import darkTheme from '@your-org/kami-design-tokens/json/theme-dark.json';
 ```
 3. Run `npm run build` to generate theme artifacts
 
+## Token Directory Structure
+
+The repository maintains a clear separation between **source tokens** (manually edited) and **generated tokens** (auto-generated):
+
+```
+tokens/
+├── primitives/          # 📝 Source: Manual edits here
+│   ├── colors.json      # Base color palette
+│   ├── spacing.json     # Spacing scale
+│   ├── typography.json  # Font families, weights, line heights, base sizes
+│   ├── radius.json      # Border radius values
+│   └── ...
+├── generated/           # 🤖 Generated: Auto-created, do not edit
+│   └── typography-scale.json  # Modular scale font sizes (calculated)
+├── semantic/            # 📝 Source: Semantic token mappings
+│   ├── colors.json      # UI role-based colors (bg, text, actions, status)
+│   └── typography.json  # Typography configuration and references
+└── themes/              # 📝 Source: Theme overrides
+    └── dark.json        # Dark mode token overrides
+```
+
+**Important Notes:**
+- **Source tokens** (`primitives/`, `semantic/`, `themes/`) are committed to Git and manually maintained
+- **Generated tokens** (`generated/`) are auto-created during build and committed to Git
+- **Watch mode** ignores `generated/` directory to prevent infinite rebuild loops
+- **Style Dictionary** merges both source and generated tokens during build
+
 ## Documentation
 
 📚 **[Live Token Documentation](https://kamishino.github.io/design-tokens/)**
@@ -380,16 +407,20 @@ npm run build
 
 ### Development Workflow
 ```bash
-# Start dev server with hot reload for preview site
+# Start watch mode + preview server (recommended for development)
 npm run dev
 
-# The preview site will open at http://localhost:5173
-# Changes to tokens or site code will automatically reload
+# This command runs two processes in parallel:
+# 1. Token watcher: Monitors tokens/ folder and rebuilds on changes
+# 2. Vite preview server: Serves the documentation site at http://localhost:4173
+#
+# ✨ Live Reload: Edit any token file → automatic rebuild → browser refreshes
+# 🎯 Fast Feedback: See design changes instantly without manual rebuild
 ```
 
 ### Scripts
 ```bash
-npm run dev                     # Start Vite dev server with HMR for preview site
+npm run dev                     # 🔥 Watch mode + preview server (parallel execution with live reload)
 npm run build                   # Build all artifacts (grouped: core → exports → site)
 npm run build:core              # Build core tokens (validate → scale → compile)
 npm run build:exports           # Build all exports (backend, utils, figma)
@@ -398,6 +429,7 @@ npm run tokens:scale            # Generate font sizes from modular scale ratio
 npm run tokens:compile          # Build tokens only (CSS, SCSS, JS, JSON)
 npm run tokens:validate         # Validate token structure and references
 npm run tokens:test             # Run build output tests
+npm run tokens:watch            # Watch tokens/ folder and rebuild on changes (auto-used by dev)
 npm run tokens:export-backend   # Build backend artifacts (token-names.json, token-values.json)
 npm run tokens:export-figma     # Generate Figma-optimized tokens with scoping
 npm run tokens:export-utils     # Generate utility classes

@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Live Reload Development Mode**: Enhanced developer experience with automatic rebuilds
+  - **Watch Mode**: New `tokens:watch` script monitors `tokens/` folder for changes
+  - **Parallel Execution**: `npm run dev` now runs token watcher + preview server concurrently
+  - **Auto-Rebuild**: Changes to token files trigger automatic rebuild chain (scale → validate → compile → exports)
+  - **Instant Feedback**: Browser automatically refreshes with updated tokens via Vite HMR
+  - **Color-Coded Output**: Concurrently provides prefixed, colored logs for easy monitoring
+  - **Dependencies**: Added `nodemon` (file watching) and `concurrently` (parallel execution)
 - **Build Pipeline Fixes**: Resolved validation errors and corrected build order
   - **Schema Pattern**: Fixed regex to allow dots in token keys (e.g., radius "0.5", "1.5")
   - **Build Order**: Corrected to generate scale before validation (scale → validate → compile)
@@ -20,6 +27,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Composable Build**: Created build:core, build:exports, build:site groups
   - **Autocomplete Friendly**: Scripts cluster by noun for better IDE experience
   - **All Scripts Renamed**: generate:type-scale → tokens:scale, build:tokens → tokens:compile, etc.
+
+### Fixed
+
+- **Infinite Build Loop**: Resolved watch mode infinite rebuild cycle
+  - **Root Cause**: Type scale generator modified source files that watcher monitored
+  - **Solution**: Separated generated tokens to `tokens/generated/` directory
+  - **Architecture**: Source tokens (`tokens/primitives/`) vs. Generated tokens (`tokens/generated/`)
+  - **Watcher Update**: Nodemon now ignores `tokens/generated/` to prevent loop
+  - **Diff Check**: Generator skips write if content unchanged (optimization)
+  - **Style Dictionary**: Updated to merge both source and generated token paths
+  - **Result**: `npm run dev` now stabilizes after initial build, CPU returns to idle
 - **Workflow Documentation Enhancement**: Comprehensive updates to WORKFLOW.md
   - **Code → Figma Flow**: Added instructions for using optimized dist/figma/ tokens
   - **Theme Management Guide**: Step-by-step instructions for creating and deploying themes

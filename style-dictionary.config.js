@@ -297,7 +297,11 @@ StyleDictionary.registerFormat({
 });
 
 module.exports = {
-  source: ["tokens/primitives/**/*.json", "tokens/semantic/**/*.json"],
+  source: [
+    "tokens/primitives/**/*.json",
+    "tokens/generated/**/*.json",
+    "tokens/semantic/**/*.json",
+  ],
   platforms: {
     css: {
       transformGroup: "css",

@@ -26,7 +26,7 @@
     "WORKFLOW.md"
   ],
   "scripts": {
-    "dev": "npm run tokens:compile && npm run tokens:export-utils && npm run site:serve",
+    "dev": "concurrently \"npm run tokens:watch\" \"npm run site:serve\" --names \"tokens,site\" --prefix-colors \"cyan,green\"",
     "build": "npm run clean && npm run build:core && npm run build:exports && npm run build:site",
     "build:core": "npm run tokens:scale && npm run tokens:validate && npm run tokens:compile",
     "build:exports": "npm run tokens:export-backend && npm run tokens:export-utils && npm run tokens:export-figma",
@@ -39,6 +39,7 @@
     "tokens:compile": "node scripts/build-tokens.js",
     "tokens:validate": "node scripts/validate-tokens.js",
     "tokens:test": "node scripts/test-tokens.js",
+    "tokens:watch": "nodemon --watch tokens --ignore tokens/generated --ext json --exec \"npm run build:core && npm run build:exports\"",
     "tokens:export-backend": "node scripts/build-backend.js",
     "tokens:export-figma": "node scripts/optimize-for-figma.js",
     "tokens:export-utils": "node scripts/build-utilities.js",
@@ -69,8 +70,10 @@
     "@types/node": "^20.10.0",
     "ajv": "^8.12.0",
     "chalk": "^4.1.2",
+    "concurrently": "^9.2.1",
     "fs-extra": "^11.1.0",
     "glob": "^8.1.0",
+    "nodemon": "^3.1.11",
     "rimraf": "^3.0.2",
     "style-dictionary": "^3.8.0",
     "typescript": "^5.3.3",
