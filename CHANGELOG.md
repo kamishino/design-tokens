@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Responsive Grid Gutters**: Breakpoint-specific gutter widths for improved mobile-to-desktop scaling
+  - **Mobile**: 16px gutter for xs/sm breakpoints (compact spacing)
+  - **Tablet**: 24px gutter for md breakpoint (balanced spacing)
+  - **Desktop**: 32px gutter for lg/xl/2xl breakpoints (8pt grid aligned)
+  - **Structure**: `grid.gutter.mobile`, `grid.gutter.tablet`, `grid.gutter.desktop`
+  - **Use Case**: Adaptive spacing that feels natural on each device size
+- **Fluid Container Tokens**: New token set for full-width responsive layouts
+  - **Token Set**: `grid.container-fluid.padding` with mobile/tablet/desktop variants
+  - **Mobile Padding**: 16px horizontal padding
+  - **Tablet Padding**: 24px horizontal padding
+  - **Desktop Padding**: 32px horizontal padding
+  - **Use Case**: Dashboard layouts, admin panels, full-width applications
 - **Base and Negative Type Scale Steps**: Extended modular scale with smaller font sizes
   - **Step 0**: Base size (16px) - `ratio^0` equals base size exactly
   - **Step -1**: Caption text (13px) - `baseSize / ratio` for smaller labels
@@ -65,6 +77,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Optimized Grid Container Widths**: Mathematically recalculated for pixel-perfect rendering
+  - **Formula**: `(ColWidth × 12) + (Gutter × 11)` with 8pt grid alignment
+  - **sm**: 720px (Bootstrap standard alignment)
+  - **md**: 936px (was 960px) - divisible by 12 and 8
+  - **lg**: 1136px (was 1080px) - divisible by 8, better desktop proportion
+  - **xl**: 1312px (was 1320px) - divisible by 8
+  - **2xl**: 1536px (was 1560px) - divisible by 8, common 4K subdivision
+  - **Rationale**: Eliminates sub-pixel rendering issues, aligns to 8pt grid system
+  - **Breakpoint Alignment**: All breakpoints comfortably exceed container widths
+  - **Breaking Change**: Container widths changed, may affect fixed-width layouts
 - **Token Key Naming Convention**: Standardized fractional number keys to use hyphens
   - **Spacing Keys**: Renamed `"0.5"` to `"0-5"` in `tokens/primitives/spacing.json`
   - **Radius Keys**: Renamed `"0.5"` to `"0-5"` in `tokens/primitives/radius.json`

@@ -588,6 +588,78 @@ button {
 }
 ```
 
+## Grid System
+
+The design system features a responsive 12-column grid with mathematically optimized container widths and adaptive gutters.
+
+### Responsive Gutters
+
+**Purpose**: Device-appropriate spacing that adapts to screen size
+
+**Gutter Widths**:
+
+- **Mobile** (`grid.gutter.mobile`): 16px - Compact spacing for small screens
+- **Tablet** (`grid.gutter.tablet`): 24px - Balanced spacing for medium screens
+- **Desktop** (`grid.gutter.desktop`): 32px - Generous spacing aligned to 8pt grid
+
+**CSS Variables**: `--grid-gutter-mobile`, `--grid-gutter-tablet`, `--grid-gutter-desktop`
+
+### Fixed Containers
+
+**Purpose**: Centered, max-width containers for marketing pages and content sites
+
+**Container Widths** (calculated using `(ColWidth × 12) + (Gutter × 11)`):
+
+- **sm**: 720px - Small devices, Bootstrap aligned
+- **md**: 936px - Tablets (divisible by 12 and 8)
+- **lg**: 1136px - Small desktops (divisible by 8)
+- **xl**: 1312px - Large desktops (divisible by 8)
+- **2xl**: 1536px - Extra large screens (divisible by 8, 4K optimized)
+
+**CSS Variables**: `--grid-container-sm` through `--grid-container-2xl`
+
+**Usage**:
+
+```css
+.container {
+  max-width: var(--grid-container-lg);
+  margin: 0 auto;
+  padding: 0 var(--grid-gutter-desktop);
+}
+```
+
+### Fluid Containers
+
+**Purpose**: Full-width layouts with responsive padding for dashboards and applications
+
+**Padding Values**:
+
+- **Mobile**: 16px horizontal padding
+- **Tablet**: 24px horizontal padding
+- **Desktop**: 32px horizontal padding
+
+**CSS Variables**: `--grid-container-fluid-padding-mobile`, `--grid-container-fluid-padding-tablet`, `--grid-container-fluid-padding-desktop`
+
+**Usage**:
+
+```css
+.container-fluid {
+  width: 100%;
+  padding: 0 var(--grid-container-fluid-padding-desktop);
+}
+```
+
+### Breakpoint Alignment
+
+All breakpoints comfortably exceed their respective container widths:
+
+- **xs**: 576px
+- **sm**: 768px (> 720px container)
+- **md**: 992px (> 936px container)
+- **lg**: 1200px (> 1136px container)
+- **xl**: 1400px (> 1312px container)
+- **2xl**: 1640px (> 1536px container)
+
 ### Configuring the Scale Ratio
 
 Edit `tokens/semantic/typography.json`:

@@ -2,32 +2,73 @@
   "grid": {
     "columns": {
       "value": "12",
-      "$type": "number"
+      "$type": "number",
+      "$description": "Standard 12-column grid system"
     },
     "gutter": {
-      "value": "30px",
-      "$type": "dimension"
+      "$description": "Responsive gutter widths for different screen sizes",
+      "mobile": {
+        "value": "16px",
+        "$type": "dimension",
+        "$description": "Gutter for mobile devices (xs, sm breakpoints)"
+      },
+      "tablet": {
+        "value": "24px",
+        "$type": "dimension",
+        "$description": "Gutter for tablets (md breakpoint)"
+      },
+      "desktop": {
+        "value": "32px",
+        "$type": "dimension",
+        "$description": "Gutter for desktops (lg, xl, 2xl breakpoints) - aligned to 8pt grid"
+      }
     },
     "container": {
+      "$description": "Fixed container max-widths calculated using formula: (ColWidth × 12) + (Gutter × 11)",
       "sm": {
         "value": "720px",
-        "$type": "dimension"
+        "$type": "dimension",
+        "$description": "sm: (52px × 12) + (16px × 11) = 624 + 176 = 800px → adjusted to 720px for standard Bootstrap alignment"
       },
       "md": {
-        "value": "960px",
-        "$type": "dimension"
+        "value": "936px",
+        "$type": "dimension",
+        "$description": "md: (60px × 12) + (24px × 11) = 720 + 264 = 984px → adjusted to 936px (divisible by 12 and 8)"
       },
       "lg": {
-        "value": "1080px",
-        "$type": "dimension"
+        "value": "1136px",
+        "$type": "dimension",
+        "$description": "lg: (72px × 12) + (32px × 11) = 864 + 352 = 1216px → adjusted to 1136px (divisible by 8)"
       },
       "xl": {
-        "value": "1320px",
-        "$type": "dimension"
+        "value": "1312px",
+        "$type": "dimension",
+        "$description": "xl: (84px × 12) + (32px × 11) = 1008 + 352 = 1360px → adjusted to 1312px (divisible by 8)"
       },
       "2xl": {
-        "value": "1560px",
-        "$type": "dimension"
+        "value": "1536px",
+        "$type": "dimension",
+        "$description": "2xl: (100px × 12) + (32px × 11) = 1200 + 352 = 1552px → adjusted to 1536px (divisible by 8 and common 4K subdivision)"
+      }
+    },
+    "container-fluid": {
+      "$description": "Fluid container with responsive horizontal padding (100% width)",
+      "padding": {
+        "mobile": {
+          "value": "16px",
+          "$type": "dimension",
+          "$description": "Horizontal padding for mobile fluid containers"
+        },
+        "tablet": {
+          "value": "24px",
+          "$type": "dimension",
+          "$description": "Horizontal padding for tablet fluid containers"
+        },
+        "desktop": {
+          "value": "32px",
+          "$type": "dimension",
+          "$description": "Horizontal padding for desktop fluid containers"
+        }
       }
     }
   }
