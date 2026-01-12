@@ -3,10 +3,16 @@
  * Checks token files for correct format, broken references, invalid values, and schema compliance
  */
 
-const fs = require("fs-extra");
-const path = require("path");
-const chalk = require("chalk");
-const Ajv = require("ajv");
+import fs from "fs-extra";
+import path from "path";
+import chalk from "chalk";
+import Ajv from "ajv";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+// ESM __dirname shim
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const TOKENS_DIR = path.join(__dirname, "../tokens");
 const SCHEMA_PATH = path.join(TOKENS_DIR, "schema.json");

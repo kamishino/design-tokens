@@ -4,9 +4,15 @@
  * Runs before Style Dictionary to ensure font sizes are calculated dynamically
  */
 
-const fs = require("fs-extra");
-const path = require("path");
-const chalk = require("chalk");
+import fs from "fs-extra";
+import path from "path";
+import chalk from "chalk";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+// ESM __dirname shim
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const TYPOGRAPHY_PATH = path.join(
   __dirname,
@@ -240,8 +246,6 @@ function getRatioName(targetRatio, scaleData) {
 }
 
 // Run if called directly
-if (require.main === module) {
-  generateTypeScale();
-}
+generateTypeScale();
 
-module.exports = generateTypeScale;
+export default generateTypeScale;

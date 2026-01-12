@@ -3,7 +3,7 @@
  * Defines how design tokens are transformed into platform-specific formats
  */
 
-const StyleDictionary = require("style-dictionary");
+import StyleDictionary from "style-dictionary";
 
 // Custom format for strict TypeScript definitions
 StyleDictionary.registerFormat({
@@ -296,7 +296,7 @@ StyleDictionary.registerFormat({
   },
 });
 
-module.exports = {
+export default {
   source: [
     "tokens/primitives/**/*.json",
     "tokens/generated/**/*.json",

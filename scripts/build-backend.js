@@ -3,11 +3,17 @@
  * Generates flat JSON files for backend validation and rendering
  */
 
-const fs = require('fs-extra');
-const path = require('path');
-const chalk = require('chalk');
+import fs from "fs-extra";
+import path from "path";
+import chalk from "chalk";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
-const DIST_JSON_DIR = path.join(__dirname, '../dist/json');
+// ESM __dirname shim
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const DIST_JSON_DIR = path.join(__dirname, "../dist/json");
 
 /**
  * Flatten nested token object into dot notation
@@ -15,13 +21,13 @@ const DIST_JSON_DIR = path.join(__dirname, '../dist/json');
  * @param {string} prefix - Current path prefix
  * @returns {Object} - Flattened object with dot notation keys
  */
-function flattenTokens(obj, prefix = '') {
+function flattenTokens(obj, prefix = "") {
   const result = {};
-  
+
   for (const [key, value] of Object.entries(obj)) {
     const newKey = prefix ? `${prefix}.${key}` : key;
-    
-    if (value && typeof value === 'object') {
+
+    if (value && typeof value === "object") {
       // Check if this is a token (has value or $value property)
       if (value.value !== undefined || value.$value !== undefined) {
         result[newKey] = value.value || value.$value;
@@ -34,7 +40,7 @@ function flattenTokens(obj, prefix = '') {
       result[newKey] = value;
     }
   }
-  
+
   return result;
 }
 
@@ -42,7 +48,7 @@ function flattenTokens(obj, prefix = '') {
  * Generate backend artifacts
  */
 async function buildBackendArtifacts() {
-  console.log(chalk.blue('🔧 Building backend artifacts...\n'));
+  console.log(chalk.blue("🔧 Building backend artifacts...\n"));
 
   try {
     // Ensure dist/json directory exists
@@ -102,14 +108,12 @@ async function buildBackendArtifacts() {
       chalk.gray(`  ... and ${Object.keys(flatTokens).length - 5} more\n`)
     );
   } catch (error) {
-    console.error(chalk.red('✗ Backend build failed:'), error.message);
+    console.error(chalk.red("✗ Backend build failed:"), error.message);
     process.exit(1);
   }
 }
 
-// Run if called directly
-if (require.main === module) {
-  buildBackendArtifacts();
-}
+// Run the function
+buildBackendArtifacts();
 
-module.exports = buildBackendArtifacts;
+export default buildBackendArtifacts;

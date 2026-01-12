@@ -30,6 +30,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ESM Migration**: Modernized project to use ECMAScript Modules
+  - **Package Type**: Added `"type": "module"` to package.json for native ESM support
+  - **All Scripts**: Migrated 8 build scripts from CommonJS to ESM syntax
+  - **Import Syntax**: Changed from `require()` to `import` statements throughout
+  - **Export Syntax**: Changed from `module.exports` to `export default`
+  - **__dirname Shim**: Added ESM-compatible `__dirname` using fileURLToPath in all scripts
+  - **Style Dictionary**: Config file converted to ESM with dynamic import support
+  - **Vite Warning**: Eliminated "CJS build of Vite's Node API is deprecated" warning
+  - **Future-Proof**: Project now uses modern JavaScript module system
 - **Site Development Server**: Enhanced `site:serve` to use Vite dev mode with HMR
   - **Old Behavior**: `vite preview` served static production build
   - **New Behavior**: `vite` runs dev server with Hot Module Replacement

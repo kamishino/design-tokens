@@ -4,13 +4,19 @@
  * Supports multi-theme builds
  */
 
-const StyleDictionary = require('style-dictionary');
-const chalk = require('chalk');
-const fs = require('fs-extra');
-const path = require('path');
+import StyleDictionary from "style-dictionary";
+import chalk from "chalk";
+import fs from "fs-extra";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+// ESM __dirname shim
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Load the base configuration
-const baseConfig = require('../style-dictionary.config.js');
+const baseConfig = (await import("../style-dictionary.config.js")).default;
 
 async function buildTokens() {
   console.log(chalk.blue('🎨 Building design tokens...\n'));

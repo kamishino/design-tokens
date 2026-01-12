@@ -2,6 +2,7 @@
   "name": "@your-org/kami-design-tokens",
   "version": "1.0.0",
   "description": "Centralized design tokens repository - Single Source of Truth for design values across all platforms",
+  "type": "module",
   "main": "dist/js/tokens.js",
   "module": "dist/js/tokens.mjs",
   "types": "dist/js/tokens.d.ts",

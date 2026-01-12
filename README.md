@@ -389,8 +389,10 @@ kami-design-tokens/
 ## Development
 
 ### Prerequisites
-- Node.js 16+
+- Node.js 16+ (Node.js 20+ recommended for ESM support)
 - NPM 8+
+
+**Note**: This project uses ECMAScript Modules (ESM). All build scripts use `import/export` syntax instead of `require/module.exports`.
 
 ### Setup
 ```bash
