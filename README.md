@@ -16,6 +16,7 @@ This repository serves as the Single Source of Truth (SSOT) for all design token
 - 📦 **Versioned**: Semantic versioning for design updates
 - 🚀 **Automated CI/CD**: GitHub Actions for build and release
 - 🔧 **Type-Safe**: TypeScript definitions included
+- **Organized Output**: CSS grouped by category with headers, JSON alphabetically sorted
 
 ## Installation
 

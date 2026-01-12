@@ -166,6 +166,48 @@ ${dictionary.allTokens.map(token => {
   }
 });
 
+// Register custom format for categorized CSS variables
+StyleDictionary.registerFormat({
+  name: 'css/variables-separated',
+  formatter: function({ dictionary }) {
+    // Group tokens by top-level category
+    const categories = {};
+    
+    dictionary.allProperties.forEach(prop => {
+      const category = prop.path[0]; // First part of path (e.g., 'color', 'spacing')
+      if (!categories[category]) {
+        categories[category] = [];
+      }
+      categories[category].push(prop);
+    });
+    
+    // Sort category names for consistent output
+    const sortedCategories = Object.keys(categories).sort();
+    
+    // Build CSS string with category headers
+    let output = ':root {\n';
+    
+    sortedCategories.forEach((category, index) => {
+      // Add spacing before each category (except the first)
+      if (index > 0) {
+        output += '\n';
+      }
+      
+      // Add category header comment
+      output += `  /* ${category.toUpperCase()} */\n`;
+      
+      // Add all variables in this category
+      categories[category].forEach(prop => {
+        const value = prop.value;
+        output += `  --${prop.name}: ${value};\n`;
+      });
+    });
+    
+    output += '}\n';
+    return output;
+  }
+});
+
 module.exports = {
   source: [
     'tokens/primitives/**/*.json',
@@ -177,10 +219,7 @@ module.exports = {
       buildPath: 'dist/css/',
       files: [{
         destination: 'variables.css',
-        format: 'css/variables',
-        options: {
-          outputReferences: true
-        }
+        format: 'css/variables-separated'
       }]
     },
     scss: {
