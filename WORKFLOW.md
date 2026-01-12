@@ -118,9 +118,10 @@ npm run dev
 
 # This runs two parallel processes:
 # 1. Token watcher (nodemon) - monitors tokens/ folder
-# 2. Preview server (vite) - serves documentation at http://localhost:4173
+# 2. Vite dev server - serves documentation at http://localhost:5173/design-tokens/
 #
-# ✨ Edit any token file → auto-rebuild → browser refreshes
+# ✨ Edit token files → auto-rebuild → browser refreshes
+# 🔥 Edit site files → instant HMR update (no rebuild needed)
 # 🎯 Perfect for rapid iteration and visual verification
 ```
 
@@ -651,7 +652,8 @@ npm run tokens:export-utils     # Generate utility classes
 
 # Site
 npm run site:build         # Build documentation site
-npm run site:serve         # Preview production build locally
+npm run site:serve         # Start Vite dev server with HMR
+npm run site:preview       # Preview production build locally
 
 # Maintenance
 npm test                   # Run all tests

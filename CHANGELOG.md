@@ -28,6 +28,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Autocomplete Friendly**: Scripts cluster by noun for better IDE experience
   - **All Scripts Renamed**: generate:type-scale → tokens:scale, build:tokens → tokens:compile, etc.
 
+### Changed
+
+- **Site Development Server**: Enhanced `site:serve` to use Vite dev mode with HMR
+  - **Old Behavior**: `vite preview` served static production build
+  - **New Behavior**: `vite` runs dev server with Hot Module Replacement
+  - **HMR Enabled**: Instant updates when editing site source files (`site/main.ts`, `site/index.html`)
+  - **Dev Experience**: No rebuild needed for site edits, only token changes trigger rebuild
+  - **New Script**: Added `site:preview` for testing production builds locally
+  - **URL Changed**: Dev server runs on `http://localhost:5173/design-tokens/` (was :4173)
+
 ### Fixed
 
 - **Infinite Build Loop**: Resolved watch mode infinite rebuild cycle

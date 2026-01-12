@@ -407,14 +407,15 @@ npm run build
 
 ### Development Workflow
 ```bash
-# Start watch mode + preview server (recommended for development)
+# Start watch mode + dev server (recommended for development)
 npm run dev
 
 # This command runs two processes in parallel:
 # 1. Token watcher: Monitors tokens/ folder and rebuilds on changes
-# 2. Vite preview server: Serves the documentation site at http://localhost:4173
+# 2. Vite dev server: Serves documentation site with HMR at http://localhost:5173/design-tokens/
 #
 # ✨ Live Reload: Edit any token file → automatic rebuild → browser refreshes
+# 🔥 Hot Module Replacement: Edit site source files → instant browser updates (no rebuild)
 # 🎯 Fast Feedback: See design changes instantly without manual rebuild
 ```
 
@@ -434,7 +435,8 @@ npm run tokens:export-backend   # Build backend artifacts (token-names.json, tok
 npm run tokens:export-figma     # Generate Figma-optimized tokens with scoping
 npm run tokens:export-utils     # Generate utility classes
 npm run site:build              # Build documentation site (Vite production build)
-npm run site:serve              # Preview production build locally
+npm run site:serve              # Start Vite dev server with HMR (used by npm run dev)
+npm run site:preview            # Preview production build locally
 npm test                        # Run all tests (alias for tokens:test)
 npm run clean                   # Clean dist and docs folders
 npm run pack:dry                # Preview package contents before publishing
