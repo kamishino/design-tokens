@@ -38,7 +38,8 @@
     "validate": "node scripts/validate-tokens.js",
     "test": "node scripts/test-tokens.js",
     "prepublishOnly": "npm run build && npm test",
-    "pack:dry": "npm pack --dry-run"
+    "pack:dry": "npm pack --dry-run",
+    "archive:tasks": "node scripts/archive-tasks.js"
   },
   "keywords": [
     "design-tokens",

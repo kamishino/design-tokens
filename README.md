@@ -342,6 +342,9 @@ npm test                        # Run build output tests
 npm run clean                   # Clean dist and docs folders
 npm run pack:dry                # Preview package contents before publishing
 
+# Maintenance
+npm run archive:tasks           # Archive completed task files to tasks/_archived/
+
 # Utilities
 node scripts/check-contrast.js  # Verify WCAG AA color contrast compliance
 ```
