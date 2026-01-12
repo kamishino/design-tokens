@@ -1,5 +1,10 @@
+import { useState } from "react";
 import { TokenContent } from "../types";
 import TokenTree from "./TokenTree";
+import JSONEditor from "./JSONEditor";
+import { Icons } from "./Icons";
+
+type ViewMode = "tree" | "code";
 
 interface TokenEditorProps {
   filePath: string;
@@ -9,17 +14,84 @@ interface TokenEditorProps {
 }
 
 export default function TokenEditor({ filePath, content, onUpdate, hasChanges }: TokenEditorProps) {
+  const [viewMode, setViewMode] = useState<ViewMode>("tree");
+  const [expandAll, setExpandAll] = useState<boolean | undefined>(undefined);
+  const [jsonString, setJsonString] = useState(JSON.stringify(content, null, 2));
+
+  const handleJSONChange = (newJson: string) => {
+    setJsonString(newJson);
+  };
+
+  const handleValidChange = (isValid: boolean, parsed?: any) => {
+    if (isValid && parsed) {
+      // Update all token paths from the parsed JSON
+      Object.keys(parsed).forEach((key) => {
+        onUpdate([key], parsed[key]);
+      });
+    }
+  };
+
+  const handleExpandAll = () => {
+    setExpandAll(true);
+    setTimeout(() => setExpandAll(undefined), 100);
+  };
+
+  const handleCollapseAll = () => {
+    setExpandAll(false);
+    setTimeout(() => setExpandAll(undefined), 100);
+  };
   return (
-    <div className="token-editor">
-      <div className="editor-header">
-        <h2 className="editor-title">
-          {filePath}
-          {hasChanges && <span className="modified-badge">Modified</span>}
-        </h2>
+    <div className="card">
+      <div className="card-header">
+        <div className="d-flex justify-content-between align-items-center w-100">
+          <h3 className="card-title mb-0">
+            <i className={Icons.FILE_CODE + " me-2"}></i>
+            {filePath}
+          </h3>
+          <div className="d-flex align-items-center gap-2">
+            {hasChanges && <span className="badge bg-green">Modified</span>}
+
+            {/* View Mode Toggle */}
+            <div className="btn-group" role="group">
+              <button
+                type="button"
+                className={`btn btn-sm ${viewMode === "tree" ? "btn-primary" : "btn-outline-primary"}`}
+                onClick={() => setViewMode("tree")}
+              >
+                <i className={Icons.LAYERS + " me-1"}></i>
+                Tree
+              </button>
+              <button
+                type="button"
+                className={`btn btn-sm ${viewMode === "code" ? "btn-primary" : "btn-outline-primary"}`}
+                onClick={() => setViewMode("code")}
+              >
+                <i className={Icons.CODE + " me-1"}></i>
+                Code
+              </button>
+            </div>
+
+            {/* Expand/Collapse Controls (only in tree mode) */}
+            {viewMode === "tree" && (
+              <div className="btn-group" role="group">
+                <button type="button" className="btn btn-sm btn-outline-secondary" onClick={handleExpandAll} title="Expand All">
+                  <i className={Icons.CHEVRON_DOWN}></i>
+                </button>
+                <button type="button" className="btn btn-sm btn-outline-secondary" onClick={handleCollapseAll} title="Collapse All">
+                  <i className={Icons.CHEVRON_RIGHT}></i>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className="editor-content">
-        <TokenTree data={content} path={[]} onUpdate={onUpdate} />
+      <div className="card-body">
+        {viewMode === "tree" ? (
+          <TokenTree data={content} path={[]} onUpdate={onUpdate} expandAll={expandAll} />
+        ) : (
+          <JSONEditor value={jsonString} onChange={handleJSONChange} onValidChange={handleValidChange} />
+        )}
       </div>
     </div>
   );

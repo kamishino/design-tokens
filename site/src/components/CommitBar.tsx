@@ -1,3 +1,5 @@
+import { Icons } from "./Icons";
+
 interface CommitBarProps {
   changeCount: number;
   onCommit: () => void;
@@ -7,22 +9,35 @@ interface CommitBarProps {
 
 export default function CommitBar({ changeCount, onCommit, onCancel, disabled }: CommitBarProps) {
   return (
-    <div className="commit-bar">
-      <div className="commit-bar-content">
-        <div className="commit-info">
-          <span className="change-indicator">●</span>
-          <span className="change-text">
-            {changeCount} file{changeCount !== 1 ? "s" : ""} modified
-          </span>
-        </div>
+    <div className="navbar navbar-light sticky-bottom bg-white border-top shadow-lg">
+      <div className="container-xl">
+        <div className="d-flex align-items-center justify-content-between w-100">
+          <div className="d-flex align-items-center">
+            <span className="status-dot status-dot-animated bg-green me-2"></span>
+            <span className="text-muted">
+              <strong>{changeCount}</strong> file{changeCount !== 1 ? "s" : ""} modified
+            </span>
+          </div>
 
-        <div className="commit-actions">
-          <button className="btn btn-secondary" onClick={onCancel} disabled={disabled}>
-            Cancel
-          </button>
-          <button className="btn btn-primary" onClick={onCommit} disabled={disabled}>
-            {disabled ? "Committing..." : "Commit Changes & Build"}
-          </button>
+          <div className="btn-list">
+            <button className="btn btn-outline-secondary" onClick={onCancel} disabled={disabled}>
+              <i className={Icons.CANCEL + " me-1"}></i>
+              Cancel
+            </button>
+            <button className="btn btn-primary" onClick={onCommit} disabled={disabled}>
+              {disabled ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Committing...
+                </>
+              ) : (
+                <>
+                  <i className={Icons.SAVE + " me-1"}></i>
+                  Commit Changes & Build
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

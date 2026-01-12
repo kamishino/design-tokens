@@ -434,6 +434,8 @@ kami-design-tokens/
 
 🎨 **NEW**: Visual interface for managing design tokens with full CRUD capabilities.
 
+**Powered by [Tabler UI](https://tabler.io/)** - Professional dashboard design with Bootstrap 5 components.
+
 ### Quick Start
 
 ```bash
@@ -442,15 +444,23 @@ npm run build:core   # Build tokens first
 npm run dev          # Start dashboard (backend + frontend)
 ```
 
-Open http://localhost:5173 to access the dashboard.
+Open http://localhost:5173/design-tokens/ to access the dashboard.
 
 ### Features
 
-- **Visual Editor**: Click to edit token values inline
-- **File Browser**: Navigate tokens by category (primitives, semantic, themes)
-- **Draft System**: Preview changes before committing
+- **Professional UI**: Clean, modern interface with Tabler design system
+- **Dual-Mode Editor**: Switch between Tree and Code views
+  - **Tree View**: Visual navigation with expand/collapse controls
+  - **Code View**: Syntax-highlighted JSON editor with validation
+- **Visual Editor**: Click to edit token values inline with form controls
+- **File Browser**: Navigate tokens by category with icon-mapped sidebar
+- **Draft System**: Preview changes before committing with visual indicators
 - **Build Integration**: Automatic build trigger after saving
 - **Real-time Updates**: Changes reflect immediately in the UI
+- **Responsive Design**: Mobile-friendly with collapsible navigation
+- **UI Kitchen Sink**: Comprehensive component showcase for testing and reference
+- **Icon Registry**: Centralized icon management with 60+ semantic mappings
+- **CDN Health Check**: Automated monitoring via `npm run health:cdn`
 
 ### Documentation
 

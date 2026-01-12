@@ -400,3 +400,9 @@ body {
 .btn-secondary:hover:not(:disabled) {
   background: var(--border-color);
 }
+
+@media (min-width: 992px) {
+  .navbar-vertical.navbar-expand-lg .navbar-collapse .dropdown-menu .dropdown-item > .d-flex {
+    width: 100%;
+  }
+}

@@ -2,9 +2,14 @@ import { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import TokenEditor from "./components/TokenEditor";
 import CommitBar from "./components/CommitBar";
+import KitchenSink from "./components/KitchenSink";
+import { Icons } from "./components/Icons";
 import { TokenFile, TokenContent, DraftChanges } from "./types";
 
+type View = "dashboard" | "kitchenSink";
+
 export default function App() {
+  const [view, setView] = useState<View>("dashboard");
   const [files, setFiles] = useState<TokenFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [tokenContent, setTokenContent] = useState<TokenContent | null>(null);
@@ -109,40 +114,86 @@ export default function App() {
   const hasDraftChanges = Object.keys(draftChanges).length > 0;
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>🎨 Token Management Dashboard</h1>
-        <p>Design Token Manager - CRUD Interface</p>
-      </header>
-
-      <div className="app-layout">
-        <Sidebar files={files} selectedFile={selectedFile} onSelectFile={setSelectedFile} draftChanges={draftChanges} />
-
-        <main className="app-main">
-          {error && <div className="error-banner">⚠️ {error}</div>}
-
-          {loading && (
-            <div className="loading-overlay">
-              <div className="loading-spinner">Loading...</div>
+    <div className="page">
+      <div className="page-wrapper">
+        {/* Sidebar Navigation */}
+        <Sidebar files={files} selectedFile={selectedFile} onSelectFile={setSelectedFile} draftChanges={draftChanges} onViewChange={setView} />
+        {/* Page Content */}
+        <div className="page-body">
+          <div className="container-xl">
+            {/* Page Header */}
+            <div className="page-header d-print-none">
+              <div className="row align-items-center">
+                <div className="col">
+                  <h2 className="page-title">
+                    <i className={Icons.PALETTE + " me-2"}></i>
+                    Token Management Dashboard
+                  </h2>
+                  <div className="text-muted">Design Token Manager - CRUD Interface</div>
+                </div>
+                <div className="col-auto ms-auto">
+                  {hasDraftChanges && <span className="badge bg-green">{Object.keys(draftChanges).length} file(s) modified</span>}
+                </div>
+              </div>
             </div>
-          )}
 
-          {!selectedFile && !loading && (
-            <div className="empty-state">
-              <h2>Select a token file to begin</h2>
-              <p>Choose a file from the sidebar to view and edit tokens</p>
+            {/* Main Content */}
+            <div className="page-body">
+              {view === "kitchenSink" ? (
+                <KitchenSink />
+              ) : (
+                <>
+                  {error && (
+                    <div className="alert alert-danger alert-dismissible" role="alert">
+                      <div className="d-flex">
+                        <div>
+                          <i className={Icons.ALERT + " me-2"}></i>
+                        </div>
+                        <div>
+                          <h4 className="alert-title">Error!</h4>
+                          <div className="text-muted">{error}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {loading && (
+                    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "400px" }}>
+                      <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {!selectedFile && !loading && (
+                    <div className="empty">
+                      <div className="empty-icon">
+                        <i className={Icons.FILES}></i>
+                      </div>
+                      <p className="empty-title">Select a token file to begin</p>
+                      <p className="empty-subtitle text-muted">Choose a file from the sidebar to view and edit tokens</p>
+                    </div>
+                  )}
+
+                  {selectedFile && tokenContent && !loading && (
+                    <TokenEditor
+                      filePath={selectedFile}
+                      content={tokenContent}
+                      onUpdate={updateTokenValue}
+                      hasChanges={selectedFile in draftChanges}
+                    />
+                  )}
+                </>
+              )}
             </div>
-          )}
+          </div>
+        </div>
 
-          {selectedFile && tokenContent && !loading && (
-            <TokenEditor filePath={selectedFile} content={tokenContent} onUpdate={updateTokenValue} hasChanges={selectedFile in draftChanges} />
-          )}
-        </main>
+        {/* Commit Bar */}
+        {hasDraftChanges && (
+          <CommitBar changeCount={Object.keys(draftChanges).length} onCommit={commitChanges} onCancel={cancelChanges} disabled={loading} />
+        )}
       </div>
-
-      {hasDraftChanges && (
-        <CommitBar changeCount={Object.keys(draftChanges).length} onCommit={commitChanges} onCancel={cancelChanges} disabled={loading} />
-      )}
     </div>
   );
 }

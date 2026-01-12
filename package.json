@@ -49,7 +49,8 @@
     "site:build": "vite build",
     "site:serve": "vite --open /design-tokens/",
     "site:preview": "npm run site:build && vite preview",
-    "tasks:archive": "node scripts/archive-tasks.js"
+    "tasks:archive": "node scripts/archive-tasks.js",
+    "health:cdn": "node scripts/check-cdn.js"
   },
   "keywords": [
     "design-tokens",
@@ -71,8 +72,11 @@
   },
   "homepage": "https://github.com/your-org/kami-design-tokens#readme",
   "dependencies": {
+    "@types/prismjs": "^1.26.5",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "prismjs": "^1.30.0",
+    "react-simple-code-editor": "^0.14.1"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

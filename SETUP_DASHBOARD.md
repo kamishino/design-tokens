@@ -4,6 +4,8 @@
 
 The Token Management Dashboard is a React-based web interface for managing design tokens with full CRUD capabilities. It includes an Express backend API for file operations and build triggers.
 
+**UI Framework**: Built with [Tabler](https://tabler.io/) - A professional, open-source dashboard UI kit based on Bootstrap 5, providing clean and modern components via CDN.
+
 ## Architecture
 
 - **Backend**: Express.js API server (port 3001)
