@@ -29,6 +29,7 @@ interface TokenTreeProps {
   baselineContent?: TokenContent | null;
   onRevertToken?: (path: string[]) => void;
   onDeleteToken?: (path: string[]) => void;
+  onAddToGroup?: (path: string[], mode: "group" | "token") => void;
 }
 
 export default function TokenTree({
@@ -41,6 +42,7 @@ export default function TokenTree({
   baselineContent = null,
   onRevertToken,
   onDeleteToken,
+  onAddToGroup,
 }: TokenTreeProps) {
   // Use merged keys to include deleted tokens
   const keys = getMergedKeys(data, baselineContent);
@@ -84,6 +86,7 @@ interface TokenNodeProps {
   baselineContent?: TokenContent | null;
   onRevertToken?: (path: string[]) => void;
   onDeleteToken?: (path: string[]) => void;
+  onAddToGroup?: (path: string[], mode: "group" | "token") => void;
 }
 
 function TokenNode({
@@ -98,6 +101,7 @@ function TokenNode({
   baselineContent = null,
   onRevertToken,
   onDeleteToken,
+  onAddToGroup,
 }: TokenNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showAliasPicker, setShowAliasPicker] = useState(false);
@@ -625,6 +629,7 @@ function TokenNode({
               baselineContent={baselineValue || null}
               onRevertToken={onRevertToken}
               onDeleteToken={onDeleteToken}
+              onAddToGroup={onAddToGroup}
             />
           </div>
         )}

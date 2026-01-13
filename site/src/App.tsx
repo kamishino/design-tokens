@@ -9,6 +9,7 @@ import FigmaImport from "./components/FigmaImport";
 import FilteredResultsView from "./components/FilteredResultsView";
 import FindReplaceModal from "./components/FindReplaceModal";
 import ExportModal from "./components/ExportModal";
+import AddTokenModal from "./components/AddTokenModal";
 import { Icons } from "./components/Icons";
 import { TokenFile, TokenContent, DraftChanges } from "./types";
 import {
@@ -19,6 +20,7 @@ import {
   getTokenCountsByCategory,
   getAllTokensFlattened,
   findTokenLocation,
+  parseSlashPath,
 } from "./utils/token-logic";
 
 type View = "dashboard" | "kitchenSink";
@@ -42,6 +44,14 @@ export default function App() {
   const [showFigmaImport, setShowFigmaImport] = useState(false);
   const [showFindReplace, setShowFindReplace] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addModalMode, setAddModalMode] = useState<"file" | "group" | "token">(
+    "token"
+  );
+  const [addModalContext, setAddModalContext] = useState<{
+    file?: string;
+    path?: string;
+  }>({});
 
   // Load file list on mount
   useEffect(() => {
@@ -383,6 +393,133 @@ export default function App() {
     await loadAllTokens();
   };
 
+  // Handle creating a new file/set
+  const handleCreateFile = (
+    category: "primitives" | "semantic" | "themes",
+    filename: string
+  ) => {
+    const filePath = `tokens/${category}/${filename}.json`;
+    const newContent: TokenContent = {};
+
+    // Add to all tokens and draft changes
+    setAllTokensContent((prev) => ({
+      ...prev,
+      [filePath]: newContent,
+    }));
+
+    setDraftChanges((prev) => ({
+      ...prev,
+      [filePath]: newContent,
+    }));
+
+    // Refresh file list and select the new file
+    loadFiles().then(() => {
+      setSelectedFile(filePath);
+    });
+  };
+
+  // Handle creating a new group
+  const handleCreateGroup = (
+    filePath: string,
+    path: string,
+    groupName: string
+  ) => {
+    const content = allTokensContent[filePath];
+    if (!content) return;
+
+    const updatedContent = JSON.parse(JSON.stringify(content));
+    const pathParts = path ? path.split(".") : [];
+    let current = updatedContent;
+
+    // Navigate to target location
+    for (const part of pathParts) {
+      if (!current[part]) current[part] = {};
+      current = current[part];
+    }
+
+    // Add new group
+    current[groupName] = {};
+
+    // Update state
+    setAllTokensContent((prev) => ({
+      ...prev,
+      [filePath]: updatedContent,
+    }));
+
+    setDraftChanges((prev) => ({
+      ...prev,
+      [filePath]: updatedContent,
+    }));
+
+    // If this is the selected file, update its content too
+    if (filePath === selectedFile) {
+      setTokenContent(updatedContent);
+    }
+  };
+
+  // Handle creating a new token with support for slash-delimited nested paths
+  const handleCreateToken = (
+    filePath: string,
+    path: string,
+    tokenName: string,
+    tokenData: { $type: string; $value: any; $description?: string }
+  ) => {
+    const content = allTokensContent[filePath];
+    if (!content) return;
+
+    const updatedContent = JSON.parse(JSON.stringify(content));
+    const pathParts = path ? path.split(".") : [];
+    let current = updatedContent;
+
+    // Navigate to target location from context path
+    for (const part of pathParts) {
+      if (!current[part]) current[part] = {};
+      current = current[part];
+    }
+
+    // Parse slash-delimited token name for auto-grouping
+    // e.g., "button/primary/bg" -> ["button", "primary", "bg"]
+    const tokenSegments = parseSlashPath(tokenName);
+
+    // Navigate/create nested groups from slash path
+    for (let i = 0; i < tokenSegments.length - 1; i++) {
+      const segment = tokenSegments[i];
+      if (!current[segment]) current[segment] = {};
+      current = current[segment];
+    }
+
+    // Add new token at the final leaf node with W3C DTCG format
+    const finalTokenName = tokenSegments[tokenSegments.length - 1];
+    current[finalTokenName] = tokenData;
+
+    // Update state
+    setAllTokensContent((prev) => ({
+      ...prev,
+      [filePath]: updatedContent,
+    }));
+
+    setDraftChanges((prev) => ({
+      ...prev,
+      [filePath]: updatedContent,
+    }));
+
+    // If this is the selected file, update its content too
+    if (filePath === selectedFile) {
+      setTokenContent(updatedContent);
+    }
+  };
+
+  // Open add modal with context
+  const openAddModal = (
+    mode: "file" | "group" | "token",
+    file?: string,
+    path?: string
+  ) => {
+    setAddModalMode(mode);
+    setAddModalContext({ file, path });
+    setShowAddModal(true);
+  };
+
   return (
     <div className="page">
       <div className="page-wrapper">
@@ -393,6 +530,7 @@ export default function App() {
           onSelectFile={handleSelectFile}
           draftChanges={draftChanges}
           onViewChange={setView}
+          onAddFile={() => openAddModal("file")}
         />
         {/* Page Content */}
         <div className="page-body">
@@ -433,6 +571,14 @@ export default function App() {
                   >
                     <i className={Icons.DOWNLOAD + " me-1"}></i>
                     Export
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => openAddModal("token")}
+                    title="Add new token"
+                  >
+                    <i className={Icons.ADD + " me-1"}></i>
+                    Add Token
                   </button>
                   {hasDraftChanges && (
                     <span className="badge bg-green-lt">
@@ -534,6 +680,9 @@ export default function App() {
                       }
                       onRevertToken={revertToken}
                       onDeleteToken={deleteToken}
+                      onAddToGroup={(path, mode) =>
+                        openAddModal(mode, selectedFile, path.join("."))
+                      }
                     />
                   )}
                 </>
@@ -578,6 +727,19 @@ export default function App() {
         selectedFile={selectedFile}
         selectedFileContent={tokenContent}
         allTokensContent={allTokensContent}
+      />
+
+      {/* Add Token Modal */}
+      <AddTokenModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        mode={addModalMode}
+        targetFile={addModalContext.file || selectedFile}
+        targetPath={addModalContext.path || ""}
+        allTokensContent={allTokensContent}
+        onCreateFile={handleCreateFile}
+        onCreateGroup={handleCreateGroup}
+        onCreateToken={handleCreateToken}
       />
     </div>
   );

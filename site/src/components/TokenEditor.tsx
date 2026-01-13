@@ -16,6 +16,7 @@ interface TokenEditorProps {
   baselineContent?: TokenContent | null;
   onRevertToken?: (path: string[]) => void;
   onDeleteToken?: (path: string[]) => void;
+  onAddToGroup?: (path: string[], mode: "group" | "token") => void;
 }
 
 export default function TokenEditor({
@@ -28,6 +29,7 @@ export default function TokenEditor({
   baselineContent = null,
   onRevertToken,
   onDeleteToken,
+  onAddToGroup,
 }: TokenEditorProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [expandAll, setExpandAll] = useState<boolean | undefined>(undefined);
@@ -130,6 +132,7 @@ export default function TokenEditor({
               baselineContent={baselineContent}
               onRevertToken={onRevertToken}
               onDeleteToken={onDeleteToken}
+              onAddToGroup={onAddToGroup}
             />
           ) : (
             <div className="text-center text-muted py-5">

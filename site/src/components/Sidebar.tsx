@@ -8,6 +8,7 @@ interface SidebarProps {
   onSelectFile: (file: string) => void;
   draftChanges: DraftChanges;
   onViewChange?: (view: "dashboard" | "kitchenSink") => void;
+  onAddFile?: () => void;
 }
 
 export default function Sidebar({
@@ -16,6 +17,7 @@ export default function Sidebar({
   onSelectFile,
   draftChanges,
   onViewChange,
+  onAddFile,
 }: SidebarProps) {
   // State for expanded categories (persistent across file selections)
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -91,6 +93,27 @@ export default function Sidebar({
                 </a>
               </li>
             )}
+
+            {/* Add New Set Button */}
+            {onAddFile && (
+              <li className="nav-item">
+                <a
+                  className="nav-link text-primary"
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onAddFile();
+                  }}
+                  style={{ fontWeight: 600 }}
+                >
+                  <span className="nav-link-icon d-md-none d-lg-inline-block">
+                    <i className={Icons.ADD}></i>
+                  </span>
+                  <span className="nav-link-title">Add New Set</span>
+                </a>
+              </li>
+            )}
+
             {Object.entries(filesByCategory).map(
               ([category, categoryFiles]) => {
                 const isExpanded = expandedCategories.has(category);

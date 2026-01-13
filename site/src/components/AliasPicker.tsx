@@ -29,6 +29,15 @@ export default function AliasPicker({
   const [filteredTokens, setFilteredTokens] = useState<
     Array<{ path: string; token: TokenValue; fileName: string }>
   >([]);
+  const [groupedTokens, setGroupedTokens] = useState<
+    Record<
+      string,
+      Record<
+        string,
+        Array<{ path: string; token: TokenValue; fileName: string }>
+      >
+    >
+  >({});
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -66,6 +75,37 @@ export default function AliasPicker({
     }
 
     setFilteredTokens(tokens);
+
+    // Group tokens by category and set name
+    const grouped: Record<
+      string,
+      Record<
+        string,
+        Array<{ path: string; token: TokenValue; fileName: string }>
+      >
+    > = {};
+
+    tokens.forEach((item) => {
+      // Extract category from file path (e.g., "tokens/primitives/colors.json")
+      const pathParts = item.fileName.split("/");
+      const category = pathParts[1] || "other";
+      const setName = pathParts[2] || "unknown";
+
+      // Capitalize category for display
+      const categoryDisplay =
+        category.charAt(0).toUpperCase() + category.slice(1);
+
+      if (!grouped[categoryDisplay]) {
+        grouped[categoryDisplay] = {};
+      }
+      if (!grouped[categoryDisplay][setName]) {
+        grouped[categoryDisplay][setName] = [];
+      }
+
+      grouped[categoryDisplay][setName].push(item);
+    });
+
+    setGroupedTokens(grouped);
   }, [searchQuery, allTokens, filterType]);
 
   const handleSelect = (path: string) => {
@@ -86,7 +126,7 @@ export default function AliasPicker({
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >
-        <div className="card-header">
+        <div className="card-header w-100 justify-content-between">
           <h3 className="card-title">
             <i className={Icons.SEARCH + " me-2"}></i>
             Select Token Reference
@@ -144,7 +184,7 @@ export default function AliasPicker({
                       }`}
                       onClick={() => handleSelect(path)}
                     >
-                      <div className="d-flex align-items-center">
+                      <div className="d-flex align-items-center gap-2">
                         <Swatch
                           token={token}
                           resolvedValue={resolved.resolvedValue}
@@ -219,9 +259,38 @@ export default function AliasPicker({
           max-height: 500px;
         }
 
+        .alias-category-header {
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          background-color: rgba(32, 107, 196, 0.1);
+          backdrop-filter: blur(10px);
+          padding: 10px 16px;
+          font-weight: 600;
+          font-size: 0.875rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          color: #206bc4;
+          border-bottom: 2px solid rgba(32, 107, 196, 0.2);
+        }
+
+        .alias-set-header {
+          position: sticky;
+          top: 38px;
+          z-index: 9;
+          background-color: rgba(245, 248, 250, 0.95);
+          backdrop-filter: blur(8px);
+          padding: 8px 16px 8px 32px;
+          font-weight: 500;
+          font-size: 0.8125rem;
+          color: #626976;
+          border-bottom: 1px solid #e6e9ec;
+        }
+
         .alias-picker-list .list-group-item {
           cursor: pointer;
           transition: background-color 0.15s ease;
+          padding-left: 48px;
         }
 
         .alias-picker-list .list-group-item:hover {

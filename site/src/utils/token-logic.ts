@@ -773,3 +773,44 @@ export function getExportFilename(): string {
   const day = String(now.getDate()).padStart(2, "0");
   return `kami-tokens-${year}-${month}-${day}.json`;
 }
+
+/**
+ * Validate token name - lowercase alphanumeric, hyphens, and slashes
+ * Slashes allow nested group creation (e.g., "button/primary")
+ */
+export function validateTokenName(name: string): boolean {
+  return /^[a-z0-9-/]+$/.test(name);
+}
+
+/**
+ * Parse slash-delimited path into array of segments
+ * Example: "button/primary/bg" => ["button", "primary", "bg"]
+ */
+export function parseSlashPath(name: string): string[] {
+  return name.split("/").filter(segment => segment.length > 0);
+}
+
+/**
+ * Convert slash path to dot notation for display
+ * Example: "button/primary/bg" => "button.primary.bg"
+ */
+export function slashPathToDotPath(name: string): string {
+  return parseSlashPath(name).join(".");
+}
+
+/**
+ * Get default value for a given token type
+ */
+export function getDefaultValueForType(type: string): any {
+  const defaults: Record<string, any> = {
+    color: "#000000",
+    dimension: "0px",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: "400",
+    duration: "0ms",
+    cubicBezier: [0.25, 0.1, 0.25, 1],
+    number: 0,
+    string: "",
+  };
+  return defaults[type] || "";
+}
