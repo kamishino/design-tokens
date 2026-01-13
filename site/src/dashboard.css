@@ -65,7 +65,7 @@ body {
 
 /* Sidebar */
 .sidebar {
-  width: 280px;
+  width: 350px;
   background: var(--bg-primary);
   border-right: 1px solid var(--border-color);
   overflow-y: auto;
@@ -401,8 +401,466 @@ body {
   background: var(--border-color);
 }
 
+/* Sidebar Hierarchy Enhancements */
+.navbar-vertical .nav-link {
+  transition: all 0.15s ease;
+}
+
+.navbar-vertical .nav-link:hover {
+  background-color: rgba(32, 107, 196, 0.06);
+}
+
+/* Compact spacing for file items */
+.navbar-vertical .nav-item .nav-item .nav-link {
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.125rem;
+}
+
+/* Tree Path Tracing - IDE-style visual connectors (Enhanced) */
+.tree-container {
+  position: relative;
+}
+
+/* Progressive indentation for nested levels */
+.sidebar-indent-level-1 {
+  padding-left: 2rem;
+}
+
+/* Badge styling for wider sidebar */
+.navbar-vertical .badge {
+  font-size: 0.65rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+.tree-item {
+  position: relative;
+  display: block;
+}
+
+/* Vertical line running down the left side - Enhanced visibility */
+.tree-item::before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0.625rem;
+  top: 0;
+  bottom: 0;
+  width: 1.5px;
+  background-color: #cbd5e1;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Horizontal connector pointing to file name - Enhanced visibility */
+.tree-item::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0.625rem;
+  top: 50%;
+  width: 0.625rem;
+  height: 1.5px;
+  background-color: #cbd5e1;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Last child: vertical line stops at horizontal connector (L-shape) */
+.tree-item.last-child::before {
+  bottom: 50%;
+}
+
+/* Active path highlighting - Enhanced blue */
+.tree-item.active-path::before {
+  background-color: #206bc4;
+}
+
+.tree-item.active-path::after {
+  background-color: #206bc4;
+}
+
+/* Hover state for entire branch - Enhanced visibility */
+.tree-container:hover .tree-item::before {
+  background-color: rgba(32, 107, 196, 0.4);
+}
+
+.tree-container:hover .tree-item::after {
+  background-color: rgba(32, 107, 196, 0.4);
+}
+
+/* Ensure text and icons sit above the connector lines with proper spacing */
+.tree-item .nav-link {
+  position: relative;
+  z-index: 1;
+  padding-left: 1.75rem !important;
+}
+
+/* Active file styling with left accent */
+.navbar-vertical .nav-link.bg-primary-lt {
+  background-color: rgba(32, 107, 196, 0.12) !important;
+  color: #206bc4 !important;
+  font-weight: 600;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Focus State - Keyboard navigation */
+.navbar-vertical .nav-link:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #206bc4;
+  border-radius: 0.25rem;
+}
+
+/* Category headers */
+.navbar-vertical .nav-item > .nav-link {
+  font-size: 0.75rem;
+}
+
+/* Smooth expand/collapse transition */
+.navbar-vertical .flex-column {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ensure sidebar has proper overflow handling */
+.navbar-vertical {
+  max-height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.navbar-vertical::-webkit-scrollbar {
+  width: 6px;
+}
+
+.navbar-vertical::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.navbar-vertical::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.navbar-vertical::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* IDE Workspace Layout - Fixed Viewport */
+body {
+  overflow: hidden;
+  height: 100vh;
+  margin: 0;
+}
+
+.page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Fixed Sidebar with Independent Scrolling */
+.navbar-vertical {
+  width: 350px;
+  height: 100%;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+/* Main Content Area with Independent Scrolling */
+.page-body {
+  flex: 1;
+  overflow-y: auto;
+  height: 100%;
+}
+
+/* Sticky Header */
+.page-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: #ffffff;
+  backdrop-filter: blur(8px);
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Unified Filter Toolbar */
+.content-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 0.75rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Remove card borders from toolbar components */
+.content-toolbar .card {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* Token Tree Visual Refinements */
+.token-node,
+.list-group-item {
+  transition: all 0.15s ease-in-out;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.token-node:hover,
+.list-group-item:hover {
+  background-color: rgba(32, 107, 196, 0.04);
+  border-left: 2px solid rgba(32, 107, 196, 0.2);
+  padding-left: calc(1rem - 2px);
+}
+
+/* Typography Hierarchy for Token Keys and Values */
+.token-key {
+  font-weight: 500;
+  font-size: 0.9375rem;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+}
+
+.token-value {
+  font-weight: 400;
+  font-size: 0.875rem;
+  color: #64748b;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+}
+
+/* Collapsible Token Group Animations */
+.token-group-header {
+  transition: background-color 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.token-group-header:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.token-group-content {
+  transition: max-height 0.2s ease-out, opacity 0.2s ease-out;
+  overflow: hidden;
+}
+
+.token-group-content.collapsing {
+  max-height: 0;
+  opacity: 0;
+}
+
+.token-group-content.expanded {
+  max-height: 5000px;
+  opacity: 1;
+}
+
+/* Advanced Editor UI Polish */
+.advanced-editor-panel {
+  background-color: #f8fafc;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.advanced-editor-panel .form-label {
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.advanced-editor-panel .form-control {
+  transition: all 0.15s ease-in-out;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.advanced-editor-panel .form-control:focus {
+  border-color: #206bc4;
+  box-shadow: 0 0 0 3px rgba(32, 107, 196, 0.1);
+}
+
+/* Shadow Editor Specific */
+.shadow-preview {
+  transition: box-shadow 0.2s ease-in-out;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 0.375rem;
+}
+
+/* Typography Editor Specific */
+.typography-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* Input Group Polish */
+.input-group-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #334155;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+/* Visual Swatch Hover Effects */
+.color-swatch {
+  transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.color-swatch:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Motion & Feedback System */
+
+/* Global Transition Base */
+* {
+  transition-timing-function: ease-in-out;
+}
+
+/* Button Feedback */
+.btn {
+  transition: all 0.15s ease-in-out;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Link Feedback */
+a,
+.nav-link {
+  transition: all 0.15s ease-in-out;
+}
+
+/* Commit Bar Slide-Up Animation */
+.commit-bar {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Category Expansion Animation */
+.category-expanded {
+  animation: expandCategory 0.2s ease-out;
+}
+
+@keyframes expandCategory {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 2000px;
+  }
+}
+
+/* Filtered Results Fade-In */
+.filtered-results {
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Badge Pulse Animation */
+.badge-modified {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Loading State Smooth Fade */
+.spinner-border {
+  animation: spin 0.75s linear infinite, fadeIn 0.2s ease-in;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Card Hover Elevation */
+.card {
+  transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.card-hoverable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Focus Ring Enhancement */
+*:focus-visible {
+  outline: 2px solid #206bc4;
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
 @media (min-width: 992px) {
-  .navbar-vertical.navbar-expand-lg .navbar-collapse .dropdown-menu .dropdown-item > .d-flex {
+  #sidebar-menu .nav-link > .d-flex {
     width: 100%;
   }
 }

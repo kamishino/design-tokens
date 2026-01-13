@@ -149,7 +149,13 @@ export function ShadowEditor({ value, onChange, onCommit }: ShadowEditorProps) {
             className="form-control form-control-sm"
             value={y}
             onChange={(e) =>
-              updateShadow(x, e.target.value, blur, spread, color)
+              updateShadow(
+                x || "0px",
+                e.target.value,
+                blur || "0px",
+                spread || "0px",
+                color || "#000000"
+              )
             }
             onBlur={onCommit}
             placeholder="4px"
@@ -161,7 +167,15 @@ export function ShadowEditor({ value, onChange, onCommit }: ShadowEditorProps) {
             type="text"
             className="form-control form-control-sm"
             value={blur}
-            onChange={(e) => updateShadow(x, y, e.target.value, spread, color)}
+            onChange={(e) =>
+              updateShadow(
+                x || "0px",
+                y || "0px",
+                e.target.value,
+                spread || "0px",
+                color || "#000000"
+              )
+            }
             onBlur={onCommit}
             placeholder="8px"
           />
@@ -172,7 +186,15 @@ export function ShadowEditor({ value, onChange, onCommit }: ShadowEditorProps) {
             type="text"
             className="form-control form-control-sm"
             value={spread}
-            onChange={(e) => updateShadow(x, y, blur, e.target.value, color)}
+            onChange={(e) =>
+              updateShadow(
+                x || "0px",
+                y || "0px",
+                blur || "0px",
+                e.target.value,
+                color || "#000000"
+              )
+            }
             onBlur={onCommit}
             placeholder="0px"
           />
@@ -185,14 +207,30 @@ export function ShadowEditor({ value, onChange, onCommit }: ShadowEditorProps) {
               className="form-control form-control-color form-control-sm"
               style={{ width: "50px" }}
               value={color}
-              onChange={(e) => updateShadow(x, y, blur, spread, e.target.value)}
+              onChange={(e) =>
+                updateShadow(
+                  x || "0px",
+                  y || "0px",
+                  blur || "0px",
+                  spread || "0px",
+                  e.target.value
+                )
+              }
               onBlur={onCommit}
             />
             <input
               type="text"
               className="form-control form-control-sm"
               value={color}
-              onChange={(e) => updateShadow(x, y, blur, spread, e.target.value)}
+              onChange={(e) =>
+                updateShadow(
+                  x || "0px",
+                  y || "0px",
+                  blur || "0px",
+                  spread || "0px",
+                  e.target.value
+                )
+              }
               onBlur={onCommit}
               placeholder="#000000"
             />

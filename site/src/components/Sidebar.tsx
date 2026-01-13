@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { TokenFile, DraftChanges } from "../types";
 import { Icons } from "./Icons";
 
@@ -9,16 +10,31 @@ interface SidebarProps {
   onViewChange?: (view: "dashboard" | "kitchenSink") => void;
 }
 
-// Icon mapping for different token categories
-const categoryIcons: Record<string, string> = {
-  primitives: "ti ti-palette",
-  semantic: "ti ti-layers-linked",
-  themes: "ti ti-moon",
-  generated: "ti ti-file-code",
-  root: "ti ti-files",
-};
+export default function Sidebar({
+  files,
+  selectedFile,
+  onSelectFile,
+  draftChanges,
+  onViewChange,
+}: SidebarProps) {
+  // State for expanded categories (persistent across file selections)
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+    new Set(["primitives", "semantic"])
+  );
 
-export default function Sidebar({ files, selectedFile, onSelectFile, draftChanges, onViewChange }: SidebarProps) {
+  // Toggle category expansion
+  const toggleCategory = (category: string) => {
+    setExpandedCategories((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  };
+
   // Group files by category
   const filesByCategory = files.reduce((acc, file) => {
     const category = file.category || "root";
@@ -32,12 +48,25 @@ export default function Sidebar({ files, selectedFile, onSelectFile, draftChange
   return (
     <aside className="navbar navbar-vertical navbar-expand-lg">
       <div className="container-fluid">
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu">
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#sidebar-menu"
+        >
           <span className="navbar-toggler-icon"></span>
         </button>
 
         <h1 className="navbar-brand navbar-brand-autodark">
-          <a href=".">
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              if (onViewChange) {
+                onViewChange("dashboard");
+              }
+            }}
+          >
             <i className={Icons.BRAND + " me-2"}></i>
             Token Manager
           </a>
@@ -62,46 +91,100 @@ export default function Sidebar({ files, selectedFile, onSelectFile, draftChange
                 </a>
               </li>
             )}
-            {Object.entries(filesByCategory).map(([category, categoryFiles]) => (
-              <li key={category} className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" role="button" aria-expanded="false">
-                  <span className="nav-link-icon d-md-none d-lg-inline-block">
-                    <i className={categoryIcons[category] || "ti-files"}></i>
-                  </span>
-                  <span className="nav-link-title text-capitalize">{category}</span>
-                </a>
-                <div className="dropdown-menu">
-                  <div className="dropdown-menu-columns">
-                    <div className="dropdown-menu-column">
-                      {categoryFiles.map((file) => {
-                        const isSelected = selectedFile === file.path;
-                        const hasChanges = file.path in draftChanges;
+            {Object.entries(filesByCategory).map(
+              ([category, categoryFiles]) => {
+                const isExpanded = expandedCategories.has(category);
 
-                        return (
-                          <a
-                            key={file.path}
-                            className={`dropdown-item ${isSelected ? "active" : ""}`}
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              onSelectFile(file.path);
-                            }}
-                          >
-                            <span className="d-flex align-items-center justify-content-between">
-                              <span>
-                                {hasChanges && <span className="status-dot status-dot-animated bg-green me-2"></span>}
-                                {file.name}
-                              </span>
-                              <span className="text-muted small">{formatBytes(file.size)}</span>
-                            </span>
-                          </a>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </li>
-            ))}
+                return (
+                  <li key={category} className="nav-item">
+                    {/* Category Header */}
+                    <a
+                      className="nav-link py-2"
+                      href="#"
+                      role="button"
+                      aria-expanded={isExpanded}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toggleCategory(category);
+                      }}
+                      style={{ fontWeight: 600, fontSize: "0.875rem" }}
+                    >
+                      <span className="nav-link-icon d-md-none d-lg-inline-block">
+                        <i
+                          className={
+                            isExpanded ? "ti ti-folder-open" : "ti ti-folder"
+                          }
+                        ></i>
+                      </span>
+                      <span
+                        className="nav-link-title text-capitalize text-muted"
+                        style={{ letterSpacing: "0.05em" }}
+                      >
+                        {category}
+                      </span>
+                    </a>
+                    {/* Inline File List (Tree View) */}
+                    {isExpanded && (
+                      <ul className="nav flex-column sidebar-indent-level-1 tree-container">
+                        {categoryFiles.map((file, index) => {
+                          const isSelected = selectedFile === file.path;
+                          const hasChanges = file.path in draftChanges;
+                          const isLastChild =
+                            index === categoryFiles.length - 1;
+
+                          return (
+                            <li
+                              key={file.path}
+                              className={`nav-item tree-item ${
+                                isLastChild ? "last-child" : ""
+                              } ${isSelected ? "active-path" : ""}`}
+                            >
+                              <a
+                                className={`nav-link py-1 ${
+                                  isSelected ? "text-primary fw-bold" : ""
+                                }`}
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  onSelectFile(file.path);
+                                }}
+                                style={{
+                                  fontSize: "0.875rem",
+                                  paddingLeft: "0.5rem",
+                                }}
+                              >
+                                <span className="d-flex align-items-center justify-content-between">
+                                  <span className="d-flex align-items-center">
+                                    {hasChanges && (
+                                      <span
+                                        className="badge bg-green-lt text-green me-2"
+                                        style={{
+                                          fontSize: "0.65rem",
+                                          padding: "0.125rem 0.35rem",
+                                        }}
+                                      >
+                                        Modified
+                                      </span>
+                                    )}
+                                    {file.name}
+                                  </span>
+                                  <span
+                                    className="text-muted"
+                                    style={{ fontSize: "0.7rem" }}
+                                  >
+                                    {formatBytes(file.size)}
+                                  </span>
+                                </span>
+                              </a>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </li>
+                );
+              }
+            )}
           </ul>
         </div>
       </div>

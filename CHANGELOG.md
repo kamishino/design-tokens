@@ -9,10 +9,215 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Sidebar Revision & Tabler UI Refinement** (PRD 0032): Enhanced sidebar with improved readability and professional interaction states
+  - **Expanded Width** (`dashboard.css`):
+    - Sidebar width increased from 280px to **350px** for better readability
+    - Accommodates longer file names without truncation
+    - Flex layout automatically adjusts main content area
+    - No horizontal scrollbars or layout breakage
+  - **Interaction State Overhaul**:
+    - **Hover State**: Subtle `rgba(32, 107, 196, 0.04)` background with text color preservation
+    - **Active State**: Enhanced `rgba(32, 107, 196, 0.12)` background with `#206bc4` text color and 600 font-weight
+    - **Focus State**: Keyboard navigation with inset `box-shadow` (2px blue ring)
+    - **Smooth Transitions**: 0.1s for background-color, color, and border-left-color
+    - Border-left integration: 3px solid on active, transparent on default
+  - **Tree Tracing Alignment**:
+    - Vertical line (`::before`) repositioned to `left: 0.625rem` for perfect gutter alignment
+    - Horizontal connector (`::after`) shortened to `0.625rem` width to prevent text overlap
+    - Z-index layering: lines at `z-index: 0`, content at `z-index: 1` for proper stacking
+    - Nav-link adjusted with `padding-left: 2rem` and `margin-left: -3px` for seamless integration
+  - **Tabler Aesthetic Refinements**:
+    - Category headers: `font-size: 0.7rem`, `font-weight: 600`, uppercase, `#64748b` color
+    - Professional letter-spacing and padding hierarchy
+    - Category hover: color shift to `#475569` without background change
+    - Badge styling: `0.65rem` font-size, proper padding and border-radius
+  - **Visual Harmony**:
+    - Lines and highlights form cohesive visual unit
+    - High contrast between states for clear feedback
+    - Consistent horizontal padding (`1.25rem`) across all levels
+    - Professional polish matching Tabler's vertical nav patterns
+- **UI Polish & IDE Workspace Enhancement** (PRD 0031): Professional IDE-like workspace with fixed layout and smooth interactions
+  - **Fixed Viewport Layout** (`dashboard.css`, `App.tsx`):
+    - Body fixed at 100vh with `overflow: hidden` to prevent page jumping
+    - Flex-based layout with `.page` and `.page-wrapper` containers
+    - Independent scrolling for sidebar and main content areas
+    - Each panel has `height: 100%; overflow-y: auto` for isolated scrollbars
+  - **Sticky Header & Toolbar**:
+    - `.page-header` positioned sticky at top with `backdrop-filter: blur(8px)`
+    - Professional frosted glass effect with `rgba(255, 255, 255, 0.95)` background
+    - Border-bottom separator for visual depth
+    - Z-index layering (header: 20, toolbar: 10) for proper stacking
+  - **Unified Filter Toolbar** (`App.tsx`):
+    - Wrapped `TokenTabs` and `SearchBar` in `.content-toolbar` container
+    - Sticky positioning keeps filters visible while scrolling tokens
+    - Removed card borders for cleaner, integrated appearance
+    - Backdrop blur maintains readability over scrolling content
+  - **Token Tree Visual Refinements**:
+    - Hover effects: `rgba(32, 107, 196, 0.04)` background with 2px left border accent
+    - Typography hierarchy: keys at 500 weight (0.9375rem), values at 400 weight (0.875rem)
+    - Values use monospace font family for better readability
+    - Subtle horizontal separators: `rgba(0, 0, 0, 0.04)` borders between nodes
+    - 0.15s ease-in-out transitions on all interactive states
+  - **Advanced Editor UI Polish**:
+    - Panel background: `#f8fafc` with rounded corners and subtle borders
+    - Form labels: uppercase, 0.75rem, increased letter-spacing for professionalism
+    - Enhanced focus states: blue border with 3px shadow ring
+    - Shadow preview with smooth transition effects
+    - Typography editor grid layout for better organization
+    - Input groups with clear visual hierarchy
+  - **Motion & Feedback System**:
+    - Global 0.15s ease-in-out transitions on interactive elements
+    - Button hover: -1px translateY with shadow elevation
+    - Commit bar: 0.3s slideUp animation from bottom
+    - Category expansion: 0.2s expandCategory animation
+    - Filtered results: soft fadeIn effect
+    - Color swatches: scale(1.05) on hover with shadow depth
+    - Enhanced focus-visible rings: 2px outline with offset
+  - **Animations Library**:
+    - `@keyframes slideUp`: Commit bar entrance (translateY + opacity)
+    - `@keyframes expandCategory`: Smooth category reveal (max-height + opacity)
+    - `@keyframes fadeIn`: Gentle content appearance
+    - `@keyframes pulse`: Badge attention effect (2s infinite)
+    - Spinner with combined spin + fadeIn animations
+  - **Professional Polish**:
+    - Card hover elevation system for interactive cards
+    - Consistent transition timing across all components
+    - Utilitarian color palette independent of managed tokens
+    - Zero layout jump when expanding/collapsing content
+    - Smooth, native-feeling interactions throughout
 - **Inline Color Previews for HEX Codes** (PRD 0025): Visual color swatches next to all color values
+- **Sidebar Tree UI Polish** (PRD 0030): Enhanced visibility and indentation for professional IDE experience
+  - **Enhanced Path Tracing Visibility** (`dashboard.css`):
+    - Upgraded connector color from `rgba(0,0,0,0.12)` to solid `#cbd5e1` for better visibility
+    - Using background-color with explicit dimensions (1.5px width/height)
+    - Vertical line: `width: 1.5px; background-color: #cbd5e1`
+    - Horizontal connector: `height: 1.5px; background-color: #cbd5e1`
+    - Better compatibility with flex layouts and all browsers
+    - Added `display: block` and `pointer-events: none` for proper rendering
+  - **Internal Positioning** (No Clipping):
+    - Moved lines from `-12px` (outside) to `0.5rem` (inside container)
+    - Ensures lines are never clipped by sidebar overflow or borders
+    - Lines now sit within the scrollable/visible area
+    - Horizontal connector width: 0.75rem for clean connection
+  - **Progressive Indentation System**:
+    - Created `.sidebar-indent-level-1` class with 2rem padding
+    - Replaced Bootstrap `ms-3` (~1rem) with custom 2rem indent
+    - **Double the indentation** creates clear visual hierarchy
+    - Scalable for future multi-level nesting (Level 2: 4rem, etc.)
+  - **Proper Text Spacing**:
+    - Added `padding-left: 1.75rem !important` to `.tree-item .nav-link`
+    - Prevents text/icons from overlapping connector lines
+    - Creates clean gutter for visual guides
+  - **Enhanced Active Path**:
+    - Active connectors use `border-left-color: #206bc4` instead of background
+    - Hover state: `rgba(32, 107, 196, 0.4)` for better contrast
+    - Maintained L-shape termination for last items
+  - **Implementation Method**:
+    - Pure CSS with background-color pseudo-elements (most compatible)
+    - Added `display: block` for proper rendering in flex layouts
+    - Added `pointer-events: none` to prevent click interference
+    - No JavaScript changes required
+- **Sidebar Tree Path Tracing** (PRD 0029): IDE-style visual connectors for hierarchy clarity
+  - **Visual Tree Connectors** (`dashboard.css`):
+    - Vertical lines running down left side of nested items using `::before` pseudo-element
+    - Horizontal branches connecting to file names using `::after` pseudo-element
+    - Lines positioned absolutely at `left: -12px` for perfect alignment
+    - 1px width with subtle gray color `rgba(0, 0, 0, 0.12)`
+    - Clean L-shaped termination on last child items (`bottom: 50%`)
+  - **Active Path Highlighting**:
+    - Selected file path highlighted in primary blue (`#206bc4`)
+    - Both vertical and horizontal connectors change color for active items
+    - `.active-path` class applied to selected file's tree item
+    - Clear visual trace from category to active file
+  - **Interactive Hover States**:
+    - Container hover effect highlights entire branch subtly
+    - All connectors in branch change to `rgba(32, 107, 196, 0.3)`
+    - Provides contextual feedback when exploring categories
+  - **Professional IDE Aesthetic**:
+    - T-shaped connectors for intermediate items
+    - L-shaped connectors for last items in each group
+    - Proper z-index layering (lines behind, content above)
+    - Scales to any nesting depth
+  - **Implementation Details**:
+    - Pure CSS solution using pseudo-elements (most performant)
+    - `.tree-container` wrapper with relative positioning
+    - `.tree-item` class on each file list item
+    - `.last-child` class for proper termination logic
+    - No JavaScript overhead, all visual effects are CSS
+- **Sidebar Visual Hierarchy Enhancement** (PRD 0028): Professional IDE-like navigation with clear structure
+  - **Tree View Layout** (`Sidebar.tsx`):
+    - Replaced Bootstrap dropdown menus with inline tree view
+    - Files rendered directly in DOM tree below category headers
+    - Conditional rendering: `{isExpanded && categoryFiles.map(...)}`
+    - Removed `dropdown-menu` classes in favor of native flex-column lists
+    - Smooth 200ms slideDown animation for expand/collapse transitions
+  - **Dynamic Folder Icons**:
+    - Closed state: `ti-folder` icon for collapsed categories
+    - Open state: `ti-folder-open` icon for expanded categories
+    - Icons update dynamically based on `isExpanded` state
+    - Removed static category-specific icons in favor of dynamic system
+  - **Enhanced Active States**:
+    - Selected file: `bg-primary-lt text-primary fw-bold` styling
+    - **Left accent border**: 3px blue border on active file (`border-start border-primary border-3`)
+    - High contrast ensures selected file is immediately visible
+    - Hover states with subtle blue background
+  - **Compact Design** (`dashboard.css`):
+    - Reduced vertical padding to `py-1` for file items (was default padding)
+    - Category headers: `py-2` for breathing room
+    - **20% more items visible** without scrolling due to compact spacing
+    - File font size: 0.875rem for better density
+    - Badge font size: 0.65rem for compact badges
+  - **Visual Hierarchy**:
+    - Category headers: `font-weight: 600`, uppercase, letter-spacing
+    - File items: `font-weight: 400` with `ms-3` indentation (1.5rem)
+    - Muted text for category labels to distinguish from files
+    - Font size: 0.875rem for categories, 0.7rem for file sizes
+  - **Enhanced Status Indicators**:
+    - Replaced simple green dot with "Modified" badge
+    - Badge: `bg-green-lt text-green` with readable text
+    - Better visibility and clarity over icon-only indicator
+  - **Custom Scrollbar Styling**:
+    - Thin 6px scrollbar with subtle gray color
+    - Auto-hide on desktop, always visible on scroll
+    - Smooth hover transition to darker color
+    - Works with overflow-y handling for long file lists
+  - **UX Polish**:
+    - All transitions: 0.15s ease for smooth interactions
+    - Proper border-radius on hover states (0.25rem)
+    - Category expansion doesn't cause page jumping
+    - Maintains Tabler aesthetic with utility classes
 
 ### Fixed
 
+- **Sidebar Navigation & State Management** (PRD 0027): Persistent categories and seamless view transitions
+  - **Persistent Category Expansion** (`Sidebar.tsx`):
+    - Replaced Bootstrap dropdowns with React state management
+    - Added `expandedCategories` state using `Set<string>`
+    - Implemented `toggleCategory()` function for controlled expansion
+    - Removed `data-bs-toggle="dropdown"` to prevent Bootstrap auto-collapse
+    - Manually apply `show` class and `aria-expanded` based on React state
+    - Categories now remain open after file selection (IDE-like behavior)
+    - Default expanded: "primitives" and "semantic" categories
+  - **Seamless View Switching** (`App.tsx`):
+    - Created `handleSelectFile()` wrapper function
+    - Auto-switches view to "dashboard" when file selected from sidebar
+    - Prevents user from being stuck in Kitchen Sink view
+    - Proper state synchronization between views
+  - **Filter Reset on Selection**:
+    - Automatically clears search query when file selected
+    - Resets active category to "all" for full content visibility
+    - Prevents empty screens from stale filter states
+    - `clearFilters()` called in file selection handler
+  - **Link Reliability**:
+    - All sidebar links use `e.preventDefault()` to prevent page reloads
+    - "UI Kitchen Sink" link correctly switches view with proper event handling
+    - "Token Manager" brand link now resets view to dashboard
+    - No hash changes or React state resets from navigation
+  - **UX Improvements**:
+    - Three-click efficiency: Switch between files in same category without reopening menus
+    - Stable navigation: Categories don't collapse unexpectedly
+    - Context awareness: Filters cleared to show selected file content
+    - Predictable behavior: Always returns to dashboard when selecting files
 - **Advanced Value Editor Activation & Robustness** (PRD 0026): Critical fixes for type-specific editors
   - **Activation Logic** (`TokenTree.tsx`):
     - Expanded `hasTypeEditor` list to include pluralized W3C token types

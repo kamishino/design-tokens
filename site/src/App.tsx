@@ -222,6 +222,15 @@ export default function App() {
     setSearchQuery("");
   };
 
+  // Handle file selection from sidebar
+  const handleSelectFile = (filePath: string) => {
+    setSelectedFile(filePath);
+    // Auto-switch to dashboard view
+    setView("dashboard");
+    // Clear filters to show full file content
+    clearFilters();
+  };
+
   // Navigate to a token reference
   const handleNavigateToToken = (tokenPath: string) => {
     const location = findTokenLocation(tokenPath, allTokensContent);
@@ -264,7 +273,7 @@ export default function App() {
         <Sidebar
           files={files}
           selectedFile={selectedFile}
-          onSelectFile={setSelectedFile}
+          onSelectFile={handleSelectFile}
           draftChanges={draftChanges}
           onViewChange={setView}
         />
@@ -315,16 +324,19 @@ export default function App() {
                 <KitchenSink />
               ) : (
                 <>
-                  {/* Category Tabs */}
-                  <TokenTabs
-                    categories={categories}
-                    activeCategory={activeCategory}
-                    onCategoryChange={setActiveCategory}
-                    tokenCounts={tokenCounts}
-                  />
+                  {/* Unified Filter Toolbar */}
+                  <div className="content-toolbar">
+                    {/* Category Tabs */}
+                    <TokenTabs
+                      categories={categories}
+                      activeCategory={activeCategory}
+                      onCategoryChange={setActiveCategory}
+                      tokenCounts={tokenCounts}
+                    />
 
-                  {/* Search Bar */}
-                  <SearchBar onSearch={setSearchQuery} showFilters={false} />
+                    {/* Search Bar */}
+                    <SearchBar onSearch={setSearchQuery} showFilters={false} />
+                  </div>
 
                   {error && (
                     <div
