@@ -290,7 +290,12 @@ export function filterTokensByType(
  * Check if an object is a token value
  */
 function isTokenValue(obj: any): obj is TokenValue {
-  return typeof obj === "object" && obj !== null && (obj.$value !== undefined || (obj.value !== undefined && obj.$type !== undefined));
+  return (
+    obj &&
+    typeof obj === "object" &&
+    ("$value" in obj || "value" in obj) &&
+    !Array.isArray(obj)
+  );
 }
 
 /**
@@ -300,13 +305,13 @@ function isTokenValue(obj: any): obj is TokenValue {
 export function getCategoryFromPath(filePath: string): string {
   const normalized = filePath.replace(/\\/g, "/");
   const parts = normalized.split("/");
-  
+
   // Find the folder name after 'tokens'
   const tokensIndex = parts.indexOf("tokens");
   if (tokensIndex >= 0 && tokensIndex < parts.length - 1) {
     return parts[tokensIndex + 1].toLowerCase();
   }
-  
+
   // Fallback: use the first folder in the path
   return parts.length > 1 ? parts[0].toLowerCase() : "other";
 }
@@ -419,7 +424,9 @@ export function getTokenCountsByCategory(
  * Build a usage map showing which tokens reference which other tokens
  * Returns: { "color.blue.500": ["button.primary.bg", "link.color"] }
  */
-export function buildUsageMap(allTokens: Record<string, TokenContent>): Record<string, string[]> {
+export function buildUsageMap(
+  allTokens: Record<string, TokenContent>
+): Record<string, string[]> {
   const usageMap: Record<string, string[]> = {};
   const flatTokens = getAllTokensFlattened(allTokens);
 
@@ -440,7 +447,10 @@ export function buildUsageMap(allTokens: Record<string, TokenContent>): Record<s
 /**
  * Get the number of tokens that reference a specific token path
  */
-export function getTokenUsageCount(tokenPath: string, allTokens: Record<string, TokenContent>): number {
+export function getTokenUsageCount(
+  tokenPath: string,
+  allTokens: Record<string, TokenContent>
+): number {
   const usageMap = buildUsageMap(allTokens);
   return (usageMap[tokenPath] || []).length;
 }
@@ -452,9 +462,19 @@ export function findTokensByValue(
   allTokens: Record<string, TokenContent>,
   searchValue: string,
   useRegex: boolean = false
-): Array<{ path: string; token: TokenValue; fileName: string; currentValue: any }> {
+): Array<{
+  path: string;
+  token: TokenValue;
+  fileName: string;
+  currentValue: any;
+}> {
   const flatTokens = getAllTokensFlattened(allTokens);
-  const results: Array<{ path: string; token: TokenValue; fileName: string; currentValue: any }> = [];
+  const results: Array<{
+    path: string;
+    token: TokenValue;
+    fileName: string;
+    currentValue: any;
+  }> = [];
 
   for (const { path, token, fileName } of flatTokens) {
     const value = String(token.$value || token.value || "");
@@ -495,7 +515,7 @@ export function findAndReplaceValue(
 
   for (const [fileName, content] of Object.entries(allTokens)) {
     const updatedContent = JSON.parse(JSON.stringify(content)); // Deep clone
-    
+
     const replaceInObject = (obj: any): void => {
       for (const key in obj) {
         if (isTokenValue(obj[key])) {
@@ -546,7 +566,7 @@ export function findTokenLocation(
   allTokens: Record<string, TokenContent>
 ): { fileName: string; path: string[] } | null {
   const flatTokens = getAllTokensFlattened(allTokens);
-  
+
   for (const { path, fileName } of flatTokens) {
     if (path === tokenPath) {
       return { fileName, path: path.split(".") };
@@ -570,20 +590,30 @@ export function compareTokenValues(
   baselineValue: any
 ): TokenStatus {
   // NEW: Exists in current but not in baseline
-  if (currentValue !== null && currentValue !== undefined && 
-      (baselineValue === null || baselineValue === undefined)) {
+  if (
+    currentValue !== null &&
+    currentValue !== undefined &&
+    (baselineValue === null || baselineValue === undefined)
+  ) {
     return "NEW";
   }
 
   // DELETED: Exists in baseline but not in current
-  if ((currentValue === null || currentValue === undefined) && 
-      baselineValue !== null && baselineValue !== undefined) {
+  if (
+    (currentValue === null || currentValue === undefined) &&
+    baselineValue !== null &&
+    baselineValue !== undefined
+  ) {
     return "DELETED";
   }
 
   // MODIFIED: Exists in both but values differ
-  if (currentValue !== null && currentValue !== undefined &&
-      baselineValue !== null && baselineValue !== undefined) {
+  if (
+    currentValue !== null &&
+    currentValue !== undefined &&
+    baselineValue !== null &&
+    baselineValue !== undefined
+  ) {
     if (JSON.stringify(currentValue) !== JSON.stringify(baselineValue)) {
       return "MODIFIED";
     }
@@ -602,7 +632,7 @@ export function getTokenStatus(
 ): TokenStatus {
   const currentValue = getValueAtPath(path, currentContent);
   const baselineValue = getValueAtPath(path, baselineContent);
-  
+
   return compareTokenValues(currentValue, baselineValue);
 }
 
@@ -628,10 +658,7 @@ function getValueAtPath(path: string[], content: TokenContent | null): any {
  * Get merged keys from both current and baseline content
  * This ensures deleted keys are included in rendering
  */
-export function getMergedKeys(
-  currentObj: any,
-  baselineObj: any
-): string[] {
+export function getMergedKeys(currentObj: any, baselineObj: any): string[] {
   const keys = new Set<string>();
 
   if (currentObj && typeof currentObj === "object") {
@@ -670,7 +697,10 @@ export function isGroupModified(
       if (status !== null) {
         return true; // Found a change
       }
-    } else if (typeof currentValue === "object" || typeof baselineValue === "object") {
+    } else if (
+      typeof currentValue === "object" ||
+      typeof baselineValue === "object"
+    ) {
       // Recursively check nested groups
       if (isGroupModified(currentValue, baselineValue)) {
         return true;
@@ -679,4 +709,67 @@ export function isGroupModified(
   }
 
   return false; // No changes found
+}
+
+/**
+ * Deep merge multiple token objects into a single unified object
+ * Used for exporting all tokens as one file
+ */
+export function getUnifiedTokens(
+  allTokens: Record<string, TokenContent>
+): TokenContent {
+  const unified: TokenContent = {};
+
+  for (const content of Object.values(allTokens)) {
+    if (!content) continue;
+
+    // Deep merge each file's content into the unified object
+    deepMergeTokens(unified, content);
+  }
+
+  return unified;
+}
+
+/**
+ * Deep merge source object into target object
+ */
+function deepMergeTokens(target: any, source: any): void {
+  for (const key in source) {
+    if (
+      source[key] &&
+      typeof source[key] === "object" &&
+      !Array.isArray(source[key])
+    ) {
+      // If it's a token value (has $value), don't merge - replace
+      if ("$value" in source[key] || "value" in source[key]) {
+        target[key] = { ...source[key] };
+      } else {
+        // It's a nested group - merge recursively
+        if (!target[key]) {
+          target[key] = {};
+        }
+        deepMergeTokens(target[key], source[key]);
+      }
+    } else {
+      target[key] = source[key];
+    }
+  }
+}
+
+/**
+ * Format tokens for export - ensures proper JSON structure
+ */
+export function formatTokensForExport(content: TokenContent): string {
+  return JSON.stringify(content, null, 2);
+}
+
+/**
+ * Generate a timestamped filename for token export
+ */
+export function getExportFilename(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `kami-tokens-${year}-${month}-${day}.json`;
 }

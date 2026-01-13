@@ -7,8 +7,94 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
+### Added
 
+- **Export JSON Functionality** (PRD 0040): Global export feature for Figma Token Studio compatibility
+  - **ExportModal Component** (`ExportModal.tsx`):
+    - Dual scope selection: Export current file or entire token system
+    - Live JSON preview with syntax highlighting (reuses JSONEditor in read-only mode)
+    - Copy to Clipboard functionality with visual feedback
+    - Download JSON with timestamped filename (`kami-tokens-YYYY-MM-DD.json`)
+  - **Export Utilities** (`token-logic.ts`):
+    - `getUnifiedTokens()`: Deep-merges all token files into single root object
+    - `formatTokensForExport()`: Pretty-prints JSON while maintaining W3C DTCG structure
+    - `getExportFilename()`: Generates timestamped filenames
+  - **UI Integration** (`App.tsx`):
+    - Export button in global header next to "Import from Figma"
+    - Uses Tabler icon (`ti-download`) for consistency
+  - **Format Compatibility**: Ensures exported JSON is immediately compatible with Figma Token Studio
+  - **Smart Merging**: Deep-merge algorithm prevents data loss when combining files with overlapping keys
+
+- **Token Status Badges & Interactive Diff** (PRD 0034): Granular token-level change tracking with visual feedback
+  - **Token Status Logic** (`token-logic.ts`):
+    - New `getTokenStatus()` utility compares current vs baseline content
+    - Status types: NEW (exists only in current), MODIFIED (different values), DELETED (exists only in baseline)
+    - `getMergedKeys()` ensures deleted tokens are included in tree rendering
+    - Deep comparison using JSON.stringify for accurate detection
+  - **Visual Status Badges** (`TokenTree.tsx`):
+    - High-contrast badges next to token keys: NEW (green), MOD (yellow), DEL (red)
+    - Font size: 0.65rem for compact, non-intrusive display
+    - Clickable badges open interactive diff popover
+    - Badges automatically appear/disappear based on token status
+  - **Interactive Diff Popover** (`StatusBadge` component):
+    - Absolute-positioned card with shadow overlay
+    - Shows original value from baseline vs current value
+    - Side-by-side comparison with JSON formatting
+    - One-click "Revert to Original" button
+    - Clean, minimal UI with Tabler card styling
+  - **Delete Workflow**:
+    - Trash icon button on each token row (red outline)
+    - `deleteToken()` removes token from current content
+    - Deleted tokens marked with DELETED status badge
+    - Visual strikethrough and 50% opacity for deleted items
+    - Editing disabled on deleted tokens (cursor: not-allowed)
+  - **Merged Tree Rendering**:
+    - TokenTree iterates over merged keys (current + baseline)
+    - Deleted tokens remain visible until commit
+    - `effectiveValue` logic handles deleted state gracefully
+    - Recursive baseline passing for nested groups
+  - **Individual Token Revert** (`App.tsx`):
+    - `revertToken()` restores single token to baseline value
+    - Automatically removes file from draftChanges if fully reverted
+    - Real-time UI update without page refresh
+    - Works for NEW (deletes), MODIFIED (restores), DELETED (un-deletes) tokens
+  - **UX Benefits**:
+    - Granular visibility: See exactly which tokens changed
+    - Surgical reversion: Fix mistakes without losing other changes
+    - Pre-commit verification: Review all changes before saving
+    - Professional workflow: Matches Git-like diff experience
+- **Fix False-Positive Modification Tracking** (PRD 0033): Accurate change detection with automatic reversion
+  - **Baseline State Management** (`App.tsx`):
+    - New `initialTokensContent` state maintains read-only snapshot of original token data
+    - Populated on initial load via `loadAllTokens` with deep clone (`JSON.parse(JSON.stringify())`)
+    - Updated in `loadTokenFile` for newly loaded files
+    - Reset in `commitChanges` after successful save to establish new baseline
+  - **Strict Change Detection**:
+    - `updateTokenValue` refactored with comprehensive comparison logic
+    - String inputs automatically trimmed to prevent whitespace-only modifications
+    - Full file comparison using `JSON.stringify` for accurate detection
+    - Only marks files as modified when content actually differs from baseline
+  - **Auto-Reversion Logic**:
+    - Files automatically removed from `draftChanges` when reverted to original state
+    - Real-time detection during any value update
+    - Prevents accumulation of false-positive "Modified" badges
+    - Works across all editing interfaces (manual input, advanced editors, bulk replace)
+  - **Zero-Noise Edits**:
+    - Clicking field and leaving without changes: 0 modified files
+    - Adding/removing whitespace: 0 modified files (trimmed)
+    - Changing value and reverting back: 0 modified files (auto-removed)
+    - Bulk replace with no matches: 0 modified files
+  - **UI Benefits**:
+    - "Modified" count in CommitBar matches actual changes
+    - Sidebar badges disappear instantly when values reverted
+    - No confusion from inflated modification counts
+    - Professional, predictable behavior
+- **Sidebar Revision & Tabler UI Refinement** (PRD 0032): Enhanced sidebar with improved readability and professional interaction states
+  - **Expanded Width** (`dashboard.css`):
+    - Sidebar width increased from 280px to **350px** for better readability
+    - Accommodates longer file names without truncation
+    - Flex layout automatically adjusts main content area
+    - No horizontal scrollbars or layout breakage
 - **Token Row Status Icons & Folder Summaries** (PRD 0036): Refined status indicators with minimalist icons and folder-level change tracking
   - **Minimalist Status Icons** (`TokenTree.tsx`):
     - Replaced text badges with compact Tabler icons on far right

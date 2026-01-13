@@ -8,6 +8,7 @@ import SearchBar from "./components/SearchBar";
 import FigmaImport from "./components/FigmaImport";
 import FilteredResultsView from "./components/FilteredResultsView";
 import FindReplaceModal from "./components/FindReplaceModal";
+import ExportModal from "./components/ExportModal";
 import { Icons } from "./components/Icons";
 import { TokenFile, TokenContent, DraftChanges } from "./types";
 import {
@@ -40,6 +41,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [showFigmaImport, setShowFigmaImport] = useState(false);
   const [showFindReplace, setShowFindReplace] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Load file list on mount
   useEffect(() => {
@@ -424,6 +426,14 @@ export default function App() {
                     <i className={Icons.UPLOAD + " me-1"}></i>
                     Import from Figma
                   </button>
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowExportModal(true)}
+                    title="Export tokens as JSON"
+                  >
+                    <i className={Icons.DOWNLOAD + " me-1"}></i>
+                    Export
+                  </button>
                   {hasDraftChanges && (
                     <span className="badge bg-green-lt">
                       {Object.keys(draftChanges).length} file(s) modified
@@ -560,6 +570,15 @@ export default function App() {
           onClose={() => setShowFindReplace(false)}
         />
       )}
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        selectedFile={selectedFile}
+        selectedFileContent={tokenContent}
+        allTokensContent={allTokensContent}
+      />
     </div>
   );
 }
