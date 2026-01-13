@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Global Top Bar & Sandbox Mode UI** (PRD 0048): System-level controls for multi-project and collaborative workflows
+  - **AppTopBar Component**:
+    - Fixed top bar (48px height) spanning full viewport width
+    - Dark gradient background (z-index: 1060) for visual separation
+    - Integrates ProjectSwitcher and SandboxToggle components
+    - Conditional Publish button with draft change count badge
+  - **Sandbox Mode Toggle**:
+    - Production Mode (default): Read-only Git tokens
+    - Sandbox Mode: Collaborative editing via Supabase
+    - Visual indicators (Git branch vs Flask icons)
+    - Draft changes badge for unpublished modifications
+  - **Publishing Workflow**:
+    - Publish button visible only in Sandbox mode with changes
+    - Confirmation dialog showing change count and impact
+    - `handlePublish` stub ready for backend integration
+  - **Layout Adjustments**:
+    - Main app container: `padding-top: 48px` for fixed top bar
+    - Proper z-index stacking (top bar > modals > sidebar)
+    - Vertical dividers for visual grouping
+  - **State Management**:
+    - `isSandboxMode` state (Boolean, defaults to false)
+    - `activeProjectId` state for multi-project support
+    - Props passed through: App.tsx → TokenEditor → TokenTree → TokenNode
+  - **Infrastructure Ready**:
+    - `isSandboxMode` prop available throughout component tree
+    - Ready for read-only enforcement in TokenNode buttons
+    - Project switching handler with token reload logic
+
 - **System Flexibility & Multi-Project Scalability** (PRD 0047): Hybrid backend and project scaffolding for agency workflows
   - **Supabase Integration**:
     - Optional Supabase backend for collaborative token editing

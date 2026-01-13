@@ -10,6 +10,7 @@ import FilteredResultsView from "./components/FilteredResultsView";
 import FindReplaceModal from "./components/FindReplaceModal";
 import ExportModal from "./components/ExportModal";
 import AddTokenModal from "./components/AddTokenModal";
+import AppTopBar from "./components/AppTopBar";
 import { Icons } from "./components/Icons";
 import { TokenFile, TokenContent, DraftChanges } from "./types";
 import {
@@ -59,6 +60,10 @@ export default function App() {
     value: any;
     description?: string;
   } | null>(null);
+
+  // Sandbox & Multi-Project State
+  const [isSandboxMode, setIsSandboxMode] = useState(false);
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
 
   // Load file list on mount
   useEffect(() => {
@@ -619,8 +624,47 @@ export default function App() {
     }
   };
 
+  // Handle publish to production
+  const handlePublish = async () => {
+    try {
+      setLoading(true);
+      // TODO: Implement actual publish workflow
+      // 1. Fetch drafts from Supabase
+      // 2. Merge into local JSON files
+      // 3. Clear Supabase drafts
+      // 4. Reload tokens
+      console.log("Publishing to production...");
+      alert(
+        "Publish workflow not yet implemented. This will merge Supabase drafts into local JSON files."
+      );
+    } catch (err) {
+      console.error("Publish error:", err);
+      setError("Failed to publish changes");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle project change
+  const handleProjectChange = (projectId: string) => {
+    setActiveProjectId(projectId);
+    // TODO: Reload tokens for the new project
+    console.log("Switching to project:", projectId);
+  };
+
   return (
     <div className="page">
+      {/* Global Top Bar - System Level Controls */}
+      <AppTopBar
+        isSandboxMode={isSandboxMode}
+        onToggleSandbox={setIsSandboxMode}
+        hasDraftChanges={hasDraftChanges}
+        draftChangeCount={Object.keys(draftChanges).length}
+        activeProjectId={activeProjectId}
+        onProjectChange={handleProjectChange}
+        onPublish={handlePublish}
+      />
+
       <div className="page-wrapper">
         {/* Sidebar Navigation */}
         <Sidebar
@@ -783,6 +827,7 @@ export default function App() {
                         openAddModal(mode, selectedFile, path.join("."))
                       }
                       onEditToken={handleEditToken}
+                      isSandboxMode={isSandboxMode}
                     />
                   )}
                 </>

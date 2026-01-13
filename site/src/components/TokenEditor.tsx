@@ -18,6 +18,7 @@ interface TokenEditorProps {
   onDeleteToken?: (path: string[]) => void;
   onAddToGroup?: (path: string[], mode: "group" | "token") => void;
   onEditToken?: (path: string[]) => void;
+  isSandboxMode?: boolean;
 }
 
 export default function TokenEditor({
@@ -32,6 +33,7 @@ export default function TokenEditor({
   onDeleteToken,
   onAddToGroup,
   onEditToken,
+  isSandboxMode = false,
 }: TokenEditorProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [expandAll, setExpandAll] = useState<boolean | undefined>(undefined);
@@ -136,6 +138,7 @@ export default function TokenEditor({
               onDeleteToken={onDeleteToken}
               onAddToGroup={onAddToGroup}
               onEditToken={onEditToken}
+              isSandboxMode={isSandboxMode}
             />
           ) : (
             <div className="text-center text-muted py-5">

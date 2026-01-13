@@ -31,6 +31,7 @@ interface TokenTreeProps {
   onDeleteToken?: (path: string[]) => void;
   onAddToGroup?: (path: string[], mode: "group" | "token") => void;
   onEditToken?: (path: string[]) => void;
+  isSandboxMode?: boolean;
 }
 
 export default function TokenTree({
@@ -45,6 +46,7 @@ export default function TokenTree({
   onDeleteToken,
   onAddToGroup,
   onEditToken,
+  isSandboxMode = false,
 }: TokenTreeProps) {
   // Use merged keys to include deleted tokens
   const keys = getMergedKeys(data, baselineContent);
@@ -71,6 +73,7 @@ export default function TokenTree({
             onDeleteToken={onDeleteToken}
             onAddToGroup={onAddToGroup}
             onEditToken={onEditToken}
+            isSandboxMode={isSandboxMode}
           />
         );
       })}
@@ -92,6 +95,7 @@ interface TokenNodeProps {
   onDeleteToken?: (path: string[]) => void;
   onAddToGroup?: (path: string[], mode: "group" | "token") => void;
   onEditToken?: (path: string[]) => void;
+  isSandboxMode?: boolean;
 }
 
 function TokenNode({
@@ -103,11 +107,12 @@ function TokenNode({
   expandAll,
   allTokens = {},
   onNavigateToToken,
-  baselineContent = null,
+  baselineContent,
   onRevertToken,
   onDeleteToken,
   onAddToGroup,
   onEditToken,
+  isSandboxMode = false,
 }: TokenNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showAliasPicker, setShowAliasPicker] = useState(false);
