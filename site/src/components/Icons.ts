@@ -57,6 +57,12 @@ export const Icons = {
   LOADING: "spinner-border",
   MENU: "ti ti-menu-2",
   CLOSE: "ti ti-x",
+
+  // Multi-project & Collaboration
+  FLASK: "ti ti-flask",
+  GIT: "ti ti-git-branch",
+  FOLDER: "ti ti-folder",
+  LINK: "ti ti-link",
 } as const;
 
 /**

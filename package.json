@@ -50,7 +50,8 @@
     "site:serve": "vite --open /design-tokens/",
     "site:preview": "npm run site:build && vite preview",
     "tasks:archive": "node scripts/archive-tasks.js",
-    "health:cdn": "node scripts/check-cdn.js"
+    "health:cdn": "node scripts/check-cdn.js",
+    "project:clone": "node scripts/clone-project.js"
   },
   "keywords": [
     "design-tokens",
@@ -72,6 +73,7 @@
   },
   "homepage": "https://github.com/your-org/kami-design-tokens#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.90.1",
     "@types/prismjs": "^1.26.5",
     "cors": "^2.8.5",
     "express": "^4.18.2",

@@ -18,6 +18,9 @@ This repository serves as the Single Source of Truth (SSOT) for all design token
 - 🔧 **Type-Safe**: TypeScript definitions included
 - **Organized Output**: CSS grouped by category with headers, JSON alphabetically sorted
 - **Dot-Free Naming**: Enforced hyphenated naming for fractional values (e.g., `0-5` instead of `0.5`)
+- 🏢 **Multi-Project Support**: Manage multiple design systems from a single interface (optional Supabase integration)
+- 🤝 **Collaborative Sandbox**: Real-time token editing with team members via Supabase (optional)
+- ⚡ **Project Scaffolding**: Rapid project creation with `npm run project:clone`
 
 ## Figma Integration (Token Studio)
 
@@ -76,6 +79,95 @@ npm run tokens:export-figma
 2. Run `npm run tokens:export-figma`
 3. Designers sync in Token Studio
 4. Tokens automatically scoped and configured
+
+## Multi-Project Support & Collaboration
+
+### 🏢 Managing Multiple Design Systems
+
+This system supports **multi-project workflows** for agencies and organizations managing multiple brands or clients.
+
+#### Quick Start: Create a New Project
+
+```bash
+# Clone this project to create a new design system
+npm run project:clone
+
+# Follow the interactive prompts:
+# - Enter project name (e.g., acme-design-tokens)
+# - Choose target directory
+# - Confirm creation
+
+# Navigate to new project
+cd ../acme-design-tokens
+npm install
+npm run dev
+```
+
+**What Gets Cloned:**
+- ✅ Core engine (scripts, site, server)
+- ✅ Build pipeline and tooling
+- ✅ Starter token set (colors, spacing)
+- ✅ Fresh Git repository
+- ✅ Updated package.json with new project name
+- ❌ Excludes: node_modules, dist, build artifacts
+
+### 🤝 Collaborative Editing (Optional)
+
+Enable **real-time collaboration** with Supabase for team-based token editing.
+
+#### Setup Supabase Backend
+
+1. **Create a Supabase Project**: Visit [supabase.com](https://supabase.com) and create a free project
+
+2. **Run the Schema**: In Supabase SQL Editor, execute `supabase-schema.sql`
+   ```sql
+   -- Creates tables: projects, token_drafts
+   -- Enables real-time subscriptions
+   -- Sets up RLS policies
+   ```
+
+3. **Configure Environment Variables**: Copy `.env.example` to `.env`
+   ```bash
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key-here
+   ```
+
+4. **Restart Development Server**:
+   ```bash
+   npm run dev
+   ```
+
+#### Using Sandbox Mode
+
+Once Supabase is configured, you'll see new UI controls:
+
+**Project Switcher** (Header):
+- Dropdown to switch between design systems
+- Fetches projects from Supabase `projects` table
+- Seamlessly reload tokens for different clients/brands
+
+**Sandbox Toggle** (Header):
+- **Production Mode** (Default): Read-only Git tokens
+- **Sandbox Mode**: Collaborative editing via Supabase
+- Draft changes badge shows unpublished modifications
+
+**Workflow**:
+1. Switch to **Sandbox Mode**
+2. Edit tokens collaboratively (changes saved to Supabase)
+3. Review changes with team in real-time
+4. **Publish to Git** when ready (merges sandbox → production)
+5. Run `npm run build` to update artifacts
+
+**Benefits**:
+- ✅ Risk-free experimentation without affecting production
+- ✅ Real-time sync across team members
+- ✅ Clear separation between drafts and published tokens
+- ✅ Git remains single source of truth
+
+**Graceful Degradation**:
+- If Supabase is not configured, components don't render
+- App works in local-only mode (existing behavior)
+- No breaking changes to existing workflows
 
 ## CI/CD Pipeline
 

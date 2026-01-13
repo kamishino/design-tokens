@@ -9,6 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **System Flexibility & Multi-Project Scalability** (PRD 0047): Hybrid backend and project scaffolding for agency workflows
+  - **Supabase Integration**:
+    - Optional Supabase backend for collaborative token editing
+    - Graceful fallback to local-only mode when credentials not configured
+    - Environment variables: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
+    - Database schema for `projects` and `token_drafts` tables
+  - **Collaborative Sandbox**:
+    - `SandboxToggle` component for switching between Production (Git) and Sandbox (Supabase) modes
+    - Real-time subscription to token draft changes across team members
+    - Draft changes indicator badge for unpublished modifications
+    - State isolation prevents sandbox experiments from affecting production builds
+  - **Multi-Project Support**:
+    - `ProjectSwitcher` dropdown component for managing multiple design systems
+    - Project registry with ID, name, and Git URL tracking
+    - Seamless switching between client/brand design token projects
+  - **Project Scaffolding CLI**:
+    - `npm run project:clone` command for rapid project creation
+    - Automated copying of core engine (scripts, site, server)
+    - Smart exclusion of node_modules, dist, and build artifacts
+    - Interactive prompts for project naming and directory selection
+    - Starter token set with colors and spacing primitives
+    - Automatic Git initialization with initial commit
+    - Fresh package.json configuration with new project name
+  - **Infrastructure**:
+    - `site/src/lib/supabase.ts` - Client wrapper with API utilities
+    - `fetchProjects()`, `fetchDrafts()`, `saveDraft()`, `subscribeToDrafts()` helpers
+    - `.env.example` template for Supabase configuration
+    - Extended Icons registry with Flask, Git, Folder, and Link icons
+  - **Integration Points** (Ready for App.tsx):
+    - Components are standalone and conditionally render based on Supabase availability
+    - `isSandboxMode` and `activeProjectId` state management patterns defined
+    - Clear separation between local drafts and Supabase-backed collaborative drafts
+
 - **Modal-Based Token Editor** (PRD 0046): Dual-mode modal for editing token metadata and values
   - **Edit Entry Point**: 
     - Pencil icon button added next to delete button on every token
