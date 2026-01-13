@@ -9,6 +9,11 @@
 
 This repository serves as the Single Source of Truth (SSOT) for all design tokens used across the Kami platform. It syncs with Figma and distributes versioned artifacts to Frontend, Backend, and Mobile applications.
 
+## 📚 Documentation
+
+- **[Setup Guide](./docs/SETUP.md)** - Infrastructure setup, Supabase configuration, and project scaffolding
+- **[User Guide](./docs/GUIDE.md)** - Daily workflow, Figma sync, sandbox mode, and publishing
+
 ## Features
 
 - 🔄 **Figma Sync**: Automated synchronization with Figma Token Studio
@@ -115,59 +120,29 @@ npm run dev
 
 Enable **real-time collaboration** with Supabase for team-based token editing.
 
-#### Setup Supabase Backend
+**Quick Setup:**
 
-1. **Create a Supabase Project**: Visit [supabase.com](https://supabase.com) and create a free project
+1. Create a free Supabase project at [supabase.com](https://supabase.com)
+2. Run the schema from `supabase-schema.sql` in SQL Editor
+3. Copy `.env.example` to `.env` and add your credentials
+4. Restart dev server: `npm run dev`
 
-2. **Run the Schema**: In Supabase SQL Editor, execute `supabase-schema.sql`
-   ```sql
-   -- Creates tables: projects, token_drafts
-   -- Enables real-time subscriptions
-   -- Sets up RLS policies
-   ```
+**📖 For detailed setup instructions, see [docs/SETUP.md](./docs/SETUP.md)**
 
-3. **Configure Environment Variables**: Copy `.env.example` to `.env`
-   ```bash
-   VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key-here
-   ```
+**Test Your Connection:**
 
-4. **Restart Development Server**:
-   ```bash
-   npm run dev
-   ```
+```bash
+npm run test:supabase
+```
 
-#### Using Sandbox Mode
+#### Features Enabled by Supabase
 
-Once Supabase is configured, you'll see new UI controls:
-
-**Project Switcher** (Header):
-- Dropdown to switch between design systems
-- Fetches projects from Supabase `projects` table
-- Seamlessly reload tokens for different clients/brands
-
-**Sandbox Toggle** (Header):
+- **App Top Bar**: Project switcher and sandbox mode toggle
 - **Production Mode** (Default): Read-only Git tokens
-- **Sandbox Mode**: Collaborative editing via Supabase
-- Draft changes badge shows unpublished modifications
+- **Sandbox Mode**: Collaborative editing with draft changes
+- **Publish Workflow**: Merge sandbox changes to Git
 
-**Workflow**:
-1. Switch to **Sandbox Mode**
-2. Edit tokens collaboratively (changes saved to Supabase)
-3. Review changes with team in real-time
-4. **Publish to Git** when ready (merges sandbox → production)
-5. Run `npm run build` to update artifacts
-
-**Benefits**:
-- ✅ Risk-free experimentation without affecting production
-- ✅ Real-time sync across team members
-- ✅ Clear separation between drafts and published tokens
-- ✅ Git remains single source of truth
-
-**Graceful Degradation**:
-- If Supabase is not configured, components don't render
-- App works in local-only mode (existing behavior)
-- No breaking changes to existing workflows
+**📖 For complete workflow documentation, see [docs/GUIDE.md](./docs/GUIDE.md)**
 
 ## CI/CD Pipeline
 

@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Onboarding & Multi-Project Setup Documentation** (PRD 0049): Comprehensive guides for new developers and teams
+  - **SETUP.md**:
+    - Step-by-step infrastructure setup guide (10-15 minute setup)
+    - Automated project scaffolding with `npm run project:clone`
+    - Supabase quickstart with copy-paste SQL schema
+    - Environment configuration with detailed `.env` instructions
+    - Connection testing with `npm run test:supabase`
+    - Troubleshooting section for common issues
+  - **GUIDE.md**:
+    - Daily workflow and collaboration guide
+    - Figma Token Studio setup with GitHub provider
+    - Production vs Sandbox mode explanation
+    - Token editing workflow (create, edit, delete)
+    - Publishing workflow with confirmation dialogs
+    - Common commands reference
+    - Best practices for token organization and naming
+  - **Enhanced .env.example**:
+    - Comprehensive comments for all variables
+    - Step-by-step setup instructions inline
+    - Connection test command reference
+    - Advanced configuration options
+  - **README.md Updates**:
+    - Prominent documentation links at the top
+    - Streamlined Supabase setup section
+    - Clear references to detailed guides
+
 - **Global Top Bar & Sandbox Mode UI** (PRD 0048): System-level controls for multi-project and collaborative workflows
   - **AppTopBar Component**:
     - Fixed top bar (48px height) spanning full viewport width

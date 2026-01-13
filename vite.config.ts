@@ -8,7 +8,7 @@ export default defineConfig({
   envDir: "../", // Load .env from project root (one level up from site/)
   plugins: [react()],
   build: {
-    outDir: "../docs",
+    outDir: "../build",
     emptyOutDir: true,
     rollupOptions: {
       input: {
