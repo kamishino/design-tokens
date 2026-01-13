@@ -5,6 +5,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   root: "site",
   base: "/design-tokens/",
+  envDir: "../", // Load .env from project root (one level up from site/)
   plugins: [react()],
   build: {
     outDir: "../docs",

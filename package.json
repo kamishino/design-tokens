@@ -51,7 +51,8 @@
     "site:preview": "npm run site:build && vite preview",
     "tasks:archive": "node scripts/archive-tasks.js",
     "health:cdn": "node scripts/check-cdn.js",
-    "project:clone": "node scripts/clone-project.js"
+    "project:clone": "node scripts/clone-project.js",
+    "test:supabase": "node scripts/test-supabase.js"
   },
   "keywords": [
     "design-tokens",
@@ -89,6 +90,7 @@
     "ajv": "^8.12.0",
     "chalk": "^4.1.2",
     "concurrently": "^9.2.1",
+    "dotenv": "^17.2.3",
     "fs-extra": "^11.1.0",
     "glob": "^8.1.0",
     "nodemon": "^3.1.11",

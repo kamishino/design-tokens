@@ -4,6 +4,10 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 
+// Debug: Log environment variable status (remove after testing)
+console.log("[Supabase Debug] URL:", SUPABASE_URL ? "✓ Loaded" : "✗ Missing");
+console.log("[Supabase Debug] Key:", SUPABASE_ANON_KEY ? "✓ Loaded" : "✗ Missing");
+
 // Database types
 export interface Project {
   id: string;
