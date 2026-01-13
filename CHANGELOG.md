@@ -7,8 +7,201 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Token Row Status Icons & Folder Summaries** (PRD 0036): Refined status indicators with minimalist icons and folder-level change tracking
+  - **Minimalist Status Icons** (`TokenTree.tsx`):
+    - Replaced text badges with compact Tabler icons on far right
+    - NEW: `ti-plus` icon in green (1.2rem)
+    - MODIFIED: `ti-point-filled` icon in yellow
+    - DELETED: `ti-minus` icon in red
+    - Click-to-diff functionality preserved on all icons
+    - Icons positioned in metadata block for consistent alignment
+  - **Metadata Block Refactor**:
+    - Status icon, Type badge, and Delete button grouped in right-aligned block
+    - Uses `ms-auto` and `gap-2` for clean spacing
+    - Token value column takes maximum available space
+    - Flexbox ensures perfect vertical alignment
+  - **Recursive Folder Status** (`token-logic.ts`):
+    - New `isGroupModified()` utility checks nested tokens recursively
+    - Returns true if any child is NEW, MODIFIED, or DELETED
+    - Handles both current and baseline group data
+    - Skips metadata keys (starting with `$`)
+  - **Group MOD Badges**:
+    - Yellow "MOD" badge appears on folders containing changes
+    - Visible even when folder is collapsed
+    - Tooltip: "This folder contains modified, new, or deleted tokens"
+    - Uses `useMemo` for performance optimization
+    - `stopPropagation` prevents expand/collapse on badge click
+  - **Benefits**:
+    - **Scannability**: Identify changes by looking at right edge of screen
+    - **Efficiency**: No need to expand folders to find changes
+    - **Clean Design**: Less visual clutter than text badges
+    - **Performance**: Memoized recursive checks prevent unnecessary re-renders
+
+### Fixed
+
+- **Badge Contrast & Height Improvements**: Enhanced all badges in main content area for WCAG compliance
+  - **Token Name Badge**: Changed from `bg-blue-lt` to `bg-blue text-white` (solid background)
+  - **Token Type Badge**: Changed from `bg-azure-lt` to `bg-azure text-white` (solid background)
+  - **Usage Badge**: Changed from `bg-green-lt` to `bg-green text-white` (solid background)
+  - **Group Count Badge**: Changed from `bg-secondary-lt` to `bg-secondary text-white` (solid background)
+  - **Group MOD Badge**: Changed from `bg-yellow-lt text-yellow` to `bg-yellow text-dark`
+  - **Universal Styling**: All badges now use consistent sizing:
+    - Font size: `0.75rem` (increased from default)
+    - Padding: `0.35rem 0.5rem` (increased height)
+    - Font weight: `600` (semi-bold)
+    - Line height: `1.2` (proper vertical spacing)
+  - **Result**: Significantly improved contrast ratios meeting WCAG AA/AAA standards, better readability
+- **Status Icon & Badge UI Refinements**: Multiple improvements for better visibility and usability
+  - **Sidebar MOD Badge** (`Sidebar.tsx`):
+    - Changed text from "Modified" to "MOD" for compactness
+    - Improved contrast: Yellow background (`bg-yellow`) with dark text
+    - Added `overflow: visible` to nav-link to prevent clipping
+    - Increased padding and font-weight for better readability
+    - Flexbox layout ensures proper alignment
+  - **Status Icon Size**: Increased from `1.2rem` to `1.6rem` for better visibility
+  - **Diff Modal Positioning**: Changed to top-right positioning near the clicked icon
+    - Position: `position-absolute` with `top: 100%`, `right: 0`
+    - Appears contextually near the status icon instead of center screen
+    - `marginTop: 8px` for spacing from icon
+  - **Modal Z-Index**: Set to `9999` to prevent container clipping
+  - **Diff Highlighting**: Added background colors and icons to differentiate Original vs Current
+    - Original: Red background (`bg-danger-lt`) with minus icon
+    - Current: Green background (`bg-success-lt`) with plus icon
+    - Bold labels with icons for better visual hierarchy
+  - **Result**: Clear visual hierarchy, no clipping issues, contextual modal placement
+- **Status Icons Not Showing on Nested Tokens** (Critical Bug): Fixed baseline not propagating to nested token groups
+  - **Root Cause**: Recursive TokenTree call was passing `baselineContent` (top-level) instead of `baselineValue` (nested group baseline)
+  - **Fix** (`TokenTree.tsx` line 580): Changed `baselineContent={baselineContent}` to `baselineContent={baselineValue || null}`
+  - **Impact**: Status detection now works correctly for all nested tokens (e.g., `scale.augmented-fourth`)
+  - **Result**: Modifying any nested token now properly shows status icon (green +, yellow •, red -)
+- **Missing Token Status Indicators** (PRD 0039): Fixed status icons not appearing on individual token rows
+  - **Root Cause**: StatusIcon component existed but was never rendered in TokenNode leaf layout
+  - **Layout Refactor** (`TokenTree.tsx` line 461-495):
+    - Wrapped Usage Badge, Token Type, and Delete Button in right-aligned container
+    - Container uses `col-auto ms-auto d-flex align-items-center gap-2`
+    - StatusIcon added as first element in metadata group
+  - **StatusIcon Integration**:
+    - Conditionally renders when `tokenStatus` is non-null
+    - Shows green `+` for NEW tokens
+    - Shows yellow `•` (dot) for MODIFIED tokens
+    - Shows red `-` for DELETED tokens
+    - Maintains click-to-diff interactivity
+  - **Visual Improvements**:
+    - All metadata now grouped at far right edge of row
+    - Consistent `gap-2` spacing between metadata elements
+    - Token name/value area remains clean and uncluttered
+    - Perfect vertical alignment with flexbox
+  - **Result**: Every token modification now displays a clear visual indicator on the right edge
+- **Color Picker Modification Detection** (PRD 0038): Fixed color picker failing to trigger "Modified" state
+  - **Root Cause**: Wrong event bindings - `onChange` was used for preview instead of commit
+  - **Event Refactor** (`TokenTree.tsx`):
+    - Changed `onChange` → `onInput` for live preview (line 208)
+    - Changed `onBlur` → `onChange` for final commit (line 209)
+    - Removed unreliable `onBlur` event (inconsistent across browsers)
+    - Added `!isDeleted` guard to prevent color picker on deleted tokens
+  - **Value Handling**:
+    - `onInput` fires continuously during color selection (updates `pendingValue`)
+    - `onChange` fires once when picker closes (commits via `handleColorCommit`)
+    - `normalizeHexColor` ensures uppercase HEX format (`#FFFFFF`)
+  - **Token Structure Fix**:
+    - Changed from spreading `value` to `effectiveValue` in `handleColorCommit`
+    - Ensures proper token structure even for edge cases
+  - **Result**: Color picker now properly triggers MOD badge on commit, uppercase HEX maintained
+- **TokenNode Null Pointer Exception** (PRD 0037): Fixed crash when accessing properties on deleted tokens
+  - **Root Cause**: Some JSX still referenced `value` directly instead of `effectiveValue`
+  - **Property Access Fixes** (`TokenTree.tsx`):
+    - Changed `value.$description` to `effectiveValue?.$description` (line 436)
+    - Changed `value.$type` to `effectiveValue?.$type` in AliasPicker/Autocomplete filterType
+    - Updated Swatch component to use `effectiveValue` instead of `value`
+    - Added optional chaining (`?.`) for all token property accesses
+  - **Render Guards** (`TokenEditor.tsx`):
+    - Added conditional check before rendering TokenTree
+    - Shows loading message if content is null
+    - Prevents race conditions during file switching
+  - **Result**: Rapid file switching no longer causes crashes, deleted tokens display metadata correctly
+- **TokenNode Crash on Deleted Groups** (PRD 0035): Fixed TypeError when rendering deleted token groups
+  - **Object.keys Safety** (`TokenTree.tsx`):
+    - Changed `Object.keys(value)` to `Object.keys(effectiveValue)` in isGroup block
+    - Prevents crash when value is null (deleted group)
+    - effectiveValue is guaranteed to be a valid object (baseline fallback)
+  - **Recursive Prop Fixes**:
+    - Updated recursive TokenTree call to pass `value || {}` as data prop
+    - Updated baselineContent prop to pass `baselineValue || null`
+    - Ensures nested groups handle null/undefined gracefully
+  - **Defensive Fallbacks**:
+    - Main TokenTree component uses `getMergedKeys(data || {}, baselineContent || {})`
+    - Prevents downstream errors if props are missing
+    - Handles edge cases during file switching
+  - **Result**: App no longer crashes when viewing files with deleted token groups, strikethrough styling works correctly
+
 ### Added
 
+- **Token Status Badges & Interactive Diff** (PRD 0034): Granular token-level change tracking with visual feedback
+  - **Token Status Logic** (`token-logic.ts`):
+    - New `getTokenStatus()` utility compares current vs baseline content
+    - Status types: NEW (exists only in current), MODIFIED (different values), DELETED (exists only in baseline)
+    - `getMergedKeys()` ensures deleted tokens are included in tree rendering
+    - Deep comparison using JSON.stringify for accurate detection
+  - **Visual Status Badges** (`TokenTree.tsx`):
+    - High-contrast badges next to token keys: NEW (green), MOD (yellow), DEL (red)
+    - Font size: 0.65rem for compact, non-intrusive display
+    - Clickable badges open interactive diff popover
+    - Badges automatically appear/disappear based on token status
+  - **Interactive Diff Popover** (`StatusBadge` component):
+    - Absolute-positioned card with shadow overlay
+    - Shows original value from baseline vs current value
+    - Side-by-side comparison with JSON formatting
+    - One-click "Revert to Original" button
+    - Clean, minimal UI with Tabler card styling
+  - **Delete Workflow**:
+    - Trash icon button on each token row (red outline)
+    - `deleteToken()` removes token from current content
+    - Deleted tokens marked with DELETED status badge
+    - Visual strikethrough and 50% opacity for deleted items
+    - Editing disabled on deleted tokens (cursor: not-allowed)
+  - **Merged Tree Rendering**:
+    - TokenTree iterates over merged keys (current + baseline)
+    - Deleted tokens remain visible until commit
+    - `effectiveValue` logic handles deleted state gracefully
+    - Recursive baseline passing for nested groups
+  - **Individual Token Revert** (`App.tsx`):
+    - `revertToken()` restores single token to baseline value
+    - Automatically removes file from draftChanges if fully reverted
+    - Real-time UI update without page refresh
+    - Works for NEW (deletes), MODIFIED (restores), DELETED (un-deletes) tokens
+  - **UX Benefits**:
+    - Granular visibility: See exactly which tokens changed
+    - Surgical reversion: Fix mistakes without losing other changes
+    - Pre-commit verification: Review all changes before saving
+    - Professional workflow: Matches Git-like diff experience
+- **Fix False-Positive Modification Tracking** (PRD 0033): Accurate change detection with automatic reversion
+  - **Baseline State Management** (`App.tsx`):
+    - New `initialTokensContent` state maintains read-only snapshot of original token data
+    - Populated on initial load via `loadAllTokens` with deep clone (`JSON.parse(JSON.stringify())`)
+    - Updated in `loadTokenFile` for newly loaded files
+    - Reset in `commitChanges` after successful save to establish new baseline
+  - **Strict Change Detection**:
+    - `updateTokenValue` refactored with comprehensive comparison logic
+    - String inputs automatically trimmed to prevent whitespace-only modifications
+    - Full file comparison using `JSON.stringify` for accurate detection
+    - Only marks files as modified when content actually differs from baseline
+  - **Auto-Reversion Logic**:
+    - Files automatically removed from `draftChanges` when reverted to original state
+    - Real-time detection during any value update
+    - Prevents accumulation of false-positive "Modified" badges
+    - Works across all editing interfaces (manual input, advanced editors, bulk replace)
+  - **Zero-Noise Edits**:
+    - Clicking field and leaving without changes: 0 modified files
+    - Adding/removing whitespace: 0 modified files (trimmed)
+    - Changing value and reverting back: 0 modified files (auto-removed)
+    - Bulk replace with no matches: 0 modified files
+  - **UI Benefits**:
+    - "Modified" count in CommitBar matches actual changes
+    - Sidebar badges disappear instantly when values reverted
+    - No confusion from inflated modification counts
+    - Professional, predictable behavior
 - **Sidebar Revision & Tabler UI Refinement** (PRD 0032): Enhanced sidebar with improved readability and professional interaction states
   - **Expanded Width** (`dashboard.css`):
     - Sidebar width increased from 280px to **350px** for better readability

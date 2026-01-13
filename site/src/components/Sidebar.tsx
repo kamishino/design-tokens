@@ -116,10 +116,7 @@ export default function Sidebar({
                           }
                         ></i>
                       </span>
-                      <span
-                        className="nav-link-title text-capitalize text-muted"
-                        style={{ letterSpacing: "0.05em" }}
-                      >
+                      <span className="nav-link-title text-capitalize text-muted">
                         {category}
                       </span>
                     </a>

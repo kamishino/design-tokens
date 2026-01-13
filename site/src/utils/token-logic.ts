@@ -555,3 +555,128 @@ export function findTokenLocation(
 
   return null;
 }
+
+/**
+ * Token status types for status badges
+ */
+export type TokenStatus = "NEW" | "MODIFIED" | "DELETED" | null;
+
+/**
+ * Compare two token values directly and return status
+ * This is used by TokenNode which already has the values
+ */
+export function compareTokenValues(
+  currentValue: any,
+  baselineValue: any
+): TokenStatus {
+  // NEW: Exists in current but not in baseline
+  if (currentValue !== null && currentValue !== undefined && 
+      (baselineValue === null || baselineValue === undefined)) {
+    return "NEW";
+  }
+
+  // DELETED: Exists in baseline but not in current
+  if ((currentValue === null || currentValue === undefined) && 
+      baselineValue !== null && baselineValue !== undefined) {
+    return "DELETED";
+  }
+
+  // MODIFIED: Exists in both but values differ
+  if (currentValue !== null && currentValue !== undefined &&
+      baselineValue !== null && baselineValue !== undefined) {
+    if (JSON.stringify(currentValue) !== JSON.stringify(baselineValue)) {
+      return "MODIFIED";
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Get the status of a token by comparing current and baseline content
+ */
+export function getTokenStatus(
+  path: string[],
+  currentContent: TokenContent | null,
+  baselineContent: TokenContent | null
+): TokenStatus {
+  const currentValue = getValueAtPath(path, currentContent);
+  const baselineValue = getValueAtPath(path, baselineContent);
+  
+  return compareTokenValues(currentValue, baselineValue);
+}
+
+/**
+ * Get value at a specific path in token content
+ */
+function getValueAtPath(path: string[], content: TokenContent | null): any {
+  if (!content) return null;
+
+  let current: any = content;
+  for (const key of path) {
+    if (current && typeof current === "object" && key in current) {
+      current = current[key];
+    } else {
+      return null;
+    }
+  }
+
+  return current;
+}
+
+/**
+ * Get merged keys from both current and baseline content
+ * This ensures deleted keys are included in rendering
+ */
+export function getMergedKeys(
+  currentObj: any,
+  baselineObj: any
+): string[] {
+  const keys = new Set<string>();
+
+  if (currentObj && typeof currentObj === "object") {
+    Object.keys(currentObj).forEach((key) => keys.add(key));
+  }
+
+  if (baselineObj && typeof baselineObj === "object") {
+    Object.keys(baselineObj).forEach((key) => keys.add(key));
+  }
+
+  return Array.from(keys).sort();
+}
+
+/**
+ * Check if a group/folder contains any modified, new, or deleted tokens
+ * Recursively checks all nested children
+ */
+export function isGroupModified(
+  groupData: any,
+  baselineGroupData: any
+): boolean {
+  // Get all keys from both current and baseline
+  const keys = getMergedKeys(groupData, baselineGroupData);
+
+  for (const key of keys) {
+    // Skip metadata keys
+    if (key.startsWith("$")) continue;
+
+    const currentValue = groupData?.[key];
+    const baselineValue = baselineGroupData?.[key];
+
+    // Check if this is a token value
+    if (isTokenValue(currentValue) || isTokenValue(baselineValue)) {
+      // Compare token values
+      const status = getTokenStatus([key], currentValue, baselineValue);
+      if (status !== null) {
+        return true; // Found a change
+      }
+    } else if (typeof currentValue === "object" || typeof baselineValue === "object") {
+      // Recursively check nested groups
+      if (isGroupModified(currentValue, baselineValue)) {
+        return true;
+      }
+    }
+  }
+
+  return false; // No changes found
+}

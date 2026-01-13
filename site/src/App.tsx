@@ -30,6 +30,9 @@ export default function App() {
   const [allTokensContent, setAllTokensContent] = useState<
     Record<string, TokenContent>
   >({});
+  const [initialTokensContent, setInitialTokensContent] = useState<
+    Record<string, TokenContent>
+  >({});
   const [draftChanges, setDraftChanges] = useState<DraftChanges>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +76,16 @@ export default function App() {
       setTokenContent(data.content);
       // Update allTokensContent with this file
       setAllTokensContent((prev) => ({ ...prev, [filePath]: data.content }));
+      // Update baseline if not already set for this file
+      setInitialTokensContent((prev) => {
+        if (!prev[filePath]) {
+          return {
+            ...prev,
+            [filePath]: JSON.parse(JSON.stringify(data.content)),
+          };
+        }
+        return prev;
+      });
     } catch (err) {
       setError("Failed to load token file");
       console.error(err);
@@ -101,6 +114,8 @@ export default function App() {
       }
 
       setAllTokensContent(allContent);
+      // Set baseline snapshot for change detection
+      setInitialTokensContent(JSON.parse(JSON.stringify(allContent)));
     } catch (err) {
       console.error("Failed to load all tokens", err);
     }
@@ -150,14 +165,114 @@ export default function App() {
       // Trigger build
       await fetch("/api/build", { method: "POST" });
 
-      // Clear draft changes
+      // Clear draft changes and reset baseline to new saved state
       setDraftChanges({});
+      setInitialTokensContent(JSON.parse(JSON.stringify(allTokensContent)));
       alert("Changes committed and build completed successfully!");
     } catch (err) {
       setError("Failed to commit changes");
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const revertToken = (path: string[]) => {
+    if (!selectedFile || !tokenContent) return;
+
+    const initialContent = initialTokensContent[selectedFile];
+    if (!initialContent) return;
+
+    // Get the original value from baseline
+    let baselineValue: any = initialContent;
+    for (const key of path) {
+      if (
+        baselineValue &&
+        typeof baselineValue === "object" &&
+        key in baselineValue
+      ) {
+        baselineValue = baselineValue[key];
+      } else {
+        baselineValue = null;
+        break;
+      }
+    }
+
+    if (baselineValue !== null) {
+      // Restore the original value
+      const updatedContent = { ...tokenContent };
+      let current: any = updatedContent;
+
+      for (let i = 0; i < path.length - 1; i++) {
+        current = current[path[i]];
+      }
+      current[path[path.length - 1]] = baselineValue;
+
+      setTokenContent(updatedContent);
+      setAllTokensContent((prev) => ({
+        ...prev,
+        [selectedFile]: updatedContent,
+      }));
+
+      // Re-check if file matches baseline after revert
+      const hasActualChanges =
+        JSON.stringify(updatedContent) !== JSON.stringify(initialContent);
+
+      setDraftChanges((prev) => {
+        const newDraftChanges = { ...prev };
+
+        if (hasActualChanges) {
+          newDraftChanges[selectedFile] = updatedContent;
+        } else {
+          delete newDraftChanges[selectedFile];
+        }
+
+        return newDraftChanges;
+      });
+    }
+  };
+
+  const deleteToken = (path: string[]) => {
+    if (!selectedFile || !tokenContent) return;
+
+    // Remove the token from the content
+    const updatedContent = JSON.parse(JSON.stringify(tokenContent));
+    let current: any = updatedContent;
+
+    for (let i = 0; i < path.length - 1; i++) {
+      current = current[path[i]];
+    }
+    delete current[path[path.length - 1]];
+
+    setTokenContent(updatedContent);
+    setAllTokensContent((prev) => ({
+      ...prev,
+      [selectedFile]: updatedContent,
+    }));
+
+    // Check if file matches baseline after deletion
+    const initialContent = initialTokensContent[selectedFile];
+    if (initialContent) {
+      const hasActualChanges =
+        JSON.stringify(updatedContent) !== JSON.stringify(initialContent);
+
+      setDraftChanges((prev) => {
+        const newDraftChanges = { ...prev };
+
+        if (hasActualChanges) {
+          newDraftChanges[selectedFile] = updatedContent;
+        } else {
+          delete newDraftChanges[selectedFile];
+        }
+
+        return newDraftChanges;
+      });
+    } else {
+      // No baseline, mark as modified
+      setDraftChanges((prev) => ({
+        ...prev,
+        [selectedFile]: updatedContent,
+      }));
     }
   };
 
@@ -310,7 +425,7 @@ export default function App() {
                     Import from Figma
                   </button>
                   {hasDraftChanges && (
-                    <span className="badge bg-green">
+                    <span className="badge bg-green-lt">
                       {Object.keys(draftChanges).length} file(s) modified
                     </span>
                   )}
@@ -401,9 +516,14 @@ export default function App() {
                       filePath={selectedFile}
                       content={tokenContent}
                       onUpdate={updateTokenValue}
-                      hasChanges={selectedFile in draftChanges}
+                      hasChanges={draftChanges[selectedFile] !== undefined}
                       allTokens={allTokensContent}
                       onNavigateToToken={handleNavigateToToken}
+                      baselineContent={
+                        initialTokensContent[selectedFile] || null
+                      }
+                      onRevertToken={revertToken}
+                      onDeleteToken={deleteToken}
                     />
                   )}
                 </>

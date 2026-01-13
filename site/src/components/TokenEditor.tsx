@@ -13,6 +13,9 @@ interface TokenEditorProps {
   hasChanges: boolean;
   allTokens?: Record<string, TokenContent>;
   onNavigateToToken?: (tokenPath: string) => void;
+  baselineContent?: TokenContent | null;
+  onRevertToken?: (path: string[]) => void;
+  onDeleteToken?: (path: string[]) => void;
 }
 
 export default function TokenEditor({
@@ -22,6 +25,9 @@ export default function TokenEditor({
   hasChanges,
   allTokens = {},
   onNavigateToToken,
+  baselineContent = null,
+  onRevertToken,
+  onDeleteToken,
 }: TokenEditorProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [expandAll, setExpandAll] = useState<boolean | undefined>(undefined);
@@ -60,7 +66,7 @@ export default function TokenEditor({
             {filePath}
           </h3>
           <div className="d-flex align-items-center gap-2">
-            {hasChanges && <span className="badge bg-green">Modified</span>}
+            {hasChanges && <span className="badge bg-green-lt">Modified</span>}
 
             {/* View Mode Toggle */}
             <div className="btn-group" role="group">
@@ -113,14 +119,23 @@ export default function TokenEditor({
 
       <div className="card-body">
         {viewMode === "tree" ? (
-          <TokenTree
-            data={content}
-            path={[]}
-            onUpdate={onUpdate}
-            expandAll={expandAll}
-            allTokens={allTokens}
-            onNavigateToToken={onNavigateToToken}
-          />
+          content ? (
+            <TokenTree
+              data={content}
+              path={[]}
+              onUpdate={onUpdate}
+              expandAll={expandAll}
+              allTokens={allTokens}
+              onNavigateToToken={onNavigateToToken}
+              baselineContent={baselineContent}
+              onRevertToken={onRevertToken}
+              onDeleteToken={onDeleteToken}
+            />
+          ) : (
+            <div className="text-center text-muted py-5">
+              <i className="ti ti-loader"></i> Loading...
+            </div>
+          )
         ) : (
           <JSONEditor
             value={jsonString}

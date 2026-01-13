@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { TokenContent, TokenValue } from "../types";
 import { Icons } from "./Icons";
 import Swatch from "./Swatch";
@@ -13,6 +13,10 @@ import {
   isHexColor,
   normalizeHexColor,
   getTokenUsageCount,
+  getMergedKeys,
+  compareTokenValues,
+  TokenStatus,
+  isGroupModified,
 } from "../utils/token-logic";
 
 interface TokenTreeProps {
@@ -22,6 +26,9 @@ interface TokenTreeProps {
   expandAll?: boolean;
   allTokens?: Record<string, TokenContent>;
   onNavigateToToken?: (tokenPath: string) => void;
+  baselineContent?: TokenContent | null;
+  onRevertToken?: (path: string[]) => void;
+  onDeleteToken?: (path: string[]) => void;
 }
 
 export default function TokenTree({
@@ -31,21 +38,36 @@ export default function TokenTree({
   expandAll,
   allTokens = {},
   onNavigateToToken,
+  baselineContent = null,
+  onRevertToken,
+  onDeleteToken,
 }: TokenTreeProps) {
+  // Use merged keys to include deleted tokens
+  const keys = getMergedKeys(data, baselineContent);
+
   return (
     <div className="list-group list-group-flush">
-      {Object.entries(data).map(([key, value]) => (
-        <TokenNode
-          key={key}
-          nodeKey={key}
-          value={value}
-          path={[...path, key]}
-          onUpdate={onUpdate}
-          expandAll={expandAll}
-          allTokens={allTokens}
-          onNavigateToToken={onNavigateToToken}
-        />
-      ))}
+      {keys.map((key) => {
+        const currentValue = data?.[key];
+        const baselineValue = baselineContent?.[key];
+
+        return (
+          <TokenNode
+            key={key}
+            nodeKey={key}
+            value={currentValue}
+            baselineValue={baselineValue}
+            path={[...path, key]}
+            onUpdate={onUpdate}
+            expandAll={expandAll}
+            allTokens={allTokens}
+            onNavigateToToken={onNavigateToToken}
+            baselineContent={baselineContent}
+            onRevertToken={onRevertToken}
+            onDeleteToken={onDeleteToken}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -53,21 +75,29 @@ export default function TokenTree({
 interface TokenNodeProps {
   nodeKey: string;
   value: any;
+  baselineValue?: any;
   path: string[];
   onUpdate: (path: string[], newValue: any) => void;
   expandAll?: boolean;
   allTokens?: Record<string, TokenContent>;
   onNavigateToToken?: (tokenPath: string) => void;
+  baselineContent?: TokenContent | null;
+  onRevertToken?: (path: string[]) => void;
+  onDeleteToken?: (path: string[]) => void;
 }
 
 function TokenNode({
   nodeKey,
   value,
+  baselineValue,
   path,
   onUpdate,
   expandAll,
   allTokens = {},
   onNavigateToToken,
+  baselineContent = null,
+  onRevertToken,
+  onDeleteToken,
 }: TokenNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showAliasPicker, setShowAliasPicker] = useState(false);
@@ -85,14 +115,30 @@ function TokenNode({
     }
   });
 
-  const isLeafToken = isTokenValue(value);
-  const isGroup = typeof value === "object" && value !== null && !isLeafToken;
+  // Determine if this is a deleted token
+  const isDeleted = !value && baselineValue;
+  const effectiveValue = isDeleted ? baselineValue : value;
+
+  const isLeafToken = isTokenValue(effectiveValue);
+  const isGroup =
+    typeof effectiveValue === "object" &&
+    effectiveValue !== null &&
+    !isLeafToken;
+
+  // Calculate token status by comparing values directly
+  const tokenStatus = compareTokenValues(value, baselineValue);
 
   if (isLeafToken) {
-    const tokenValueStr = String(value.$value || value.value);
+    const tokenValueStr = String(effectiveValue.$value || effectiveValue.value);
     const isReference = isTokenReference(tokenValueStr);
-    const resolved = isReference ? resolveToken(value, allTokens) : null;
-    const tokenType = (value.$type || value.type || "").toLowerCase();
+    const resolved = isReference
+      ? resolveToken(effectiveValue, allTokens)
+      : null;
+    const tokenType = (
+      effectiveValue.$type ||
+      effectiveValue.type ||
+      ""
+    ).toLowerCase();
     const isColorToken = tokenType === "color" && !isReference;
     const tokenPath = path.join(".");
     const usageCount = getTokenUsageCount(tokenPath, allTokens);
@@ -113,17 +159,18 @@ function TokenNode({
     ].includes(tokenType);
 
     // Handler for color picker
-    const handleColorChange = (newColor: string) => {
-      setPendingValue(newColor);
+    const handleColorChange = (e: React.FormEvent<HTMLInputElement>) => {
+      setPendingValue(e.currentTarget.value);
       setValidationError(null);
     };
 
-    const handleColorCommit = (finalColor: string) => {
-      const normalized = normalizeHexColor(finalColor);
+    const handleColorCommit = (e: React.FormEvent<HTMLInputElement>) => {
+      const normalized = normalizeHexColor(e.currentTarget.value);
       if (isHexColor(normalized)) {
         onUpdate(path, {
-          ...value,
-          [value.$value !== undefined ? "$value" : "value"]: normalized,
+          ...effectiveValue,
+          [effectiveValue?.$value !== undefined ? "$value" : "value"]:
+            normalized,
         });
         setPendingValue(null);
         setValidationError(null);
@@ -145,32 +192,44 @@ function TokenNode({
             {/* Visual Swatch */}
             <div className="col-auto">
               <Swatch
-                token={value}
+                token={effectiveValue}
                 resolvedValue={resolved?.resolvedValue}
                 tempValue={pendingValue}
-                onClick={isColorToken ? handleSwatchClick : undefined}
+                onClick={
+                  isColorToken && !isDeleted ? handleSwatchClick : undefined
+                }
               />
               {/* Hidden color picker input */}
-              {isColorToken && (
+              {isColorToken && !isDeleted && (
                 <input
                   ref={colorInputRef}
                   type="color"
                   className="d-none"
                   value={pendingValue || tokenValueStr}
-                  onChange={(e) => handleColorChange(e.target.value)}
-                  onBlur={(e) => handleColorCommit(e.target.value)}
+                  onInput={handleColorChange}
+                  onChange={handleColorCommit}
                 />
               )}
             </div>
 
             {/* Token Name */}
             <div className="col-auto">
-              <span className="badge bg-blue-lt">{nodeKey}</span>
+              <span
+                className="badge bg-blue text-white"
+                style={{
+                  fontSize: "0.75rem",
+                  padding: "0.35rem 0.5rem",
+                  fontWeight: "600",
+                  lineHeight: "1.2",
+                }}
+              >
+                {nodeKey}
+              </span>
             </div>
 
             {/* Token Value */}
             <div className="col">
-              {isEditing ? (
+              {isEditing && !isDeleted ? (
                 <div className="d-flex gap-2 align-items-center flex-wrap">
                   {useTypeEditor && hasTypeEditor ? (
                     <div className="w-100">
@@ -249,7 +308,19 @@ function TokenNode({
                         onBlur={(e) => {
                           const newValue = e.target.value;
                           if (isColorToken) {
-                            handleColorCommit(newValue);
+                            const normalized = normalizeHexColor(newValue);
+                            if (isHexColor(normalized)) {
+                              onUpdate(path, {
+                                ...effectiveValue,
+                                [effectiveValue?.$value !== undefined
+                                  ? "$value"
+                                  : "value"]: normalized,
+                              });
+                              setPendingValue(null);
+                              setValidationError(null);
+                            } else {
+                              setValidationError("Invalid HEX color format");
+                            }
                           } else {
                             onUpdate(path, {
                               ...value,
@@ -387,33 +458,70 @@ function TokenNode({
                     </div>
                   )}
                   {/* Description */}
-                  {value.$description && (
+                  {effectiveValue?.$description && (
                     <div className="text-muted small mt-1">
-                      {value.$description}
+                      {effectiveValue.$description}
                     </div>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Usage Badge */}
-            {usageCount > 0 && (
-              <div className="col-auto">
+            {/* Right-aligned Metadata Block */}
+            <div className="col-auto ms-auto d-flex align-items-center gap-2">
+              {/* Status Icon */}
+              {tokenStatus && (
+                <StatusIcon
+                  status={tokenStatus}
+                  path={path}
+                  baselineValue={baselineValue}
+                  currentValue={value}
+                  onRevert={onRevertToken}
+                />
+              )}
+
+              {/* Usage Badge */}
+              {usageCount > 0 && (
                 <span
                   className="badge bg-green-lt"
                   title={`Referenced by ${usageCount} token(s)`}
+                  style={{
+                    fontSize: "0.75rem",
+                    padding: "0.35rem 0.5rem",
+                    fontWeight: "600",
+                    lineHeight: "1.2",
+                  }}
                 >
                   <i className="ti ti-link"></i> {usageCount}
                 </span>
-              </div>
-            )}
+              )}
 
-            {/* Token Type */}
-            {value.$type && (
-              <div className="col-auto">
-                <span className="badge bg-azure-lt">{value.$type}</span>
-              </div>
-            )}
+              {/* Token Type */}
+              {effectiveValue.$type && (
+                <span
+                  className="badge bg-azure text-white"
+                  style={{
+                    fontSize: "0.75rem",
+                    padding: "0.35rem 0.5rem",
+                    fontWeight: "600",
+                    lineHeight: "1.2",
+                  }}
+                >
+                  {effectiveValue.$type}
+                </span>
+              )}
+
+              {/* Delete Button */}
+              {!isDeleted && onDeleteToken && (
+                <button
+                  className="btn btn-sm btn-outline-danger"
+                  onClick={() => onDeleteToken(path)}
+                  title="Delete token"
+                >
+                  <i className="ti ti-trash"></i>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -430,7 +538,7 @@ function TokenNode({
               setShowAliasPicker(false);
             }}
             onClose={() => setShowAliasPicker(false)}
-            filterType={value.$type || value.type}
+            filterType={effectiveValue?.$type || effectiveValue?.type}
           />
         )}
 
@@ -443,7 +551,7 @@ function TokenNode({
               setShowAutocomplete(false);
             }}
             onClose={() => setShowAutocomplete(false)}
-            filterType={value.$type || value.type}
+            filterType={effectiveValue?.$type || effectiveValue?.type}
           />
         )}
       </>
@@ -451,32 +559,72 @@ function TokenNode({
   }
 
   if (isGroup) {
+    // Check if this group contains any modified tokens
+    const hasModifications = useMemo(() => {
+      return isGroupModified(value, baselineValue);
+    }, [value, baselineValue]);
+
     return (
       <div className="list-group-item">
         <div
-          className="d-flex align-items-center"
+          className="d-flex align-items-center justify-content-between"
           onClick={() => setIsExpanded(!isExpanded)}
           style={{ cursor: "pointer" }}
         >
-          <i
-            className={
-              (isExpanded ? Icons.CHEVRON_DOWN : Icons.CHEVRON_RIGHT) + " me-2"
-            }
-          ></i>
-          <strong>{nodeKey}</strong>
-          <span className="badge bg-secondary-lt ms-2">
-            {Object.keys(value).filter((k) => !k.startsWith("$")).length} items
-          </span>
+          <div className="d-flex align-items-center">
+            <i
+              className={
+                (isExpanded ? Icons.CHEVRON_DOWN : Icons.CHEVRON_RIGHT) +
+                " me-2"
+              }
+            ></i>
+            <strong>{nodeKey}</strong>
+            <span
+              className="badge bg-secondary text-white ms-2"
+              style={{
+                fontSize: "0.75rem",
+                padding: "0.35rem 0.5rem",
+                fontWeight: "600",
+                lineHeight: "1.2",
+              }}
+            >
+              {
+                Object.keys(effectiveValue).filter((k) => !k.startsWith("$"))
+                  .length
+              }{" "}
+              items
+            </span>
+            {/* Group Modification Badge */}
+            {hasModifications && (
+              <span
+                className="badge bg-yellow text-dark ms-2"
+                title="This folder contains modified, new, or deleted tokens"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  fontSize: "0.75rem",
+                  padding: "0.35rem 0.5rem",
+                  fontWeight: "600",
+                  lineHeight: "1.2",
+                }}
+              >
+                MOD
+              </span>
+            )}
+          </div>
         </div>
 
         {isExpanded && (
-          <div className="mt-2 ms-4">
+          <div className="ms-3">
             <TokenTree
-              data={value}
+              data={value || {}}
               path={path}
               onUpdate={onUpdate}
-              expandAll={expandAll}
+              expandAll={isExpanded}
               allTokens={allTokens}
+              onNavigateToToken={onNavigateToToken}
+              baselineContent={baselineValue || null}
+              onRevertToken={onRevertToken}
+              onDeleteToken={onDeleteToken}
             />
           </div>
         )}
@@ -485,6 +633,156 @@ function TokenNode({
   }
 
   return null;
+}
+
+interface StatusIconProps {
+  status: TokenStatus;
+  path: string[];
+  baselineValue: any;
+  currentValue: any;
+  onRevert?: (path: string[]) => void;
+}
+
+function StatusIcon({
+  status,
+  path,
+  baselineValue,
+  currentValue,
+  onRevert,
+}: StatusIconProps) {
+  const [showDiff, setShowDiff] = useState(false);
+
+  if (!status) return null;
+
+  const getIconClass = () => {
+    switch (status) {
+      case "NEW":
+        return "ti ti-plus text-green";
+      case "MODIFIED":
+        return "ti ti-point-filled text-yellow";
+      case "DELETED":
+        return "ti ti-minus text-red";
+      default:
+        return "";
+    }
+  };
+
+  const getIconTitle = () => {
+    switch (status) {
+      case "NEW":
+        return "New token - Click to view";
+      case "MODIFIED":
+        return "Modified token - Click to view diff";
+      case "DELETED":
+        return "Deleted token - Click to view";
+      default:
+        return "";
+    }
+  };
+
+  const handleIconClick = () => {
+    setShowDiff(!showDiff);
+  };
+
+  const handleRevert = () => {
+    if (onRevert) {
+      onRevert(path);
+      setShowDiff(false);
+    }
+  };
+
+  return (
+    <div className="d-inline-block position-relative">
+      <i
+        className={getIconClass()}
+        style={{ cursor: "pointer", fontSize: "1.6rem" }}
+        onClick={handleIconClick}
+        title={getIconTitle()}
+      ></i>
+
+      {showDiff && (
+        <div
+          className="card position-absolute shadow-lg"
+          style={{
+            zIndex: 9999,
+            minWidth: "350px",
+            maxWidth: "450px",
+            top: "100%",
+            right: 0,
+            marginTop: "8px",
+          }}
+        >
+          <div className="card-header">
+            <div className="d-flex justify-content-between align-items-center w-100">
+              <strong>Token Diff</strong>
+              <button
+                className="btn-close"
+                onClick={() => setShowDiff(false)}
+              ></button>
+            </div>
+          </div>
+          <div className="card-body">
+            {status === "NEW" && (
+              <div>
+                <div className="fw-bold text-success mb-2">
+                  <i className="ti ti-plus me-1"></i>New Value:
+                </div>
+                <div className="p-2 bg-success-lt rounded">
+                  <code className="text-success">
+                    {JSON.stringify(currentValue, null, 2)}
+                  </code>
+                </div>
+              </div>
+            )}
+            {status === "MODIFIED" && (
+              <div>
+                <div className="fw-bold text-danger mb-1">
+                  <i className="ti ti-minus me-1"></i>Original:
+                </div>
+                <div className="p-2 bg-danger-lt rounded mb-3">
+                  <code className="text-danger">
+                    {JSON.stringify(baselineValue, null, 2)}
+                  </code>
+                </div>
+                <div className="fw-bold text-success mb-1">
+                  <i className="ti ti-plus me-1"></i>Current:
+                </div>
+                <div className="p-2 bg-success-lt rounded">
+                  <code className="text-success">
+                    {JSON.stringify(currentValue, null, 2)}
+                  </code>
+                </div>
+              </div>
+            )}
+            {status === "DELETED" && (
+              <div>
+                <div className="fw-bold text-danger mb-2">
+                  <i className="ti ti-trash me-1"></i>Original Value:
+                </div>
+                <div className="p-2 bg-danger-lt rounded">
+                  <code className="text-danger">
+                    {JSON.stringify(baselineValue, null, 2)}
+                  </code>
+                </div>
+              </div>
+            )}
+
+            {onRevert && (
+              <div className="mt-3">
+                <button
+                  className="btn btn-sm btn-primary w-100"
+                  onClick={handleRevert}
+                >
+                  <i className="ti ti-arrow-back-up me-1"></i>
+                  Revert to Original
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function isTokenValue(obj: any): obj is TokenValue {

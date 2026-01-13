@@ -561,6 +561,10 @@ body {
   background-color: rgba(0, 0, 0, 0.3);
 }
 
+.navbar .navbar-nav .nav-link .badge {
+  transform: unset;
+}
+
 /* IDE Workspace Layout - Fixed Viewport */
 body {
   overflow: hidden;
