@@ -253,6 +253,37 @@ StyleDictionary.registerFormat({
   },
 });
 
+// Register custom format for SCSS variables with category separation
+StyleDictionary.registerFormat({
+  name: "scss/variables-separated",
+  formatter: function ({ dictionary }) {
+    const categories = getGroupedProperties(dictionary);
+    const sortedCategories = Object.keys(categories).sort();
+
+    // Build SCSS string with category headers
+    let output = "// Do not edit directly\n";
+    output += `// Generated on ${new Date().toGMTString()}\n\n`;
+
+    sortedCategories.forEach((category, index) => {
+      // Add spacing before each category (except the first)
+      if (index > 0) {
+        output += "\n";
+      }
+
+      // Add category header comment
+      output += `// ${category.toUpperCase()}\n`;
+
+      // Add all variables in this category
+      categories[category].forEach((prop) => {
+        const value = prop.value;
+        output += `$${prop.name}: ${value};\n`;
+      });
+    });
+
+    return output;
+  },
+});
+
 // Register custom format for theme SCSS maps with category separation
 StyleDictionary.registerFormat({
   name: "scss/theme-map-separated",
@@ -293,8 +324,13 @@ StyleDictionary.registerFormat({
   },
 });
 
+
 export default {
-  source: ["tokens/primitives/**/*.json", "tokens/generated/**/*.json", "tokens/semantic/**/*.json"],
+  source: [
+    "tokens/primitives/**/*.json",
+    "tokens/generated/**/*.json",
+    "tokens/semantic/**/*.json",
+  ],
   platforms: {
     css: {
       transformGroup: "css",
@@ -312,7 +348,7 @@ export default {
       files: [
         {
           destination: "_variables.scss",
-          format: "scss/variables",
+          format: "scss/variables-separated",
           options: {
             outputReferences: true,
           },

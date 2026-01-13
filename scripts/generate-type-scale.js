@@ -49,13 +49,13 @@ function resolveRatio(reference, scaleData) {
  * @returns {Object} - Calculated modular scale sizes
  */
 function calculateModularScale(baseSize, ratio) {
-  // Define modular scale steps (-2 to 8 for complete typography hierarchy)
-  // Negative steps: Small text, captions
+  // Define modular scale steps (0 to 10 for complete typography hierarchy)
   // Step 0: Base size
-  // Positive steps: Headings, display text, and content typography
+  // Steps 1-8: Headings, display text, and content typography
+  // Steps 9-10: Small text, captions (CSS-compatible naming)
   const steps = {
-    "-2": -2, // base * ratio^-2 (Small print)
-    "-1": -1, // base * ratio^-1 (Caption text)
+    "minus-2": -2, // base * ratio^-2 (Small print)
+    "minus-1": -1, // base * ratio^-1 (Caption text)
     0: 0, // base * ratio^0 (Base/body text)
     1: 1, // base * ratio^1 (H6 level)
     2: 2, // base * ratio^2 (H5 level)
