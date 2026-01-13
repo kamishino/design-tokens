@@ -1,10 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Sidebar from "./components/Sidebar";
 import TokenEditor from "./components/TokenEditor";
 import CommitBar from "./components/CommitBar";
 import KitchenSink from "./components/KitchenSink";
+import TokenTabs from "./components/TokenTabs";
+import SearchBar from "./components/SearchBar";
+import FigmaImport from "./components/FigmaImport";
 import { Icons } from "./components/Icons";
 import { TokenFile, TokenContent, DraftChanges } from "./types";
+import { getTokenCategories, filterTokensByType, searchTokens } from "./utils/token-logic";
 
 type View = "dashboard" | "kitchenSink";
 
@@ -13,13 +17,18 @@ export default function App() {
   const [files, setFiles] = useState<TokenFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [tokenContent, setTokenContent] = useState<TokenContent | null>(null);
+  const [allTokensContent, setAllTokensContent] = useState<Record<string, TokenContent>>({});
   const [draftChanges, setDraftChanges] = useState<DraftChanges>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [showFigmaImport, setShowFigmaImport] = useState(false);
 
   // Load file list on mount
   useEffect(() => {
     loadFiles();
+    loadAllTokens();
   }, []);
 
   // Load selected file content
@@ -47,11 +56,36 @@ export default function App() {
       const response = await fetch(`/api/tokens?file=${encodeURIComponent(filePath)}`);
       const data = await response.json();
       setTokenContent(data.content);
+      // Update allTokensContent with this file
+      setAllTokensContent((prev) => ({ ...prev, [filePath]: data.content }));
     } catch (err) {
       setError("Failed to load token file");
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAllTokens = async () => {
+    try {
+      const response = await fetch("/api/files");
+      const data = await response.json();
+      const allContent: Record<string, TokenContent> = {};
+
+      // Load all token files for reference resolution
+      for (const file of data.files) {
+        try {
+          const tokenResponse = await fetch(`/api/tokens?file=${encodeURIComponent(file.path)}`);
+          const tokenData = await tokenResponse.json();
+          allContent[file.path] = tokenData.content;
+        } catch (err) {
+          console.error(`Failed to load ${file.path}`, err);
+        }
+      }
+
+      setAllTokensContent(allContent);
+    } catch (err) {
+      console.error("Failed to load all tokens", err);
     }
   };
 
@@ -68,6 +102,12 @@ export default function App() {
     current[path[path.length - 1]] = newValue;
 
     setTokenContent(updatedContent);
+
+    // Update global token cache for real-time resolution
+    setAllTokensContent((prev) => ({
+      ...prev,
+      [selectedFile]: updatedContent,
+    }));
 
     // Track in draft changes
     setDraftChanges((prev) => ({
@@ -113,6 +153,19 @@ export default function App() {
 
   const hasDraftChanges = Object.keys(draftChanges).length > 0;
 
+  // Get all categories from loaded tokens
+  const categories = useMemo(() => {
+    return getTokenCategories(allTokensContent);
+  }, [allTokensContent]);
+
+  // Handle Figma import
+  const handleFigmaImport = async (importedData: Record<string, TokenContent>) => {
+    // For now, just merge into the first file or create a new one
+    // In a real implementation, you'd show a diff view and let user choose
+    setDraftChanges((prev) => ({ ...prev, ...importedData }));
+    await loadAllTokens();
+  };
+
   return (
     <div className="page">
       <div className="page-wrapper">
@@ -131,7 +184,11 @@ export default function App() {
                   </h2>
                   <div className="text-muted">Design Token Manager - CRUD Interface</div>
                 </div>
-                <div className="col-auto ms-auto">
+                <div className="col-auto ms-auto d-flex gap-2">
+                  <button className="btn btn-outline-primary" onClick={() => setShowFigmaImport(true)} title="Import from Figma Tokens Studio">
+                    <i className={Icons.UPLOAD + " me-1"}></i>
+                    Import from Figma
+                  </button>
                   {hasDraftChanges && <span className="badge bg-green">{Object.keys(draftChanges).length} file(s) modified</span>}
                 </div>
               </div>
@@ -143,6 +200,12 @@ export default function App() {
                 <KitchenSink />
               ) : (
                 <>
+                  {/* Category Tabs */}
+                  <TokenTabs categories={categories} activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
+
+                  {/* Search Bar */}
+                  <SearchBar onSearch={setSearchQuery} showFilters={false} />
+
                   {error && (
                     <div className="alert alert-danger alert-dismissible" role="alert">
                       <div className="d-flex">
@@ -181,6 +244,7 @@ export default function App() {
                       content={tokenContent}
                       onUpdate={updateTokenValue}
                       hasChanges={selectedFile in draftChanges}
+                      allTokens={allTokensContent}
                     />
                   )}
                 </>
@@ -194,6 +258,9 @@ export default function App() {
           <CommitBar changeCount={Object.keys(draftChanges).length} onCommit={commitChanges} onCancel={cancelChanges} disabled={loading} />
         )}
       </div>
+
+      {/* Figma Import Modal */}
+      {showFigmaImport && <FigmaImport onImport={handleFigmaImport} onClose={() => setShowFigmaImport(false)} currentTokens={allTokensContent} />}
     </div>
   );
 }

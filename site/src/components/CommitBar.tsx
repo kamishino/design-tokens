@@ -27,7 +27,7 @@ export default function CommitBar({ changeCount, onCommit, onCancel, disabled }:
             <button className="btn btn-primary" onClick={onCommit} disabled={disabled}>
               {disabled ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                   Committing...
                 </>
               ) : (

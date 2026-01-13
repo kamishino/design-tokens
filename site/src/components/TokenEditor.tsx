@@ -11,9 +11,10 @@ interface TokenEditorProps {
   content: TokenContent;
   onUpdate: (path: string[], newValue: any) => void;
   hasChanges: boolean;
+  allTokens?: Record<string, TokenContent>;
 }
 
-export default function TokenEditor({ filePath, content, onUpdate, hasChanges }: TokenEditorProps) {
+export default function TokenEditor({ filePath, content, onUpdate, hasChanges, allTokens = {} }: TokenEditorProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [expandAll, setExpandAll] = useState<boolean | undefined>(undefined);
   const [jsonString, setJsonString] = useState(JSON.stringify(content, null, 2));
@@ -88,7 +89,7 @@ export default function TokenEditor({ filePath, content, onUpdate, hasChanges }:
 
       <div className="card-body">
         {viewMode === "tree" ? (
-          <TokenTree data={content} path={[]} onUpdate={onUpdate} expandAll={expandAll} />
+          <TokenTree data={content} path={[]} onUpdate={onUpdate} expandAll={expandAll} allTokens={allTokens} />
         ) : (
           <JSONEditor value={jsonString} onChange={handleJSONChange} onValidChange={handleValidChange} />
         )}

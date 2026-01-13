@@ -9,6 +9,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Dashboard Stabilization & Completion** (PRD 0012): Production-ready enhancements
+
+  - **Real-time Token Cache**: `allTokensContent` updates immediately on edits
+    - Instant cross-file reference resolution
+    - Draft changes reflected in AliasPicker and resolution
+    - No page refresh needed for updated references
+  - **Diff View for Imports**: Professional Figma import workflow
+    - Side-by-side comparison table (Old Value | New Value)
+    - Status badges (Added, Modified, Removed, Unchanged)
+    - Selective import with checkboxes
+    - Select All / Deselect All toggle
+    - Only imports chosen tokens
+  - **Loading States**: Better UX during async operations
+    - Spinner on "Commit Changes" button
+    - Dynamic token count on "Import Tokens" button
+    - Disabled states prevent double-submission
+  - **Enhanced Visual Feedback**: Already implemented from PRD 0011
+    - Broken reference indicators with alert icons
+    - Swatch previews in AliasPicker
+    - Reference pills with validation colors
+  - **New Utilities**: `diff-logic.ts` for token comparison and merging
+
+- **FTS-Inspired Dashboard Enhancement** (PRD 0011): Professional token management with visual feedback
+
+  - **Visual Swatches**: Type-aware previews for tokens
+    - Color swatches with actual hex/rgba values
+    - Spacing bars showing dimensions visually
+    - Typography previews with font families
+    - Border radius, shadow, and generic type indicators
+  - **Reference Management**: Intelligent alias handling
+    - Reference pills styled as badges (purple for valid, red for broken)
+    - Resolved values displayed inline with arrow indicator
+    - Circular dependency detection
+    - Broken reference highlighting with error messages
+  - **AliasPicker Component**: Visual token linking
+    - Searchable dropdown with all available tokens
+    - Filter by token type automatically
+    - Shows resolved values in picker
+    - Link button in token editor for easy access
+  - **Token Categories**: FTS-style navigation
+    - Category tabs (All, Color, Typography, Spacing, etc.)
+    - Auto-detected from token `$type` properties
+    - Token counts per category
+    - Icon mapping for each category
+  - **Global Search**: Fast token discovery
+    - Search by name, value, or description
+    - Real-time filtering as you type
+    - Clear button for quick reset
+  - **Figma Import**: Seamless integration workflow
+    - Paste Figma Token Studio JSON directly
+    - W3C compliance validation
+    - Circular reference detection
+    - Error and warning reporting before import
+  - **Token Resolution**: Cross-file reference support
+    - Recursive resolution of nested references
+    - All token files loaded for resolution context
+    - Validation shows in tree view with badges
+  - **New Components**: `TokenTabs`, `SearchBar`, `Swatch`, `AliasPicker`, `FigmaImport`
+  - **New Utilities**: `token-logic.ts` with resolution and validation functions
+
 - **Technical Fixes & JSON Visualizer** (PRD 0010): Critical improvements to development experience
 
   - **TypeScript Configuration**: Resolved JSX compilation errors

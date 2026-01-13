@@ -452,7 +452,22 @@ Open http://localhost:5173/design-tokens/ to access the dashboard.
 - **Dual-Mode Editor**: Switch between Tree and Code views
   - **Tree View**: Visual navigation with expand/collapse controls
   - **Code View**: Syntax-highlighted JSON editor with validation
-- **Visual Editor**: Click to edit token values inline with form controls
+- **Visual Swatches**: Type-aware previews for all tokens
+  - Color swatches, spacing bars, typography samples
+  - Border radius, shadows, and more
+- **Smart References**: Intelligent alias management
+  - Visual reference pills with validation
+  - AliasPicker for easy token linking
+  - Resolved value display inline
+  - Circular dependency detection
+- **Category Navigation**: FTS-style tabs for token types
+  - Auto-detected categories (Color, Typography, Spacing, etc.)
+  - Token counts per category
+- **Global Search**: Fast fuzzy search across all tokens
+- **Figma Import**: Import Figma Token Studio JSON
+  - W3C compliance validation
+  - Error and warning detection
+  - One-click import workflow
 - **File Browser**: Navigate tokens by category with icon-mapped sidebar
 - **Draft System**: Preview changes before committing with visual indicators
 - **Build Integration**: Automatic build trigger after saving
