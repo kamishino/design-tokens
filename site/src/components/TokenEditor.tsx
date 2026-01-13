@@ -12,12 +12,22 @@ interface TokenEditorProps {
   onUpdate: (path: string[], newValue: any) => void;
   hasChanges: boolean;
   allTokens?: Record<string, TokenContent>;
+  onNavigateToToken?: (tokenPath: string) => void;
 }
 
-export default function TokenEditor({ filePath, content, onUpdate, hasChanges, allTokens = {} }: TokenEditorProps) {
+export default function TokenEditor({
+  filePath,
+  content,
+  onUpdate,
+  hasChanges,
+  allTokens = {},
+  onNavigateToToken,
+}: TokenEditorProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [expandAll, setExpandAll] = useState<boolean | undefined>(undefined);
-  const [jsonString, setJsonString] = useState(JSON.stringify(content, null, 2));
+  const [jsonString, setJsonString] = useState(
+    JSON.stringify(content, null, 2)
+  );
 
   const handleJSONChange = (newJson: string) => {
     setJsonString(newJson);
@@ -56,7 +66,9 @@ export default function TokenEditor({ filePath, content, onUpdate, hasChanges, a
             <div className="btn-group" role="group">
               <button
                 type="button"
-                className={`btn btn-sm ${viewMode === "tree" ? "btn-primary" : "btn-outline-primary"}`}
+                className={`btn btn-sm ${
+                  viewMode === "tree" ? "btn-primary" : "btn-outline-primary"
+                }`}
                 onClick={() => setViewMode("tree")}
               >
                 <i className={Icons.LAYERS + " me-1"}></i>
@@ -64,7 +76,9 @@ export default function TokenEditor({ filePath, content, onUpdate, hasChanges, a
               </button>
               <button
                 type="button"
-                className={`btn btn-sm ${viewMode === "code" ? "btn-primary" : "btn-outline-primary"}`}
+                className={`btn btn-sm ${
+                  viewMode === "code" ? "btn-primary" : "btn-outline-primary"
+                }`}
                 onClick={() => setViewMode("code")}
               >
                 <i className={Icons.CODE + " me-1"}></i>
@@ -75,10 +89,20 @@ export default function TokenEditor({ filePath, content, onUpdate, hasChanges, a
             {/* Expand/Collapse Controls (only in tree mode) */}
             {viewMode === "tree" && (
               <div className="btn-group" role="group">
-                <button type="button" className="btn btn-sm btn-outline-secondary" onClick={handleExpandAll} title="Expand All">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={handleExpandAll}
+                  title="Expand All"
+                >
                   <i className={Icons.CHEVRON_DOWN}></i>
                 </button>
-                <button type="button" className="btn btn-sm btn-outline-secondary" onClick={handleCollapseAll} title="Collapse All">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={handleCollapseAll}
+                  title="Collapse All"
+                >
                   <i className={Icons.CHEVRON_RIGHT}></i>
                 </button>
               </div>
@@ -89,9 +113,20 @@ export default function TokenEditor({ filePath, content, onUpdate, hasChanges, a
 
       <div className="card-body">
         {viewMode === "tree" ? (
-          <TokenTree data={content} path={[]} onUpdate={onUpdate} expandAll={expandAll} allTokens={allTokens} />
+          <TokenTree
+            data={content}
+            path={[]}
+            onUpdate={onUpdate}
+            expandAll={expandAll}
+            allTokens={allTokens}
+            onNavigateToToken={onNavigateToToken}
+          />
         ) : (
-          <JSONEditor value={jsonString} onChange={handleJSONChange} onValidChange={handleValidChange} />
+          <JSONEditor
+            value={jsonString}
+            onChange={handleJSONChange}
+            onValidChange={handleValidChange}
+          />
         )}
       </div>
     </div>

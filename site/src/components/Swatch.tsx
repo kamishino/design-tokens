@@ -4,29 +4,45 @@
  */
 
 import { TokenValue } from "../types";
-import { isTokenReference, extractReferencePath } from "../utils/token-logic";
 
 interface SwatchProps {
   token: TokenValue;
   resolvedValue?: any;
+  tempValue?: any;
+  onClick?: () => void;
 }
 
-export default function Swatch({ token, resolvedValue }: SwatchProps) {
+export default function Swatch({
+  token,
+  resolvedValue,
+  tempValue,
+  onClick,
+}: SwatchProps) {
   const type = (token.$type || token.type || "").toLowerCase();
   const value = token.$value || token.value;
-  const displayValue = resolvedValue !== undefined ? resolvedValue : value;
+  const displayValue =
+    tempValue !== undefined
+      ? tempValue
+      : resolvedValue !== undefined
+      ? resolvedValue
+      : value;
+  const isClickable = type === "color" && onClick;
 
   // Color swatch
   if (type === "color") {
     const colorValue = String(displayValue);
     return (
       <div
-        className="token-swatch token-swatch-color"
+        className={`token-swatch token-swatch-color ${
+          isClickable ? "token-swatch-clickable" : ""
+        }`}
         style={{
           backgroundColor: colorValue,
           border: "1px solid rgba(0,0,0,0.1)",
+          cursor: isClickable ? "pointer" : "default",
         }}
         title={colorValue}
+        onClick={onClick}
       />
     );
   }
@@ -74,7 +90,10 @@ export default function Swatch({ token, resolvedValue }: SwatchProps) {
   // Font Weight swatch
   if (type === "fontweight") {
     return (
-      <div className="token-swatch token-swatch-fontweight" title={displayValue}>
+      <div
+        className="token-swatch token-swatch-fontweight"
+        title={displayValue}
+      >
         <span style={{ fontWeight: displayValue, fontSize: "14px" }}>Aa</span>
       </div>
     );

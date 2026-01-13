@@ -9,6 +9,152 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Inline Color Previews for HEX Codes** (PRD 0025): Visual color swatches next to all color values
+
+### Fixed
+
+- **Advanced Value Editor Activation & Robustness** (PRD 0026): Critical fixes for type-specific editors
+  - **Activation Logic** (`TokenTree.tsx`):
+    - Expanded `hasTypeEditor` list to include pluralized W3C token types
+    - Added: `fontsizes`, `fontweights`, `lineheights`, `fontfamilies` (lowercase)
+    - Disabled advanced editor button for reference values (`!isReference` check)
+    - Fixed pendingValue initialization when switching to advanced editor
+    - Prevents data loss when toggling between editor modes
+  - **Shadow Editor Robustness** (`TypeEditors.tsx`):
+    - **Fixed RGBA parsing**: Replaced naive `.split(' ')` with regex
+    - New regex: `/\S+\(.*?\)\S*|\S+/g` matches parenthesized groups intact
+    - Now correctly handles: `2px 4px 8px rgba(0, 0, 0, 0.5)`
+    - Shadow preview displays correctly even with complex color formats
+    - Graceful fallback to defaults for invalid shadow strings
+  - **Typography Editor Flexibility** (`TypeEditors.tsx`):
+    - Added support for simple string values (e.g., `16px` for font sizes)
+    - Smart detection: `isComposite` vs `isString` vs `wasOriginallyString`
+    - String values populate `fontSize` field, leaving others empty
+    - **Intelligent commit logic**: Returns string if only fontSize edited on original string
+    - Returns composite object if multiple fields edited or original was object
+    - Preserves JSON format integrity (no unwanted string-to-object conversions)
+  - **UX Improvements**:
+    - Added "Back to Text Editor" button in advanced editor UI
+    - Button includes left arrow icon for visual clarity
+    - Allows seamless switching between advanced and standard editors
+    - Proper state management prevents editing conflicts
+  - **Button Visibility**: Advanced editor now appears for all supported token types in `typography.json` and `shadows.json`
+  - **Crash Prevention**: Shadow tokens with RGBA colors no longer cause parsing errors
+  - **InlineValue Component**: Reusable component for token value display
+    - Automatic color detection based on `$type === 'color'`
+    - 12x12px inline swatch with HEX color preview
+    - Subtle border (rgba(0,0,0,0.2)) for visibility on all backgrounds
+    - Flexbox alignment for proper vertical centering
+    - HEX validation using `isHexColor` utility
+  - **Interactive Clipboard Copy**: Click any color swatch to copy
+    - Uses `navigator.clipboard.writeText` API
+    - "Copied!" tooltip appears for 1.5 seconds
+    - Pointer cursor indicates clickable swatches
+    - Non-intrusive interaction design
+  - **Universal Integration**: Color previews everywhere
+    - **TokenTree**: Token values and resolved references
+    - **FilteredResultsView**: Search results (both direct and resolved values)
+    - **AliasPicker**: Token selection list
+    - Replaced all `<code>` tags with `<InlineValue />` for consistency
+  - **Visual Benefits**: Immediate color recognition
+    - No more guessing shades from HEX codes
+    - Quick visual comparison of color tokens
+    - Enhances productivity for designers and developers
+    - Consistent presentation across all views
+- **Advanced Value Editor & Token Management Utilities** (PRD 0024): Type-specific editors and intelligent reference handling
+  - **Type-Specific Editor Modules**: Specialized UI controls for complex token types
+    - **DimensionEditor**: Number input + unit selector (px, rem, em, %, vh, vw)
+    - **ShadowEditor**: Multi-field form for X, Y, Blur, Spread, Color with live preview
+    - **TypographyEditor**: Composite editor for font-family, size, weight, line-height with preview text
+    - Toggle button to switch between text input and advanced editor
+  - **Intelligent Reference Handling**: Effortless token aliasing
+    - **Autocomplete Component**: Type `{` to trigger token reference picker
+      - Fuzzy search across all token paths
+      - Keyboard navigation (Arrow keys, Enter, Escape)
+      - Type filtering (shows only compatible tokens)
+      - Displays 50 results with total count
+    - **Click-to-Navigate**: Reference badges are clickable links
+      - Valid references navigate to token definition
+      - Broken references open for editing
+      - `findTokenLocation` utility locates tokens across files
+    - **Usage Tracking**: Green badges show reference count
+      - `buildUsageMap` calculates who-references-who
+      - `getTokenUsageCount` for individual tokens
+      - "Referenced by X token(s)" tooltip
+  - **Global Find & Replace Utility**: Bulk token value updates
+    - **FindReplaceModal**: Professional search and replace interface
+      - Exact match or regex pattern support
+      - Preview matches before replacing
+      - Shows old → new value comparison
+      - Displays affected token paths and files
+    - **Bulk Actions**: `findAndReplaceValue` utility
+      - Deep clone and recursive replacement
+      - Regex support with error handling
+      - Returns updated tokens and replacement count
+    - "Find & Replace" button in dashboard header
+  - **Advanced Utilities**: New token-logic functions
+    - `findTokensByValue`: Search tokens by value with regex
+    - `buildUsageMap`: Build reference dependency graph
+    - `getTokenUsageCount`: Count references to a token
+    - `findTokenLocation`: Locate token file and path
+    - `findAndReplaceValue`: Bulk replace across all files
+  - **Navigation Integration**: App-level token navigation
+    - `handleNavigateToToken`: Select file and clear filters
+    - `handleBulkReplace`: Update all tokens and draft changes
+    - `onNavigateToToken` prop threaded through components
+  - **UX Improvements**: Enhanced editing experience
+    - Advanced editor toggle for supported types
+    - Live previews in ShadowEditor and TypographyEditor
+    - Commit on blur/Enter for all editors
+    - Escape to cancel editing
+    - Usage badges highlight important tokens
+- **Enhanced Color Editor & HEX Support** (PRD 0023): Interactive color editing with visual validation
+  - **Interactive Color Swatches**: Click any color swatch to open native color picker
+    - Real-time visual feedback during color selection
+    - `tempValue` prop in Swatch component for pending color preview
+    - Clickable swatches with pointer cursor for color tokens only
+  - **Strict HEX Validation**: Comprehensive validation utilities
+    - `isHexColor()`: Validates #RGB, #RGBA, #RRGGBB, #RRGGBBAA formats
+    - `isValidColor()`: Wrapper for color validation (HEX-only for now)
+    - `normalizeHexColor()`: Auto-uppercase and # prefix normalization
+    - Prevents invalid colors from being committed to tokens
+  - **Live Color Picker Integration**: Native `<input type="color">` in TokenTree
+    - Hidden color input triggered by swatch or picker button clicks
+    - `pendingValue` state tracks uncommitted color changes
+    - `onChange` updates swatch in real-time while picking
+    - `onBlur` validates and commits only valid HEX codes
+    - Dedicated color picker icon button next to color values
+  - **Validation Error States**: Visual feedback for invalid colors
+    - Red error badges with validation messages
+    - Bootstrap `.is-invalid` styling on text inputs
+    - Clear error messages: "Invalid HEX color format"
+    - Errors prevent `onUpdate` callback from firing
+  - **JSON Editor HEX Highlighting**: Visual color indicators in code mode
+    - Extended Prism.js with custom HEX color pattern
+    - Inline color swatches before HEX strings using CSS `::before`
+    - CSS custom properties (`--hex-color`) for dynamic swatch colors
+    - useEffect hook applies actual colors to indicators after render
+    - Bold text styling for HEX values in JSON view
+  - **Keyboard Support**: Full keyboard interaction
+    - Enter to commit color changes
+    - Escape to cancel and reset pending values
+    - Text input validation on blur
+  - **Type Safety**: Color features only activate for `$type: "color"` tokens
+- **Functional Search & Category Filtering** (PRD 0022): Live token filtering across the dashboard
+  - **Folder-Based Categories**: Categories determined by token file location (primitives, semantic, themes, generated)
+  - **Global Search**: Case-insensitive search across all tokens by name, value, and description
+  - **Filtered Results View**: New component displays search results grouped by source file
+    - Token counts per file with visual badges
+    - Resolved value display with reference indicators
+    - Broken reference warnings with error messages
+    - Swatch previews for all token types
+  - **Dynamic Badge Counts**: Category tabs show live counts based on current search filter
+  - **Clear Filters Button**: One-click reset of search and category filters
+  - **Empty States**: Contextual "No Results" message for search and category filters
+  - **Performance Optimization**: React useMemo for all filtering operations to handle large token sets
+  - **Conditional Rendering**: Smart UI switching between single-file editor and filtered results view
+  - **New Utilities**: `getCategoryFromPath`, `filterTokensByCategory`, `groupTokensByFile`, `getTokenCountsByCategory`
+  - **Enhanced Search**: Improved `searchTokens` for comprehensive token property matching
 - **Dashboard Stabilization & Completion** (PRD 0012): Production-ready enhancements
 
   - **Real-time Token Cache**: `allTokensContent` updates immediately on edits

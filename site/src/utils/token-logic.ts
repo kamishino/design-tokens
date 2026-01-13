@@ -24,13 +24,50 @@ export interface ValidationResult {
 export interface ValidationError {
   path: string;
   message: string;
-  type: "missing-value" | "missing-type" | "broken-reference" | "circular-reference" | "invalid-format";
+  type:
+    | "missing-value"
+    | "missing-type"
+    | "broken-reference"
+    | "circular-reference"
+    | "invalid-format"
+    | "invalid-color";
 }
 
 export interface ValidationWarning {
   path: string;
   message: string;
   type: "missing-description" | "inconsistent-naming";
+}
+
+/**
+ * Check if a value is a valid HEX color code
+ * Supports: #RGB, #RGBA, #RRGGBB, #RRGGBBAA
+ */
+export function isHexColor(value: string): boolean {
+  if (typeof value !== "string") return false;
+  return /^#([A-Fa-f0-9]{3,4}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$/.test(
+    value.trim()
+  );
+}
+
+/**
+ * Validate if a color value is valid
+ * For now, only supports HEX colors strictly
+ */
+export function isValidColor(value: any): boolean {
+  if (typeof value !== "string") return false;
+  return isHexColor(value);
+}
+
+/**
+ * Normalize HEX color to uppercase with # prefix
+ */
+export function normalizeHexColor(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("#")) {
+    return "#" + trimmed.toUpperCase();
+  }
+  return trimmed.toUpperCase();
 }
 
 /**
@@ -257,36 +294,264 @@ function isTokenValue(obj: any): obj is TokenValue {
 }
 
 /**
- * Get token categories from all tokens
+ * Extract category from file path (folder-based)
+ * E.g., "tokens/primitives/colors.json" -> "primitives"
  */
-export function getTokenCategories(allTokens: Record<string, TokenContent>): string[] {
-  const categories = new Set<string>(["all"]);
-  const flatTokens = getAllTokensFlattened(allTokens);
+export function getCategoryFromPath(filePath: string): string {
+  const normalized = filePath.replace(/\\/g, "/");
+  const parts = normalized.split("/");
+  
+  // Find the folder name after 'tokens'
+  const tokensIndex = parts.indexOf("tokens");
+  if (tokensIndex >= 0 && tokensIndex < parts.length - 1) {
+    return parts[tokensIndex + 1].toLowerCase();
+  }
+  
+  // Fallback: use the first folder in the path
+  return parts.length > 1 ? parts[0].toLowerCase() : "other";
+}
 
-  for (const { token } of flatTokens) {
-    const type = (token.$type || token.type || "other").toLowerCase();
-    categories.add(type);
+/**
+ * Get token categories from all tokens (folder-based)
+ */
+export function getTokenCategories(
+  allTokens: Record<string, TokenContent>
+): string[] {
+  const categories = new Set<string>(["all"]);
+
+  for (const filePath of Object.keys(allTokens)) {
+    const category = getCategoryFromPath(filePath);
+    categories.add(category);
   }
 
   return Array.from(categories).sort();
 }
 
 /**
- * Search tokens by query (fuzzy search on path and description)
+ * Filter tokens by category (folder-based)
  */
-export function searchTokens(allTokens: Record<string, TokenContent>, query: string): Array<{ path: string; token: TokenValue; fileName: string }> {
+export function filterTokensByCategory(
+  allTokens: Record<string, TokenContent>,
+  category: string
+): Array<{ path: string; token: TokenValue; fileName: string }> {
+  if (category === "all") {
+    return getAllTokensFlattened(allTokens);
+  }
+
+  const flatTokens = getAllTokensFlattened(allTokens);
+  const categoryLower = category.toLowerCase();
+
+  return flatTokens.filter(({ fileName }) => {
+    const fileCategory = getCategoryFromPath(fileName);
+    return fileCategory === categoryLower;
+  });
+}
+
+/**
+ * Search tokens by query (case-insensitive search on path, value, and description)
+ */
+export function searchTokens(
+  allTokens: Record<string, TokenContent>,
+  query: string
+): Array<{ path: string; token: TokenValue; fileName: string }> {
   if (!query.trim()) {
     return getAllTokensFlattened(allTokens);
   }
 
   const flatTokens = getAllTokensFlattened(allTokens);
-  const lowerQuery = query.toLowerCase();
+  const lowerQuery = query.toLowerCase().trim();
 
   return flatTokens.filter(({ path, token }) => {
-    const description = (token.$description || token.description || "").toLowerCase();
+    const description = (
+      token.$description ||
+      token.description ||
+      ""
+    ).toLowerCase();
     const pathLower = path.toLowerCase();
     const value = String(token.$value || token.value || "").toLowerCase();
 
-    return pathLower.includes(lowerQuery) || description.includes(lowerQuery) || value.includes(lowerQuery);
+    return (
+      pathLower.includes(lowerQuery) ||
+      description.includes(lowerQuery) ||
+      value.includes(lowerQuery)
+    );
   });
+}
+
+/**
+ * Group flat token results by their source file/folder for presentation
+ */
+export function groupTokensByFile(
+  tokens: Array<{ path: string; token: TokenValue; fileName: string }>
+): Record<string, Array<{ path: string; token: TokenValue }>> {
+  const grouped: Record<
+    string,
+    Array<{ path: string; token: TokenValue }>
+  > = {};
+
+  for (const { path, token, fileName } of tokens) {
+    if (!grouped[fileName]) {
+      grouped[fileName] = [];
+    }
+    grouped[fileName].push({ path, token });
+  }
+
+  return grouped;
+}
+
+/**
+ * Calculate token counts per category for badge display
+ */
+export function getTokenCountsByCategory(
+  tokens: Array<{ path: string; token: TokenValue; fileName: string }>
+): Record<string, number> {
+  const counts: Record<string, number> = { all: tokens.length };
+
+  for (const { fileName } of tokens) {
+    const category = getCategoryFromPath(fileName);
+    counts[category] = (counts[category] || 0) + 1;
+  }
+
+  return counts;
+}
+
+/**
+ * Build a usage map showing which tokens reference which other tokens
+ * Returns: { "color.blue.500": ["button.primary.bg", "link.color"] }
+ */
+export function buildUsageMap(allTokens: Record<string, TokenContent>): Record<string, string[]> {
+  const usageMap: Record<string, string[]> = {};
+  const flatTokens = getAllTokensFlattened(allTokens);
+
+  for (const { path, token } of flatTokens) {
+    const value = token.$value || token.value;
+    if (isTokenReference(value)) {
+      const referencePath = extractReferencePath(value);
+      if (!usageMap[referencePath]) {
+        usageMap[referencePath] = [];
+      }
+      usageMap[referencePath].push(path);
+    }
+  }
+
+  return usageMap;
+}
+
+/**
+ * Get the number of tokens that reference a specific token path
+ */
+export function getTokenUsageCount(tokenPath: string, allTokens: Record<string, TokenContent>): number {
+  const usageMap = buildUsageMap(allTokens);
+  return (usageMap[tokenPath] || []).length;
+}
+
+/**
+ * Find all tokens matching a value (supports regex)
+ */
+export function findTokensByValue(
+  allTokens: Record<string, TokenContent>,
+  searchValue: string,
+  useRegex: boolean = false
+): Array<{ path: string; token: TokenValue; fileName: string; currentValue: any }> {
+  const flatTokens = getAllTokensFlattened(allTokens);
+  const results: Array<{ path: string; token: TokenValue; fileName: string; currentValue: any }> = [];
+
+  for (const { path, token, fileName } of flatTokens) {
+    const value = String(token.$value || token.value || "");
+    let matches = false;
+
+    if (useRegex) {
+      try {
+        const regex = new RegExp(searchValue, "i");
+        matches = regex.test(value);
+      } catch (e) {
+        // Invalid regex, fall back to literal
+        matches = value.toLowerCase().includes(searchValue.toLowerCase());
+      }
+    } else {
+      matches = value.toLowerCase() === searchValue.toLowerCase();
+    }
+
+    if (matches) {
+      results.push({ path, token, fileName, currentValue: value });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Replace a value across all tokens
+ * Returns updated token content and count of replacements
+ */
+export function findAndReplaceValue(
+  allTokens: Record<string, TokenContent>,
+  findValue: string,
+  replaceValue: string,
+  useRegex: boolean = false
+): { updatedTokens: Record<string, TokenContent>; replacementCount: number } {
+  const updatedTokens: Record<string, TokenContent> = {};
+  let replacementCount = 0;
+
+  for (const [fileName, content] of Object.entries(allTokens)) {
+    const updatedContent = JSON.parse(JSON.stringify(content)); // Deep clone
+    
+    const replaceInObject = (obj: any): void => {
+      for (const key in obj) {
+        if (isTokenValue(obj[key])) {
+          const token = obj[key];
+          const valueKey = token.$value !== undefined ? "$value" : "value";
+          const currentValue = String(token[valueKey] || "");
+
+          let newValue = currentValue;
+          if (useRegex) {
+            try {
+              const regex = new RegExp(findValue, "gi");
+              if (regex.test(currentValue)) {
+                newValue = currentValue.replace(regex, replaceValue);
+                replacementCount++;
+              }
+            } catch (e) {
+              // Invalid regex
+            }
+          } else {
+            if (currentValue.toLowerCase() === findValue.toLowerCase()) {
+              newValue = replaceValue;
+              replacementCount++;
+            }
+          }
+
+          if (newValue !== currentValue) {
+            token[valueKey] = newValue;
+          }
+        } else if (typeof obj[key] === "object" && obj[key] !== null) {
+          replaceInObject(obj[key]);
+        }
+      }
+    };
+
+    replaceInObject(updatedContent);
+    updatedTokens[fileName] = updatedContent;
+  }
+
+  return { updatedTokens, replacementCount };
+}
+
+/**
+ * Find the file and path for a token reference
+ * Used for click-to-navigate functionality
+ */
+export function findTokenLocation(
+  tokenPath: string,
+  allTokens: Record<string, TokenContent>
+): { fileName: string; path: string[] } | null {
+  const flatTokens = getAllTokensFlattened(allTokens);
+  
+  for (const { path, fileName } of flatTokens) {
+    if (path === tokenPath) {
+      return { fileName, path: path.split(".") };
+    }
+  }
+
+  return null;
 }

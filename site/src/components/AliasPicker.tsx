@@ -5,9 +5,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import { TokenContent, TokenValue } from "../types";
-import { getAllTokensFlattened, resolveToken, isTokenReference } from "../utils/token-logic";
-import Swatch from "./Swatch";
+import { getAllTokensFlattened, resolveToken } from "../utils/token-logic";
 import { Icons } from "./Icons";
+import Swatch from "./Swatch";
+import InlineValue from "./InlineValue";
 
 interface AliasPickerProps {
   allTokens: Record<string, TokenContent>;
@@ -17,9 +18,17 @@ interface AliasPickerProps {
   filterType?: string; // Filter by token type
 }
 
-export default function AliasPicker({ allTokens, currentValue, onSelect, onClose, filterType }: AliasPickerProps) {
+export default function AliasPicker({
+  allTokens,
+  currentValue,
+  onSelect,
+  onClose,
+  filterType,
+}: AliasPickerProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredTokens, setFilteredTokens] = useState<Array<{ path: string; token: TokenValue; fileName: string }>>([]);
+  const [filteredTokens, setFilteredTokens] = useState<
+    Array<{ path: string; token: TokenValue; fileName: string }>
+  >([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -42,7 +51,13 @@ export default function AliasPicker({ allTokens, currentValue, onSelect, onClose
       const query = searchQuery.toLowerCase();
       tokens = tokens.filter((item) => {
         const pathMatch = item.path.toLowerCase().includes(query);
-        const descMatch = (item.token.$description || item.token.description || "").toLowerCase().includes(query);
+        const descMatch = (
+          item.token.$description ||
+          item.token.description ||
+          ""
+        )
+          .toLowerCase()
+          .includes(query);
         const valueMatch = String(item.token.$value || item.token.value || "")
           .toLowerCase()
           .includes(query);
@@ -66,13 +81,21 @@ export default function AliasPicker({ allTokens, currentValue, onSelect, onClose
 
   return (
     <div className="alias-picker-overlay" onClick={onClose}>
-      <div className="alias-picker-modal card" onClick={(e) => e.stopPropagation()} onKeyDown={handleKeyDown}>
+      <div
+        className="alias-picker-modal card"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleKeyDown}
+      >
         <div className="card-header">
           <h3 className="card-title">
             <i className={Icons.SEARCH + " me-2"}></i>
             Select Token Reference
           </h3>
-          <button className="btn-close" onClick={onClose} aria-label="Close"></button>
+          <button
+            className="btn-close"
+            onClick={onClose}
+            aria-label="Close"
+          ></button>
         </div>
 
         <div className="card-body p-0">
@@ -88,7 +111,9 @@ export default function AliasPicker({ allTokens, currentValue, onSelect, onClose
             />
             {filterType && (
               <div className="mt-2">
-                <span className="badge bg-blue-lt">Filtering by type: {filterType}</span>
+                <span className="badge bg-blue-lt">
+                  Filtering by type: {filterType}
+                </span>
               </div>
             )}
           </div>
@@ -101,7 +126,9 @@ export default function AliasPicker({ allTokens, currentValue, onSelect, onClose
                   <i className={Icons.SEARCH}></i>
                 </div>
                 <p className="empty-title">No tokens found</p>
-                <p className="empty-subtitle text-muted">Try adjusting your search query</p>
+                <p className="empty-subtitle text-muted">
+                  Try adjusting your search query
+                </p>
               </div>
             ) : (
               <div className="list-group list-group-flush">
@@ -112,21 +139,42 @@ export default function AliasPicker({ allTokens, currentValue, onSelect, onClose
                   return (
                     <button
                       key={path}
-                      className={`list-group-item list-group-item-action ${isCurrentValue ? "active" : ""}`}
+                      className={`list-group-item list-group-item-action ${
+                        isCurrentValue ? "active" : ""
+                      }`}
                       onClick={() => handleSelect(path)}
                     >
                       <div className="d-flex align-items-center">
-                        <Swatch token={token} resolvedValue={resolved.resolvedValue} />
+                        <Swatch
+                          token={token}
+                          resolvedValue={resolved.resolvedValue}
+                        />
                         <div className="flex-grow-1">
                           <div className="fw-bold">{path}</div>
-                          {token.$description && <div className="text-muted small">{token.$description}</div>}
+                          {token.$description && (
+                            <div className="text-muted small">
+                              {token.$description}
+                            </div>
+                          )}
                           <div className="d-flex align-items-center gap-2 mt-1">
-                            <code className="small">{resolved.resolvedValue}</code>
-                            {token.$type && <span className="badge bg-azure-lt">{token.$type}</span>}
-                            <span className="badge bg-secondary-lt">{fileName}</span>
+                            <InlineValue
+                              value={resolved.resolvedValue}
+                              type={token.$type || token.type}
+                              className="small"
+                            />
+                            {token.$type && (
+                              <span className="badge bg-azure-lt">
+                                {token.$type}
+                              </span>
+                            )}
+                            <span className="badge bg-secondary-lt">
+                              {fileName}
+                            </span>
                           </div>
                         </div>
-                        {isCurrentValue && <i className={Icons.CHECK + " ms-2"}></i>}
+                        {isCurrentValue && (
+                          <i className={Icons.CHECK + " ms-2"}></i>
+                        )}
                       </div>
                     </button>
                   );
