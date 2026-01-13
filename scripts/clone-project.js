@@ -97,6 +97,8 @@ async function main() {
     "site",
     "server",
     ".windsurf",
+    "docs",
+    "database",
   ];
 
   // Create target directory
@@ -124,7 +126,6 @@ async function main() {
     ".gitignore",
     "README.md",
     "LICENSE",
-    "WORKFLOW.md",
     "vite.config.ts",
     "tsconfig.json",
     "tsconfig.node.json",

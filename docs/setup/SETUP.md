@@ -323,8 +323,8 @@ npm run test:supabase
 
 Once setup is complete:
 
-1. **Configure Figma Sync** - See [GUIDE.md](./GUIDE.md) for Token Studio setup
+1. **Configure Figma Sync** - See [User Guide](../user/GUIDE.md) for Token Studio setup
 2. **Start Developing** - Run `npm run dev` and open the dashboard
 3. **Explore Features** - Toggle Sandbox Mode, create tokens, publish changes
 
-For daily workflow and usage instructions, see **[GUIDE.md](./GUIDE.md)**.
+For daily workflow and usage instructions, see **[User Guide](../user/GUIDE.md)**.

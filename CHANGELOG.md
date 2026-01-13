@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Documentation Reorganization** (PRD 0050): Restructured documentation for better discoverability and navigation
+  - **New Directory Structure**:
+    - Created `database/` directory for all database-related files
+    - Created `docs/setup/` for infrastructure and onboarding guides
+    - Created `docs/development/` for contributor and developer documentation
+    - Created `docs/user/` for daily workflow and usage guides
+  - **File Migrations**:
+    - Moved `supabase-schema.sql` → `database/supabase-schema.sql`
+    - Moved `SETUP_DASHBOARD.md` → `docs/setup/SETUP_DASHBOARD.md`
+    - Moved `docs/SETUP.md` → `docs/setup/SETUP.md`
+    - Moved `WORKFLOW.md` → `docs/development/WORKFLOW.md`
+    - Moved `docs/GUIDE.md` → `docs/user/GUIDE.md`
+  - **Documentation Hub**:
+    - Created `docs/README.md` as central documentation index
+    - Organized guides by role (developer, designer, contributor)
+    - Added quick reference tables for common tasks
+  - **Updated References**:
+    - Updated all internal markdown links to reflect new structure
+    - Updated `scripts/test-supabase.js` to reference `database/supabase-schema.sql`
+    - Updated `scripts/clone-project.js` to include `docs/` and `database/` in scaffolding
+    - Updated `package.json` files array with new structure
+    - Updated root `README.md` with new documentation paths
+  - **Root Directory Cleanup**:
+    - Removed documentation files from project root
+    - Improved project organization and maintainability
+
 ### Added
 
 - **Onboarding & Multi-Project Setup Documentation** (PRD 0049): Comprehensive guides for new developers and teams

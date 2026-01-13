@@ -11,8 +11,10 @@ This repository serves as the Single Source of Truth (SSOT) for all design token
 
 ## 📚 Documentation
 
-- **[Setup Guide](./docs/SETUP.md)** - Infrastructure setup, Supabase configuration, and project scaffolding
-- **[User Guide](./docs/GUIDE.md)** - Daily workflow, Figma sync, sandbox mode, and publishing
+- **[📖 Documentation Index](./docs/README.md)** - Complete guide to all documentation
+- **[🚀 Setup Guide](./docs/setup/SETUP.md)** - Infrastructure setup, Supabase configuration, and project scaffolding
+- **[👥 User Guide](./docs/user/GUIDE.md)** - Daily workflow, Figma sync, sandbox mode, and publishing
+- **[🔧 Development Workflow](./docs/development/WORKFLOW.md)** - Contributing and development practices
 
 ## Features
 
@@ -123,11 +125,11 @@ Enable **real-time collaboration** with Supabase for team-based token editing.
 **Quick Setup:**
 
 1. Create a free Supabase project at [supabase.com](https://supabase.com)
-2. Run the schema from `supabase-schema.sql` in SQL Editor
+2. Run the schema from `database/supabase-schema.sql` in SQL Editor
 3. Copy `.env.example` to `.env` and add your credentials
 4. Restart dev server: `npm run dev`
 
-**📖 For detailed setup instructions, see [docs/SETUP.md](./docs/SETUP.md)**
+**📖 For detailed setup instructions, see [Setup Guide](./docs/setup/SETUP.md)**
 
 **Test Your Connection:**
 
@@ -142,7 +144,7 @@ npm run test:supabase
 - **Sandbox Mode**: Collaborative editing with draft changes
 - **Publish Workflow**: Merge sandbox changes to Git
 
-**📖 For complete workflow documentation, see [docs/GUIDE.md](./docs/GUIDE.md)**
+**📖 For complete workflow documentation, see [User Guide](./docs/user/GUIDE.md)**
 
 ## CI/CD Pipeline
 

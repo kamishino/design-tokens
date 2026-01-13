@@ -20,11 +20,14 @@
   },
   "files": [
     "dist",
+    "scripts",
+    "server",
+    "site",
     "docs",
+    "database",
     "tokens",
     "README.md",
-    "LICENSE",
-    "WORKFLOW.md"
+    "LICENSE"
   ],
   "scripts": {
     "dev": "npm run build:core && concurrently \"npm run server:dev\" \"npm run site:serve\" --names \"server,site\" --prefix-colors \"blue,green\"",

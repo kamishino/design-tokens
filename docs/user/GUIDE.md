@@ -55,14 +55,14 @@ To sync tokens from Figma to your repository, configure the **Token Studio for F
 
 Fill in the following fields:
 
-| Field | Value | Example |
-|-------|-------|---------|
-| **Name** | Friendly name for this sync | "Design Tokens - Main" |
-| **Personal Access Token** | Your GitHub PAT | `ghp_abc123...` |
-| **Repository** | `owner/repo` format | `acme/design-tokens` |
-| **Branch** | Target branch | `main` or `tokens` |
-| **File Path** | Path to tokens directory | `tokens/` |
-| **Base Path** | Leave empty | |
+| Field                     | Value                       | Example                |
+| ------------------------- | --------------------------- | ---------------------- |
+| **Name**                  | Friendly name for this sync | "Design Tokens - Main" |
+| **Personal Access Token** | Your GitHub PAT             | `ghp_abc123...`        |
+| **Repository**            | `owner/repo` format         | `acme/design-tokens`   |
+| **Branch**                | Target branch               | `main` or `tokens`     |
+| **File Path**             | Path to tokens directory    | `tokens/`              |
+| **Base Path**             | Leave empty                 |                        |
 
 #### 4. Configure Token Paths
 
@@ -380,7 +380,7 @@ npm run build
 
 ## Need Help?
 
-- **Setup Issues**: See [SETUP.md](./SETUP.md)
+- **Setup Issues**: See [Setup Guide](../setup/SETUP.md)
 - **Bug Reports**: Open an issue on GitHub
 - **Feature Requests**: Discuss in GitHub Discussions
 

@@ -99,7 +99,9 @@ async function testSupabaseConnection() {
     if (error) {
       if (error.code === "42P01") {
         log.warning("Projects table doesn't exist yet");
-        log.info("Run supabase-schema.sql in Supabase SQL Editor to create tables");
+        log.info(
+          "Run database/supabase-schema.sql in Supabase SQL Editor to create tables"
+        );
       } else {
         log.error(`Database error: ${error.message}`);
         log.info(`Error code: ${error.code}`);
