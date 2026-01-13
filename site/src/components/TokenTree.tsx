@@ -30,6 +30,7 @@ interface TokenTreeProps {
   onRevertToken?: (path: string[]) => void;
   onDeleteToken?: (path: string[]) => void;
   onAddToGroup?: (path: string[], mode: "group" | "token") => void;
+  onEditToken?: (path: string[]) => void;
 }
 
 export default function TokenTree({
@@ -43,6 +44,7 @@ export default function TokenTree({
   onRevertToken,
   onDeleteToken,
   onAddToGroup,
+  onEditToken,
 }: TokenTreeProps) {
   // Use merged keys to include deleted tokens
   const keys = getMergedKeys(data, baselineContent);
@@ -67,6 +69,8 @@ export default function TokenTree({
             baselineContent={baselineContent}
             onRevertToken={onRevertToken}
             onDeleteToken={onDeleteToken}
+            onAddToGroup={onAddToGroup}
+            onEditToken={onEditToken}
           />
         );
       })}
@@ -87,6 +91,7 @@ interface TokenNodeProps {
   onRevertToken?: (path: string[]) => void;
   onDeleteToken?: (path: string[]) => void;
   onAddToGroup?: (path: string[], mode: "group" | "token") => void;
+  onEditToken?: (path: string[]) => void;
 }
 
 function TokenNode({
@@ -102,6 +107,7 @@ function TokenNode({
   onRevertToken,
   onDeleteToken,
   onAddToGroup,
+  onEditToken,
 }: TokenNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showAliasPicker, setShowAliasPicker] = useState(false);
@@ -515,6 +521,17 @@ function TokenNode({
                 </span>
               )}
 
+              {/* Edit Button */}
+              {!isDeleted && onEditToken && (
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => onEditToken(path)}
+                  title="Edit token (metadata & value)"
+                >
+                  <i className="ti ti-pencil"></i>
+                </button>
+              )}
+
               {/* Delete Button */}
               {!isDeleted && onDeleteToken && (
                 <button
@@ -630,6 +647,7 @@ function TokenNode({
               onRevertToken={onRevertToken}
               onDeleteToken={onDeleteToken}
               onAddToGroup={onAddToGroup}
+              onEditToken={onEditToken}
             />
           </div>
         )}

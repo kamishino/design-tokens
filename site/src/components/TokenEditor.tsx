@@ -17,6 +17,7 @@ interface TokenEditorProps {
   onRevertToken?: (path: string[]) => void;
   onDeleteToken?: (path: string[]) => void;
   onAddToGroup?: (path: string[], mode: "group" | "token") => void;
+  onEditToken?: (path: string[]) => void;
 }
 
 export default function TokenEditor({
@@ -30,6 +31,7 @@ export default function TokenEditor({
   onRevertToken,
   onDeleteToken,
   onAddToGroup,
+  onEditToken,
 }: TokenEditorProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [expandAll, setExpandAll] = useState<boolean | undefined>(undefined);
@@ -133,6 +135,7 @@ export default function TokenEditor({
               onRevertToken={onRevertToken}
               onDeleteToken={onDeleteToken}
               onAddToGroup={onAddToGroup}
+              onEditToken={onEditToken}
             />
           ) : (
             <div className="text-center text-muted py-5">

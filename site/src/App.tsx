@@ -48,10 +48,17 @@ export default function App() {
   const [addModalMode, setAddModalMode] = useState<"file" | "group" | "token">(
     "token"
   );
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [addModalContext, setAddModalContext] = useState<{
     file?: string;
     path?: string;
   }>({});
+  const [editTokenData, setEditTokenData] = useState<{
+    name: string;
+    type: string;
+    value: any;
+    description?: string;
+  } | null>(null);
 
   // Load file list on mount
   useEffect(() => {
@@ -246,6 +253,14 @@ export default function App() {
 
   const deleteToken = (path: string[]) => {
     if (!selectedFile || !tokenContent) return;
+
+    // Confirm deletion
+    const tokenName = path.join(".");
+    const confirmed = window.confirm(
+      `Are you sure you want to delete token "${tokenName}"?\n\nThis action cannot be undone.`
+    );
+
+    if (!confirmed) return;
 
     // Remove the token from the content
     const updatedContent = JSON.parse(JSON.stringify(tokenContent));
@@ -516,8 +531,92 @@ export default function App() {
     path?: string
   ) => {
     setAddModalMode(mode);
+    setModalMode("create");
+    setEditTokenData(null);
     setAddModalContext({ file, path });
     setShowAddModal(true);
+  };
+
+  // Handle edit token - open modal in edit mode
+  const handleEditToken = (path: string[]) => {
+    if (!selectedFile || !tokenContent) return;
+
+    // Navigate to token value in content
+    let current: any = tokenContent;
+    for (const key of path) {
+      if (current && typeof current === "object" && key in current) {
+        current = current[key];
+      } else {
+        console.error("Token not found at path:", path);
+        return;
+      }
+    }
+
+    // Extract token data
+    const tokenName = path[path.length - 1];
+    const tokenType = current.$type || current.type || "string";
+    const tokenValue = current.$value || current.value || "";
+    const tokenDescription = current.$description || current.description || "";
+
+    // Set edit mode state
+    setModalMode("edit");
+    setEditTokenData({
+      name: tokenName,
+      type: tokenType,
+      value: tokenValue,
+      description: tokenDescription,
+    });
+    setAddModalMode("token");
+    setAddModalContext({
+      file: selectedFile,
+      path: path.slice(0, -1).join("."),
+    });
+    setShowAddModal(true);
+  };
+
+  // Handle update token from edit modal
+  const handleUpdateToken = (
+    filePath: string,
+    path: string,
+    tokenData: { $type: string; $value: any; $description?: string }
+  ) => {
+    const content = allTokensContent[filePath];
+    if (!content) return;
+
+    const updatedContent = JSON.parse(JSON.stringify(content));
+    const pathParts = path ? path.split(".") : [];
+    let current = updatedContent;
+
+    // Navigate to target location
+    for (const part of pathParts) {
+      if (!current[part]) return; // Path doesn't exist
+      current = current[part];
+    }
+
+    // Get the token name from editTokenData
+    if (!editTokenData) return;
+    const tokenName = editTokenData.name;
+
+    // Update the token at this location
+    if (current[tokenName]) {
+      current[tokenName] = tokenData;
+    }
+
+    // Update state
+    setAllTokensContent((prev) => ({
+      ...prev,
+      [filePath]: updatedContent,
+    }));
+
+    setDraftChanges((prev) => ({
+      ...prev,
+      [filePath]: updatedContent,
+    }));
+
+    // If this is the selected file, update its content too
+    if (filePath === selectedFile) {
+      setTokenContent(updatedContent);
+    }
   };
 
   return (
@@ -683,6 +782,7 @@ export default function App() {
                       onAddToGroup={(path, mode) =>
                         openAddModal(mode, selectedFile, path.join("."))
                       }
+                      onEditToken={handleEditToken}
                     />
                   )}
                 </>
@@ -729,17 +829,20 @@ export default function App() {
         allTokensContent={allTokensContent}
       />
 
-      {/* Add Token Modal */}
+      {/* Add/Edit Token Modal */}
       <AddTokenModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         mode={addModalMode}
+        modalMode={modalMode}
+        initialData={editTokenData || undefined}
         targetFile={addModalContext.file || selectedFile}
         targetPath={addModalContext.path || ""}
         allTokensContent={allTokensContent}
         onCreateFile={handleCreateFile}
         onCreateGroup={handleCreateGroup}
         onCreateToken={handleCreateToken}
+        onUpdateToken={handleUpdateToken}
       />
     </div>
   );

@@ -9,6 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Modal-Based Token Editor** (PRD 0046): Dual-mode modal for editing token metadata and values
+  - **Edit Entry Point**: 
+    - Pencil icon button added next to delete button on every token
+    - Opens modal in edit mode with current token data pre-filled
+    - Non-intrusive alternative to inline editing for metadata-heavy tasks
+  - **Dual Mode Support**: 
+    - `modalMode` prop: `'create'` (default) or `'edit'`
+    - Modal title dynamically changes: "Add New Token" vs. "Edit Token: [name]"
+    - Edit icon (pencil) shown in edit mode instead of plus icon
+  - **Read-Only Name Field**: 
+    - Token name input becomes disabled/readonly in edit mode
+    - Prevents accidental path changes and reference breakage
+    - Maintains design system stability by enforcing immutable token keys
+  - **Metadata Focus**: 
+    - Full access to `$description` field for documentation
+    - Type changes supported for correcting token classifications
+    - Value editing with all creation features (color picker, alias dropdown)
+  - **Transactional State**: 
+    - Changes isolated in modal state until "Save" clicked
+    - Cancel/close discards all pending modifications
+    - Clean separation between draft and committed changes
+  - **Validation Bypass**: 
+    - Name validation skipped in edit mode (existing names are already valid)
+    - Real-time validation still active for value changes
+    - Consistent UX between creation and editing flows
+  - **Hybrid Workflow**: 
+    - Inline editing still available for quick value tweaks
+    - Modal editor for complex changes requiring focus
+    - Users choose appropriate tool based on task complexity
+  - **Implementation Details**: 
+    - `TokenInitialData` interface for pre-filling edit data
+    - `onUpdateToken` callback separate from `onCreateToken`
+    - `handleEditToken` extracts token data from path and opens modal
+    - Propagated through: `App.tsx` → `TokenEditor` → `TokenTree` → `TokenNode`
+
 - **Modal Layout & Validation Revision** (PRD 0045): Precision flex-based layout with prominent inline validation
   - **Flex-Based Proportions**:
     - 3-Module Mode (Color): 10/80/10 ratio - `[Color Picker 10%] [Input 80%] [Alias 10%]`

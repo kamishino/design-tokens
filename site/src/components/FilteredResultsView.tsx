@@ -54,7 +54,7 @@ export default function FilteredResultsView({
           <i className={Icons.FILTER + " me-2"}></i>
           Filtered Results
         </h3>
-        <div className="card-actions">
+        <div className="card-actions d-flex align-items-center">
           <span className="badge bg-blue-lt me-2">
             {tokenCount} token{tokenCount !== 1 ? "s" : ""} in {fileCount} file
             {fileCount !== 1 ? "s" : ""}

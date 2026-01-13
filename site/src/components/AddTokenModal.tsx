@@ -6,32 +6,34 @@ import {
   isTokenReference,
   resolveToken,
   extractReferencePath,
-  parseSlashPath,
   slashPathToDotPath,
 } from "../utils/token-logic";
 import { Icons } from "./Icons";
 import AliasPicker from "./AliasPicker";
 import Autocomplete from "./Autocomplete";
+import TokenTypeSelect from "./TokenTypeSelect";
 
 type CreationMode = "file" | "group" | "token";
+type ModalMode = "create" | "edit";
 type TokenCategory = "primitives" | "semantic" | "themes";
 
-// W3C Design Token Community Group types
-const TOKEN_TYPES = [
-  "color",
-  "dimension",
-  "fontFamily",
-  "fontWeight",
-  "duration",
-  "cubicBezier",
-  "number",
-  "string",
-] as const;
+// Token Type Strategy: Dual Compatibility
+// Type definitions moved to TokenTypeSelect component with grouped structure
+// See: site/src/components/TokenTypeSelect.tsx
+
+interface TokenInitialData {
+  name: string;
+  type: string;
+  value: any;
+  description?: string;
+}
 
 interface AddTokenModalProps {
   isOpen: boolean;
   onClose: () => void;
   mode: CreationMode;
+  modalMode?: ModalMode; // 'create' (default) or 'edit'
+  initialData?: TokenInitialData; // Pre-filled data for edit mode
   // Pre-filled context from UI
   targetFile?: string | null;
   targetPath?: string;
@@ -45,18 +47,26 @@ interface AddTokenModalProps {
     tokenName: string,
     tokenData: { $type: string; $value: any; $description?: string }
   ) => void;
+  onUpdateToken?: (
+    filePath: string,
+    path: string,
+    tokenData: { $type: string; $value: any; $description?: string }
+  ) => void;
 }
 
 export default function AddTokenModal({
   isOpen,
   onClose,
   mode,
+  modalMode = "create",
+  initialData,
   targetFile,
   targetPath = "",
   allTokensContent,
   onCreateFile,
   onCreateGroup,
   onCreateToken,
+  onUpdateToken,
 }: AddTokenModalProps) {
   // File mode state
   const [category, setCategory] = useState<TokenCategory>("primitives");
@@ -65,11 +75,15 @@ export default function AddTokenModal({
   // Group mode state
   const [groupName, setGroupName] = useState("");
 
-  // Token mode state
-  const [tokenName, setTokenName] = useState("");
-  const [tokenType, setTokenType] = useState<string>("color");
-  const [tokenValue, setTokenValue] = useState("");
-  const [tokenDescription, setTokenDescription] = useState("");
+  // Token mode state (initialize with initialData in edit mode)
+  const [tokenName, setTokenName] = useState(initialData?.name || "");
+  const [tokenType, setTokenType] = useState<string>(
+    initialData?.type || "color"
+  );
+  const [tokenValue, setTokenValue] = useState(initialData?.value || "");
+  const [tokenDescription, setTokenDescription] = useState(
+    initialData?.description || ""
+  );
   const [selectedFile, setSelectedFile] = useState<string>("");
 
   // Reference support state
@@ -100,19 +114,33 @@ export default function AddTokenModal({
     };
   }, [tokenValue, tokenType, allTokensContent, mode]);
 
-  // Reset form when modal opens or mode changes
+  // Reset form when modal opens or populate from initialData in edit mode
   useEffect(() => {
     if (isOpen) {
-      setFilename("");
-      setGroupName("");
-      setTokenName("");
-      setTokenValue("");
-      setTokenDescription("");
+      if (modalMode === "edit" && initialData) {
+        // Edit mode: populate from initialData
+        setTokenName(initialData.name || "");
+        setTokenType(initialData.type || "color");
+        // Serialize complex values (arrays, objects) to JSON strings
+        const valueStr =
+          typeof initialData.value === "object"
+            ? JSON.stringify(initialData.value)
+            : String(initialData.value || "");
+        setTokenValue(valueStr);
+        setTokenDescription(initialData.description || "");
+      } else {
+        // Create mode: reset to defaults
+        setFilename("");
+        setGroupName("");
+        setTokenName("");
+        setTokenValue("");
+        setTokenDescription("");
+        setCategory("primitives");
+        setTokenType("color");
+      }
       setError(null);
       setValidationErrors([]);
       setForceCreate(false);
-      setCategory("primitives");
-      setTokenType("color");
       setShowAliasPicker(false);
       setShowAutocomplete(false);
 
@@ -202,24 +230,6 @@ export default function AddTokenModal({
       onCreateGroup(file, targetPath, groupName);
       onClose();
     } else if (mode === "token") {
-      // Validate token
-      if (!tokenName.trim()) {
-        setError("Token name is required");
-        return;
-      }
-      if (!validateTokenName(tokenName)) {
-        if (!forceCreate) {
-          setError(
-            "Token name must be lowercase alphanumeric with hyphens only (e.g., primary-500). Check 'Force Create' to override."
-          );
-          return;
-        }
-      }
-      if (checkDuplicate(tokenName)) {
-        setError("A token with this name already exists at this location");
-        return;
-      }
-
       const file = targetFile || selectedFile;
       if (!file) {
         setError("No file selected");
@@ -237,7 +247,32 @@ export default function AddTokenModal({
         }),
       };
 
-      onCreateToken(file, targetPath, tokenName, tokenData);
+      if (modalMode === "edit") {
+        // Edit mode: update existing token
+        if (onUpdateToken) {
+          onUpdateToken(file, targetPath, tokenData);
+        }
+      } else {
+        // Create mode: validate and create new token
+        if (!tokenName.trim()) {
+          setError("Token name is required");
+          return;
+        }
+        if (!validateTokenName(tokenName)) {
+          if (!forceCreate) {
+            setError(
+              "Token name must be lowercase alphanumeric with hyphens only (e.g., primary-500). Check 'Force Create' to override."
+            );
+            return;
+          }
+        }
+        if (checkDuplicate(tokenName)) {
+          setError("A token with this name already exists at this location");
+          return;
+        }
+
+        onCreateToken(file, targetPath, tokenName, tokenData);
+      }
       onClose();
     }
   };
@@ -266,6 +301,9 @@ export default function AddTokenModal({
   if (!isOpen) return null;
 
   const getModalTitle = () => {
+    if (modalMode === "edit" && mode === "token") {
+      return `Edit Token: ${tokenName || "(unnamed)"}`;
+    }
     switch (mode) {
       case "file":
         return "Add New Token Set";
@@ -277,6 +315,9 @@ export default function AddTokenModal({
   };
 
   const getModalIcon = () => {
+    if (modalMode === "edit" && mode === "token") {
+      return Icons.EDIT;
+    }
     switch (mode) {
       case "file":
         return Icons.FILE_CODE;
@@ -427,19 +468,21 @@ export default function AddTokenModal({
                 <div className="mb-3">
                   <label className="form-label">
                     Token Name
-                    <span
-                      className="ms-2 text-muted"
-                      style={{ cursor: "help" }}
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="right"
-                      data-bs-html="true"
-                      data-bs-title="<strong>Token Name Rules:</strong><br/><br/>✓ Lowercase letters (a-z)<br/>✓ Numbers (0-9)<br/>✓ Hyphens (-) for word separation<br/>✓ Slashes (/) for nested groups<br/><br/><strong>Valid Examples:</strong><br/>• primary-500 - Simple token<br/>• button/primary - Nested (2 levels)<br/>• button/primary/bg - Deep nested<br/><br/><strong>Invalid:</strong><br/>✗ Primary-500 (uppercase)<br/>✗ primary_500 (underscore)<br/>✗ primary.500 (dot not allowed)"
-                    >
-                      <i
-                        className="ti ti-help-circle"
-                        style={{ fontSize: "16px" }}
-                      ></i>
-                    </span>
+                    {modalMode === "create" && (
+                      <span
+                        className="ms-2 text-muted"
+                        style={{ cursor: "help" }}
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="right"
+                        data-bs-html="true"
+                        data-bs-title="<strong>Token Name Rules:</strong><br/><br/>✓ Lowercase letters (a-z)<br/>✓ Numbers (0-9)<br/>✓ Hyphens (-) for word separation<br/>✓ Slashes (/) for nested groups<br/><br/><strong>Valid Examples:</strong><br/>• primary-500 - Simple token<br/>• button/primary - Nested (2 levels)<br/>• button/primary/bg - Deep nested<br/><br/><strong>Invalid:</strong><br/>✗ Primary-500 (uppercase)<br/>✗ primary_500 (underscore)<br/>✗ primary.500 (dot not allowed)"
+                      >
+                        <i
+                          className="ti ti-help-circle"
+                          style={{ fontSize: "16px" }}
+                        ></i>
+                      </span>
+                    )}
                   </label>
                   <input
                     type="text"
@@ -450,21 +493,25 @@ export default function AddTokenModal({
                       const name = e.target.value;
                       setTokenName(name);
 
-                      // Real-time validation
-                      const errors: string[] = [];
-                      if (name.trim() && !validateTokenName(name)) {
-                        errors.push(
-                          "Token name must be lowercase alphanumeric with hyphens/slashes only"
-                        );
+                      // Real-time validation (only in create mode)
+                      if (modalMode === "create") {
+                        const errors: string[] = [];
+                        if (name.trim() && !validateTokenName(name)) {
+                          errors.push(
+                            "Token name must be lowercase alphanumeric with hyphens/slashes only"
+                          );
+                        }
+                        if (name.trim() && checkDuplicate(name)) {
+                          errors.push(
+                            "A token with this name already exists at this location"
+                          );
+                        }
+                        setValidationErrors(errors);
                       }
-                      if (name.trim() && checkDuplicate(name)) {
-                        errors.push(
-                          "A token with this name already exists at this location"
-                        );
-                      }
-                      setValidationErrors(errors);
                     }}
-                    autoFocus
+                    disabled={modalMode === "edit"}
+                    readOnly={modalMode === "edit"}
+                    autoFocus={modalMode === "create"}
                   />
 
                   {/* Inline Validation Errors */}
@@ -491,17 +538,11 @@ export default function AddTokenModal({
 
                 <div className="mb-3">
                   <label className="form-label">Type</label>
-                  <select
-                    className="form-select"
+                  <TokenTypeSelect
                     value={tokenType}
-                    onChange={(e) => setTokenType(e.target.value)}
-                  >
-                    {TOKEN_TYPES.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={setTokenType}
+                    disabled={false}
+                  />
                 </div>
 
                 <div className="mb-3">
