@@ -267,14 +267,14 @@ BEGIN
     WHERE t.is_global = true
   ),
   deduplicated AS (
-    SELECT DISTINCT ON (token_path)
-      token_path,
-      token_type,
-      value,
-      source_level,
-      description
-    FROM prioritized_tokens
-    ORDER BY token_path, priority ASC
+    SELECT DISTINCT ON (pt.token_path)
+      pt.token_path,
+      pt.token_type,
+      pt.value,
+      pt.source_level,
+      pt.description
+    FROM prioritized_tokens pt
+    ORDER BY pt.token_path, pt.priority ASC
   )
   SELECT * FROM deduplicated
   ORDER BY token_path;
