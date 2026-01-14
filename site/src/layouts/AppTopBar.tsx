@@ -1,8 +1,9 @@
 import { Icons } from "@shared/components/Icons";
-import ProjectSwitcher from "./ProjectSwitcher";
+import ProjectSwitcher from "@features/projects/ProjectSwitcher";
 import SandboxToggle from "./SandboxToggle";
-import UserMenu from "./UserMenu";
+import UserMenu from "@features/auth/UserMenu";
 import { isSupabaseEnabled } from "@core/lib/supabase";
+import { useAuth } from "@features/auth/AuthContext";
 
 interface AppTopBarProps {
   // Sandbox mode state
@@ -28,6 +29,8 @@ export default function AppTopBar({
   onProjectChange,
   onPublish,
 }: AppTopBarProps) {
+  const { isDevBypass } = useAuth();
+
   const handlePublish = () => {
     const changeText = draftChangeCount === 1 ? "change" : "changes";
     const confirmed = window.confirm(
@@ -59,6 +62,21 @@ export default function AppTopBar({
               <i className={Icons.BRAND + " text-primary"}></i>
               <span className="fw-bold text-muted small">Design Tokens</span>
             </div>
+
+            {/* Dev Auth Bypass Indicator (PRD 0058) */}
+            {isDevBypass && (
+              <>
+                <div className="vr"></div>
+                <span
+                  className="badge bg-warning text-dark"
+                  title="Development authentication bypass is active. You are logged in as a mock admin user."
+                  style={{ cursor: "help" }}
+                >
+                  <i className={Icons.ALERT + " me-1"}></i>
+                  DEV AUTH MODE
+                </span>
+              </>
+            )}
 
             <div className="vr"></div>
 

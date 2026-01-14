@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Development Authentication Bypass & Mock Identity** (PRD 0058): Zero-login development experience for faster iteration
+  - **Environment Configuration** (`.env.example`):
+    - `VITE_DEV_AUTH_BYPASS=true` - Enable/disable dev auth bypass
+    - `DEV_AUTH_USER_EMAIL` - Mock user email for development
+    - `DEV_AUTH_USER_NAME` - Mock user display name
+  - **Frontend Mock Auth** (`AuthContext.tsx`):
+    - Automatic mock user initialization when bypass is enabled
+    - Mock session with `DEV_MOCK_TOKEN` for API calls
+    - Console warnings when dev bypass is active
+    - Production safety checks (disabled in production builds)
+  - **API Client Updates** (`supabase.ts`):
+    - `apiFetch()` automatically uses mock token in dev mode
+    - Bypasses real Supabase JWT flow when enabled
+    - Maintains compatibility with existing API calls
+  - **Backend Middleware** (`auth.js`):
+    - Recognizes and validates `DEV_MOCK_TOKEN`
+    - Creates mock `req.user` without Supabase verification
+    - Multiple security checks (NODE_ENV, token validation)
+    - Mock user includes all required fields for RLS/role checks
+  - **UI Indicator** (`AppTopBar.tsx`):
+    - Visible "DEV AUTH MODE" warning badge
+    - Alert icon and tooltip explaining bypass status
+    - Only shown when bypass is actually active
+  - **Security Guarantees**:
+    - Completely disabled in production (NODE_ENV checks)
+    - Clear console warnings prevent accidental use
+    - Mock token constant prevents external abuse
+    - No database security bypassed (RLS still applies)
+  - **Benefits**: Instant startup, no login required, faster iteration, mock admin privileges
+
 - **Onboarding Automation & Impact Analysis** (PRD 0057): Zero-config setup and dependency tracking for design tokens
   - **Setup CLI** (`scripts/setup.js`):
     - Interactive environment configuration wizard

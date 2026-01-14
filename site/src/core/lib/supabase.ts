@@ -312,44 +312,51 @@ export async function createBrand(
 }
 
 // ============================================================================
-// JWT Interceptor for Authenticated API Calls (PRD 0055)
+// JWT Interceptor for Authenticated API Calls (PRD 0055 + PRD 0058)
 // ============================================================================
+
+// Dev Auth Bypass Configuration (PRD 0058)
+const DEV_AUTH_BYPASS = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
+const DEV_MOCK_TOKEN = 'DEV_MOCK_TOKEN';
 
 /**
  * Fetch utility that automatically includes JWT token in Authorization header
  * Use this for all backend API calls that require authentication
+ * 
+ * PRD 0058: Supports dev auth bypass mode for faster local development
  */
 export async function apiFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  const supabase = getSupabaseClient();
-
-  // Get current session and token
-  const session = supabase ? await supabase.auth.getSession() : null;
-  const token = session?.data?.session?.access_token;
-
-  // Add Authorization header if token exists
   const headers = new Headers(options.headers);
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
+
+  // DEV AUTH BYPASS (PRD 0058): Use mock token in dev mode
+  if (DEV_AUTH_BYPASS && import.meta.env.MODE !== 'production') {
+    headers.set("Authorization", `Bearer ${DEV_MOCK_TOKEN}`);
+    console.log('[Dev Auth] Using mock token for API call:', url);
+  } else {
+    // Normal Supabase JWT flow
+    const supabase = getSupabaseClient();
+    const session = supabase ? await supabase.auth.getSession() : null;
+    const token = session?.data?.session?.access_token;
+
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    // Handle 401 Unauthorized - session expired
+    const response = await fetch(url, { ...options, headers });
+    if (response.status === 401 && supabase) {
+      console.warn("Session expired, signing out...");
+      await supabase.auth.signOut();
+      window.location.reload();
+    }
+    return response;
   }
 
-  // Make the request with auth header
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
-
-  // Handle 401 Unauthorized - session expired
-  if (response.status === 401 && supabase) {
-    console.warn("Session expired, signing out...");
-    await supabase.auth.signOut();
-    // Optionally redirect to login or refresh the page
-    window.location.reload();
-  }
-
-  return response;
+  // Make the request with auth header (dev bypass path)
+  return fetch(url, { ...options, headers });
 }
 
 // Re-export types for convenience

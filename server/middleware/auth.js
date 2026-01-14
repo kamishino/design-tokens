@@ -1,15 +1,52 @@
 /**
  * Authentication Middleware for Express
  * PRD 0051: Supabase Auth integration
+ * PRD 0058: Dev Auth Bypass support
  */
 
 import { verifyAuth, isSupabaseEnabled } from "../lib/supabase-client.js";
 
+// Dev Auth Bypass Configuration (PRD 0058)
+const DEV_AUTH_BYPASS = process.env.VITE_DEV_AUTH_BYPASS === 'true';
+const DEV_MOCK_TOKEN = 'DEV_MOCK_TOKEN';
+const DEV_AUTH_USER_EMAIL = process.env.DEV_AUTH_USER_EMAIL || 'dev@example.com';
+const DEV_AUTH_USER_NAME = process.env.DEV_AUTH_USER_NAME || 'Dev Admin';
+
+/**
+ * Create mock user for dev bypass mode
+ */
+function createMockDevUser() {
+  return {
+    id: 'dev-mock-user-id-12345',
+    email: DEV_AUTH_USER_EMAIL,
+    role: 'authenticated',
+    user_metadata: {
+      name: DEV_AUTH_USER_NAME,
+      full_name: DEV_AUTH_USER_NAME,
+      role: 'admin'
+    }
+  };
+}
+
 /**
  * Middleware to verify Supabase authentication
  * Extracts user from Bearer token and attaches to req.user
+ * 
+ * PRD 0058: Supports dev auth bypass mode for faster local development
  */
 export async function authenticateUser(req, res, next) {
+  // DEV AUTH BYPASS (PRD 0058): Security check - only in development
+  if (DEV_AUTH_BYPASS && process.env.NODE_ENV !== 'production') {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.substring(7);
+    
+    if (token === DEV_MOCK_TOKEN) {
+      console.warn('🚨 DEV AUTH BYPASS: Using mock user for request');
+      req.user = createMockDevUser();
+      return next();
+    }
+  }
+
   // Skip auth if Supabase is not enabled (fallback mode)
   if (!isSupabaseEnabled()) {
     req.user = null;
