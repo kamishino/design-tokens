@@ -32,7 +32,8 @@
     },
     "40": {
       "value": "0.4",
-      "$type": "number"
+      "$type": "number",
+      "$description": "Moderate-low opacity"
     },
     "50": {
       "value": "0.5",
@@ -41,11 +42,13 @@
     },
     "60": {
       "value": "0.6",
-      "$type": "number"
+      "$type": "number",
+      "$description": "Moderate-high opacity"
     },
     "70": {
       "value": "0.7",
-      "$type": "number"
+      "$type": "number",
+      "$description": "High opacity"
     },
     "75": {
       "value": "0.75",
@@ -54,7 +57,8 @@
     },
     "80": {
       "value": "0.8",
-      "$type": "number"
+      "$type": "number",
+      "$description": "Very high opacity"
     },
     "90": {
       "value": "0.9",

@@ -1,9 +1,29 @@
 {
   "shadow": {
-    "sm": { "value": "0 1px 2px 0 rgba(0, 0, 0, 0.05)", "$type": "boxShadow" },
-    "base": { "value": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)", "$type": "boxShadow" },
-    "md": { "value": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)", "$type": "boxShadow" },
-    "lg": { "value": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)", "$type": "boxShadow" },
-    "xl": { "value": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", "$type": "boxShadow" }
+    "sm": {
+      "value": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+      "$type": "boxShadow",
+      "$description": "Small, subtle shadow for low-elevation elements like buttons"
+    },
+    "base": {
+      "value": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+      "$type": "boxShadow",
+      "$description": "Standard shadow for common UI elements"
+    },
+    "md": {
+      "value": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+      "$type": "boxShadow",
+      "$description": "Medium shadow for elements that need more depth like dropdowns"
+    },
+    "lg": {
+      "value": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+      "$type": "boxShadow",
+      "$description": "Large shadow for elevated components like modals"
+    },
+    "xl": {
+      "value": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+      "$type": "boxShadow",
+      "$description": "Extra large shadow for high-elevation floating elements"
+    }
   }
 }

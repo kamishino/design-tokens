@@ -3,15 +3,18 @@
     "family": {
       "base": {
         "value": "-apple-system, BlinkMacSystemFont, sans-serif",
-        "$type": "fontFamilies"
+        "$type": "fontFamilies",
+        "$description": "Standard system sans-serif font stack for UI"
       },
       "mono": {
         "value": "SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-        "$type": "fontFamilies"
+        "$type": "fontFamilies",
+        "$description": "Monospace font stack for code blocks and technical data"
       },
       "serif": {
         "value": "Georgia, 'Times New Roman', Times, serif",
-        "$type": "fontFamilies"
+        "$type": "fontFamilies",
+        "$description": "Classic serif font stack for long-form reading"
       }
     },
     "size": {
@@ -81,66 +84,80 @@
     "weight": {
       "thin": {
         "value": "100",
-        "$type": "fontWeights"
+        "$type": "fontWeights",
+        "$description": "Thin weight (100)"
       },
       "extralight": {
         "value": "200",
-        "$type": "fontWeights"
+        "$type": "fontWeights",
+        "$description": "Extra light weight (200)"
       },
       "light": {
         "value": "300",
-        "$type": "fontWeights"
+        "$type": "fontWeights",
+        "$description": "Light weight (300)"
       },
       "normal": {
         "value": "400",
-        "$type": "fontWeights"
+        "$type": "fontWeights",
+        "$description": "Regular/Normal weight (400)"
       },
       "medium": {
         "value": "500",
-        "$type": "fontWeights"
+        "$type": "fontWeights",
+        "$description": "Medium weight (500)"
       },
       "semibold": {
         "value": "600",
-        "$type": "fontWeights"
+        "$type": "fontWeights",
+        "$description": "Semi-bold weight (600)"
       },
       "bold": {
         "value": "700",
-        "$type": "fontWeights"
+        "$type": "fontWeights",
+        "$description": "Bold weight (700)"
       },
       "extrabold": {
         "value": "800",
-        "$type": "fontWeights"
+        "$type": "fontWeights",
+        "$description": "Extra-bold weight (800)"
       },
       "black": {
         "value": "900",
-        "$type": "fontWeights"
+        "$type": "fontWeights",
+        "$description": "Black/Heavy weight (900)"
       }
     },
     "leading": {
       "none": {
         "value": "1",
-        "$type": "lineHeights"
+        "$type": "lineHeights",
+        "$description": "No line height (1.0) - for giant displays"
       },
       "tight": {
         "value": "1.25",
-        "$type": "lineHeights"
+        "$type": "lineHeights",
+        "$description": "Tight line height (1.25) - for headings"
       },
       "snug": {
         "value": "1.375",
-        "$type": "lineHeights"
+        "$type": "lineHeights",
+        "$description": "Snug line height (1.375) - for short text blocks"
       },
       "normal": {
         "value": "1.5",
         "$type": "lineHeights",
-        "$description": "Default leading ratio for baseline calculations"
+        "$description": "Default line height (1.5) - optimal for UI reading"
       },
       "relaxed": {
         "value": "1.625",
-        "$type": "lineHeights"
+        "$type": "lineHeights",
+        "$description": "Relaxed line height (1.625) - for long-form content"
       },
       "loose": {
         "value": "2",
-        "$type": "lineHeights"
+        "$type": "lineHeights",
+        "$description": "Loose line height (2.0) - for specific artistic layout"
       }
     },
     "letterSpacing": {
@@ -178,7 +195,8 @@
     "spacing": {
       "paragraph": {
         "value": "0px",
-        "$type": "dimension"
+        "$type": "dimension",
+        "$description": "Vertical spacing between paragraphs"
       }
     }
   }

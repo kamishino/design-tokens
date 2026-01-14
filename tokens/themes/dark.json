@@ -1,17 +1,53 @@
-﻿{
+{
   "bg": {
-    "body": { "value": "{color.neutral.950}", "$type": "color" },
-    "surface": { "value": "{color.neutral.900}", "$type": "color" },
-    "muted": { "value": "{color.neutral.800}", "$type": "color" }
+    "body": {
+      "value": "{color.neutral.950}",
+      "$type": "color",
+      "$description": "Main page background for dark mode"
+    },
+    "surface": {
+      "value": "{color.neutral.900}",
+      "$type": "color",
+      "$description": "Card and panel background for dark mode"
+    },
+    "muted": {
+      "value": "{color.neutral.800}",
+      "$type": "color",
+      "$description": "Subtle/muted background for dark mode"
+    }
   },
   "text": {
-    "primary": { "value": "{color.neutral.50}", "$type": "color" },
-    "secondary": { "value": "{color.neutral.300}", "$type": "color" },
-    "muted": { "value": "{color.neutral.500}", "$type": "color" },
-    "inverse": { "value": "{color.neutral.900}", "$type": "color" }
+    "primary": {
+      "value": "{color.neutral.50}",
+      "$type": "color",
+      "$description": "Primary text color in dark mode (high contrast)"
+    },
+    "secondary": {
+      "value": "{color.neutral.300}",
+      "$type": "color",
+      "$description": "Secondary/metadata text color in dark mode"
+    },
+    "muted": {
+      "value": "{color.neutral.500}",
+      "$type": "color",
+      "$description": "Muted/disabled text color in dark mode"
+    },
+    "inverse": {
+      "value": "{color.neutral.900}",
+      "$type": "color",
+      "$description": "Inverse text color for dark mode (dark on light elements)"
+    }
   },
   "border": {
-    "default": { "value": "{color.neutral.700}", "$type": "color" },
-    "muted": { "value": "{color.neutral.800}", "$type": "color" }
+    "default": {
+      "value": "{color.neutral.700}",
+      "$type": "color",
+      "$description": "Standard border color for dark mode"
+    },
+    "muted": {
+      "value": "{color.neutral.800}",
+      "$type": "color",
+      "$description": "Subtle border color for dark mode"
+    }
   }
 }
