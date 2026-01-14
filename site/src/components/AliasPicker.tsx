@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import { TokenContent, TokenValue } from "@core/types";
 import { getAllTokensFlattened, resolveToken } from "@shared/utils/token-logic";
 import { Icons } from "@shared/components/Icons";
-import Swatch from "./Swatch";
+import Swatch from "@shared/components/Swatch";
 import InlineValue from "./InlineValue";
 
 interface AliasPickerProps {

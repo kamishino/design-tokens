@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from "react";
 import { TokenContent, TokenValue } from "@core/types";
 import { Icons } from "@shared/components/Icons";
-import Swatch from "./Swatch";
+import Swatch from "@shared/components/Swatch";
 import AliasPicker from "./AliasPicker";
 import Autocomplete from "./Autocomplete";
 import InlineValue from "./InlineValue";
