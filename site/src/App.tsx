@@ -1,19 +1,19 @@
 import { useState, useEffect, useMemo } from "react";
-import Sidebar from "./components/Sidebar";
-import TokenEditor from "./components/TokenEditor";
-import CommitBar from "./components/CommitBar";
-import KitchenSink from "./components/KitchenSink";
-import TokenTabs from "./components/TokenTabs";
-import SearchBar from "./components/SearchBar";
-import FigmaImport from "./components/FigmaImport";
-import FilteredResultsView from "./components/FilteredResultsView";
-import FindReplaceModal from "./components/FindReplaceModal";
-import ExportModal from "./components/ExportModal";
-import AddTokenModal from "./components/AddTokenModal";
-import AppTopBar from "./components/AppTopBar";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { Icons } from "./components/Icons";
-import { TokenFile, TokenContent, DraftChanges } from "./types";
+import Sidebar from "@layouts/Sidebar";
+import TokenEditor from "@features/tokens/TokenEditor";
+import CommitBar from "@layouts/CommitBar";
+import KitchenSink from "@features/tokens/KitchenSink";
+import TokenTabs from "@features/tokens/TokenTabs";
+import SearchBar from "@shared/components/SearchBar";
+import FigmaImport from "@features/tokens/FigmaImport";
+import FilteredResultsView from "@features/tokens/FilteredResultsView";
+import FindReplaceModal from "@features/tokens/FindReplaceModal";
+import ExportModal from "@features/tokens/ExportModal";
+import AddTokenModal from "@features/tokens/AddTokenModal";
+import AppTopBar from "@layouts/AppTopBar";
+import ProtectedRoute from "@features/auth/ProtectedRoute";
+import { Icons } from "@shared/components/Icons";
+import { TokenFile, TokenContent, DraftChanges } from "@core/types";
 import {
   getTokenCategories,
   filterTokensByCategory,
@@ -23,7 +23,7 @@ import {
   getAllTokensFlattened,
   findTokenLocation,
   parseSlashPath,
-} from "./utils/token-logic";
+} from "@shared/utils/token-logic";
 
 type View = "dashboard" | "kitchenSink";
 

@@ -4,9 +4,9 @@
  */
 
 import { useState, useEffect, useRef } from "react";
-import { TokenContent, TokenValue } from "../types";
-import { getAllTokensFlattened, resolveToken } from "../utils/token-logic";
-import { Icons } from "./Icons";
+import { TokenContent, TokenValue } from "@core/types";
+import { getAllTokensFlattened, resolveToken } from "@shared/utils/token-logic";
+import { Icons } from "@shared/components/Icons";
 import Swatch from "./Swatch";
 import InlineValue from "./InlineValue";
 
@@ -305,3 +305,5 @@ export default function AliasPicker({
     </div>
   );
 }
+
+

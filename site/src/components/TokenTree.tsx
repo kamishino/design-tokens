@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from "react";
-import { TokenContent, TokenValue } from "../types";
-import { Icons } from "./Icons";
+import { TokenContent, TokenValue } from "@core/types";
+import { Icons } from "@shared/components/Icons";
 import Swatch from "./Swatch";
 import AliasPicker from "./AliasPicker";
 import Autocomplete from "./Autocomplete";
@@ -17,7 +17,7 @@ import {
   compareTokenValues,
   TokenStatus,
   isGroupModified,
-} from "../utils/token-logic";
+} from "@shared/utils/token-logic";
 
 interface TokenTreeProps {
   data: TokenContent;
@@ -821,3 +821,5 @@ function isTokenValue(obj: any): obj is TokenValue {
       (obj.value !== undefined && obj.$type !== undefined))
   );
 }
+
+

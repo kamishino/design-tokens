@@ -5,7 +5,7 @@
  */
 
 import { useState } from "react";
-import { isHexColor } from "../utils/token-logic";
+import { isHexColor } from "@shared/utils/token-logic";
 
 interface InlineValueProps {
   value: any;
@@ -82,3 +82,5 @@ export default function InlineValue({ value, type, isReference = false, classNam
     </span>
   );
 }
+
+

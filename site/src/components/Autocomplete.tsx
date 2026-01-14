@@ -4,8 +4,8 @@
  */
 
 import { useState, useEffect, useRef } from "react";
-import { TokenContent } from "../types";
-import { getAllTokensFlattened } from "../utils/token-logic";
+import { TokenContent } from "@core/types";
+import { getAllTokensFlattened } from "@shared/utils/token-logic";
 
 interface AutocompleteProps {
   allTokens: Record<string, TokenContent>;
@@ -153,3 +153,5 @@ export default function Autocomplete({ allTokens, onSelect, onClose, filterType,
     </div>
   );
 }
+
+

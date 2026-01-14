@@ -3,7 +3,7 @@ import Editor from "react-simple-code-editor";
 import Prism from "prismjs";
 import "prismjs/components/prism-json";
 import "prismjs/themes/prism.css";
-import { Icons } from "./Icons";
+import { Icons } from "@shared/components/Icons";
 
 // Extend Prism to highlight HEX colors
 if (typeof window !== "undefined" && Prism.languages.json) {
@@ -153,3 +153,5 @@ export default function JSONEditor({ value, onChange, onValidChange }: JSONEdito
     </div>
   );
 }
+
+
