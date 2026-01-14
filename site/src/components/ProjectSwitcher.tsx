@@ -81,10 +81,10 @@ export default function ProjectSwitcher({
       {showDropdown && (
         <div
           className="dropdown-menu show"
-          style={{ maxHeight: "400px", overflowY: "auto" }}
+          style={{ minWidth: "250px", maxHeight: "400px", overflowY: "auto" }}
         >
           <div className="dropdown-header">
-            <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex justify-content-between align-items-center w-100">
               <span>Projects</span>
               <button
                 className="btn btn-sm btn-ghost-secondary"
@@ -117,7 +117,7 @@ export default function ProjectSwitcher({
                   setShowDropdown(false);
                 }}
               >
-                <div className="d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center justify-content-between w-100">
                   <div className="flex-grow-1">
                     <div className="fw-bold">{project.name}</div>
                     {project.git_url && (
