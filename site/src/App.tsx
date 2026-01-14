@@ -841,15 +841,18 @@ export default function App() {
                   </>
                 )}
 
-          {/* Commit Bar */}
-          {hasDraftChanges && (
-            <CommitBar
-              changeCount={Object.keys(draftChanges).length}
-              onCommit={commitChanges}
-              onCancel={cancelChanges}
-              disabled={loading}
-            />
-          )}
+                {/* Commit Bar */}
+                {hasDraftChanges && (
+                  <CommitBar
+                    changeCount={Object.keys(draftChanges).length}
+                    onCommit={commitChanges}
+                    onCancel={cancelChanges}
+                    disabled={loading}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Figma Import Modal */}
@@ -894,7 +897,6 @@ export default function App() {
           onCreateToken={handleCreateToken}
           onUpdateToken={handleUpdateToken}
         />
-        </div>
       </div>
     </ProtectedRoute>
   );
