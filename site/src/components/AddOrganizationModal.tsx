@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Icons } from "./Icons";
+import { apiFetch } from "../lib/supabase";
 
 interface AddOrganizationModalProps {
   show: boolean;
@@ -25,7 +26,9 @@ export default function AddOrganizationModal({
       return false;
     }
     if (!slugRegex.test(value)) {
-      setSlugError("Slug must contain only lowercase letters, numbers, and hyphens");
+      setSlugError(
+        "Slug must contain only lowercase letters, numbers, and hyphens"
+      );
       return false;
     }
     setSlugError(null);
@@ -59,7 +62,7 @@ export default function AddOrganizationModal({
     setError(null);
 
     try {
-      const response = await fetch("/api/mp/organizations", {
+      const response = await apiFetch("/api/mp/organizations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -98,7 +101,10 @@ export default function AddOrganizationModal({
   if (!show) return null;
 
   return (
-    <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+    <div
+      className="modal show d-block"
+      style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+    >
       <div className="modal-dialog modal-dialog-centered modal-sm">
         <div className="modal-content">
           <div className="modal-header">
@@ -162,7 +168,9 @@ export default function AddOrganizationModal({
                   >
                     <i className={Icons.REFRESH}></i>
                   </button>
-                  {slugError && <div className="invalid-feedback">{slugError}</div>}
+                  {slugError && (
+                    <div className="invalid-feedback">{slugError}</div>
+                  )}
                 </div>
                 <div className="form-text">
                   Lowercase letters, numbers, and hyphens only

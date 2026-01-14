@@ -229,7 +229,7 @@ export async function createProject(
   projectData: CreateProjectRequest
 ): Promise<{ success: boolean; project?: Project; error?: string }> {
   try {
-    const response = await fetch(`/api/mp/organizations/${orgId}/projects`, {
+    const response = await apiFetch(`/api/mp/organizations/${orgId}/projects`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -240,7 +240,10 @@ export async function createProject(
     const result = await response.json();
 
     if (!response.ok) {
-      return { success: false, error: result.error || "Failed to create project" };
+      return {
+        success: false,
+        error: result.error || "Failed to create project",
+      };
     }
 
     return { success: true, project: result.project };
@@ -284,7 +287,7 @@ export async function createBrand(
   brandData: CreateBrandRequest
 ): Promise<{ success: boolean; brand?: Brand; error?: string }> {
   try {
-    const response = await fetch(`/api/mp/projects/${projectId}/brands`, {
+    const response = await apiFetch(`/api/mp/projects/${projectId}/brands`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -295,7 +298,10 @@ export async function createBrand(
     const result = await response.json();
 
     if (!response.ok) {
-      return { success: false, error: result.error || "Failed to create brand" };
+      return {
+        success: false,
+        error: result.error || "Failed to create brand",
+      };
     }
 
     return { success: true, brand: result.brand };
@@ -303,6 +309,47 @@ export async function createBrand(
     console.error("Exception creating brand:", err);
     return { success: false, error: "Network error" };
   }
+}
+
+// ============================================================================
+// JWT Interceptor for Authenticated API Calls (PRD 0055)
+// ============================================================================
+
+/**
+ * Fetch utility that automatically includes JWT token in Authorization header
+ * Use this for all backend API calls that require authentication
+ */
+export async function apiFetch(
+  url: string,
+  options: RequestInit = {}
+): Promise<Response> {
+  const supabase = getSupabaseClient();
+
+  // Get current session and token
+  const session = supabase ? await supabase.auth.getSession() : null;
+  const token = session?.data?.session?.access_token;
+
+  // Add Authorization header if token exists
+  const headers = new Headers(options.headers);
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  // Make the request with auth header
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  // Handle 401 Unauthorized - session expired
+  if (response.status === 401 && supabase) {
+    console.warn("Session expired, signing out...");
+    await supabase.auth.signOut();
+    // Optionally redirect to login or refresh the page
+    window.location.reload();
+  }
+
+  return response;
 }
 
 // Re-export types for convenience

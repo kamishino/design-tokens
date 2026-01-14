@@ -11,6 +11,7 @@ import FindReplaceModal from "./components/FindReplaceModal";
 import ExportModal from "./components/ExportModal";
 import AddTokenModal from "./components/AddTokenModal";
 import AppTopBar from "./components/AppTopBar";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { Icons } from "./components/Icons";
 import { TokenFile, TokenContent, DraftChanges } from "./types";
 import {
@@ -653,242 +654,248 @@ export default function App() {
   };
 
   return (
-    <div className="page">
-      {/* Global Top Bar - System Level Controls */}
-      <AppTopBar
-        isSandboxMode={isSandboxMode}
-        onToggleSandbox={setIsSandboxMode}
-        hasDraftChanges={hasDraftChanges}
-        draftChangeCount={Object.keys(draftChanges).length}
-        activeProjectId={activeProjectId}
-        onProjectChange={handleProjectChange}
-        onPublish={handlePublish}
-      />
-
-      <div className="page-wrapper">
-        {/* Sidebar Navigation */}
-        <Sidebar
-          files={files}
-          selectedFile={selectedFile}
-          onSelectFile={handleSelectFile}
-          draftChanges={draftChanges}
-          onViewChange={setView}
-          onAddFile={() => openAddModal("file")}
+    <ProtectedRoute>
+      <div className="page">
+        {/* Global Top Bar - System Level Controls */}
+        <AppTopBar
+          isSandboxMode={isSandboxMode}
+          onToggleSandbox={setIsSandboxMode}
+          hasDraftChanges={hasDraftChanges}
+          draftChangeCount={Object.keys(draftChanges).length}
+          activeProjectId={activeProjectId}
+          onProjectChange={handleProjectChange}
+          onPublish={handlePublish}
         />
-        {/* Page Content */}
-        <div className="page-body">
-          <div className="container-xl">
-            {/* Page Header */}
-            <div className="page-header d-print-none">
-              <div className="row align-items-center">
-                <div className="col">
-                  <h2 className="page-title">
-                    <i className={Icons.PALETTE + " me-2"}></i>
-                    Token Management Dashboard
-                  </h2>
-                  <div className="text-muted">
-                    Design Token Manager - CRUD Interface
+
+        <div className="page-wrapper">
+          {/* Sidebar Navigation */}
+          <Sidebar
+            files={files}
+            selectedFile={selectedFile}
+            onSelectFile={handleSelectFile}
+            draftChanges={draftChanges}
+            onViewChange={setView}
+            onAddFile={() => openAddModal("file")}
+          />
+          {/* Page Content */}
+          <div className="page-body">
+            <div className="container-xl">
+              {/* Page Header */}
+              <div className="page-header d-print-none">
+                <div className="row align-items-center">
+                  <div className="col">
+                    <h2 className="page-title">
+                      <i className={Icons.PALETTE + " me-2"}></i>
+                      Token Management Dashboard
+                    </h2>
+                    <div className="text-muted">
+                      Design Token Manager - CRUD Interface
+                    </div>
                   </div>
-                </div>
-                <div className="col-auto ms-auto d-flex gap-2">
-                  <button
-                    className="btn btn-outline-secondary"
-                    onClick={() => setShowFindReplace(true)}
-                    title="Find and replace values globally"
-                  >
-                    <i className={Icons.SEARCH + " me-1"}></i>
-                    Find & Replace
-                  </button>
-                  <button
-                    className="btn btn-outline-primary"
-                    onClick={() => setShowFigmaImport(true)}
-                    title="Import from Figma Tokens Studio"
-                  >
-                    <i className={Icons.UPLOAD + " me-1"}></i>
-                    Import from Figma
-                  </button>
-                  <button
-                    className="btn btn-outline-secondary"
-                    onClick={() => setShowExportModal(true)}
-                    title="Export tokens as JSON"
-                  >
-                    <i className={Icons.DOWNLOAD + " me-1"}></i>
-                    Export
-                  </button>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => openAddModal("token")}
-                    title="Add new token"
-                  >
-                    <i className={Icons.ADD + " me-1"}></i>
-                    Add Token
-                  </button>
-                  {hasDraftChanges && (
-                    <span className="badge bg-green-lt">
-                      {Object.keys(draftChanges).length} file(s) modified
-                    </span>
-                  )}
+                  <div className="col-auto ms-auto d-flex gap-2">
+                    <button
+                      className="btn btn-outline-secondary"
+                      onClick={() => setShowFindReplace(true)}
+                      title="Find and replace values globally"
+                    >
+                      <i className={Icons.SEARCH + " me-1"}></i>
+                      Find & Replace
+                    </button>
+                    <button
+                      className="btn btn-outline-primary"
+                      onClick={() => setShowFigmaImport(true)}
+                      title="Import from Figma Tokens Studio"
+                    >
+                      <i className={Icons.UPLOAD + " me-1"}></i>
+                      Import from Figma
+                    </button>
+                    <button
+                      className="btn btn-outline-secondary"
+                      onClick={() => setShowExportModal(true)}
+                      title="Export tokens as JSON"
+                    >
+                      <i className={Icons.DOWNLOAD + " me-1"}></i>
+                      Export
+                    </button>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => openAddModal("token")}
+                      title="Add new token"
+                    >
+                      <i className={Icons.ADD + " me-1"}></i>
+                      Add Token
+                    </button>
+                    {hasDraftChanges && (
+                      <span className="badge bg-green-lt">
+                        {Object.keys(draftChanges).length} file(s) modified
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Main Content */}
-            <div className="page-body">
-              {view === "kitchenSink" ? (
-                <KitchenSink />
-              ) : (
-                <>
-                  {/* Unified Filter Toolbar */}
-                  <div className="content-toolbar">
-                    {/* Category Tabs */}
-                    <TokenTabs
-                      categories={categories}
-                      activeCategory={activeCategory}
-                      onCategoryChange={setActiveCategory}
-                      tokenCounts={tokenCounts}
-                    />
+              {/* Main Content */}
+              <div className="page-body">
+                {view === "kitchenSink" ? (
+                  <KitchenSink />
+                ) : (
+                  <>
+                    {/* Unified Filter Toolbar */}
+                    <div className="content-toolbar">
+                      {/* Category Tabs */}
+                      <TokenTabs
+                        categories={categories}
+                        activeCategory={activeCategory}
+                        onCategoryChange={setActiveCategory}
+                        tokenCounts={tokenCounts}
+                      />
 
-                    {/* Search Bar */}
-                    <SearchBar onSearch={setSearchQuery} showFilters={false} />
-                  </div>
-
-                  {error && (
-                    <div
-                      className="alert alert-danger alert-dismissible"
-                      role="alert"
-                    >
-                      <div className="d-flex">
-                        <div>
-                          <i className={Icons.ALERT + " me-2"}></i>
-                        </div>
-                        <div>
-                          <h4 className="alert-title">Error!</h4>
-                          <div className="text-muted">{error}</div>
-                        </div>
-                      </div>
+                      {/* Search Bar */}
+                      <SearchBar
+                        onSearch={setSearchQuery}
+                        showFilters={false}
+                      />
                     </div>
-                  )}
 
-                  {loading && (
-                    <div
-                      className="d-flex justify-content-center align-items-center"
-                      style={{ minHeight: "400px" }}
-                    >
+                    {error && (
                       <div
-                        className="spinner-border text-primary"
-                        role="status"
+                        className="alert alert-danger alert-dismissible"
+                        role="alert"
                       >
-                        <span className="visually-hidden">Loading...</span>
+                        <div className="d-flex">
+                          <div>
+                            <i className={Icons.ALERT + " me-2"}></i>
+                          </div>
+                          <div>
+                            <h4 className="alert-title">Error!</h4>
+                            <div className="text-muted">{error}</div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Filtered Results View */}
-                  {isFiltering && !loading && (
-                    <FilteredResultsView
-                      groupedTokens={groupedTokens}
-                      allTokens={allTokensContent}
-                      onClearFilters={clearFilters}
-                      activeCategory={activeCategory}
-                      searchQuery={searchQuery}
-                    />
-                  )}
-
-                  {/* Empty State - No File Selected */}
-                  {!isFiltering && !selectedFile && !loading && (
-                    <div className="empty">
-                      <div className="empty-icon">
-                        <i className={Icons.FILES}></i>
+                    {loading && (
+                      <div
+                        className="d-flex justify-content-center align-items-center"
+                        style={{ minHeight: "400px" }}
+                      >
+                        <div
+                          className="spinner-border text-primary"
+                          role="status"
+                        >
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
                       </div>
-                      <p className="empty-title">
-                        Select a token file to begin
-                      </p>
-                      <p className="empty-subtitle text-muted">
-                        Choose a file from the sidebar to view and edit tokens
-                      </p>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Token Editor - Single File View */}
-                  {!isFiltering && selectedFile && tokenContent && !loading && (
-                    <TokenEditor
-                      filePath={selectedFile}
-                      content={tokenContent}
-                      onUpdate={updateTokenValue}
-                      hasChanges={draftChanges[selectedFile] !== undefined}
-                      allTokens={allTokensContent}
-                      onNavigateToToken={handleNavigateToToken}
-                      baselineContent={
-                        initialTokensContent[selectedFile] || null
-                      }
-                      onRevertToken={revertToken}
-                      onDeleteToken={deleteToken}
-                      onAddToGroup={(path, mode) =>
-                        openAddModal(mode, selectedFile, path.join("."))
-                      }
-                      onEditToken={handleEditToken}
-                      isSandboxMode={isSandboxMode}
-                    />
-                  )}
-                </>
-              )}
-            </div>
-          </div>
+                    {/* Filtered Results View */}
+                    {isFiltering && !loading && (
+                      <FilteredResultsView
+                        groupedTokens={groupedTokens}
+                        allTokens={allTokensContent}
+                        onClearFilters={clearFilters}
+                        activeCategory={activeCategory}
+                        searchQuery={searchQuery}
+                      />
+                    )}
+
+                    {/* Empty State - No File Selected */}
+                    {!isFiltering && !selectedFile && !loading && (
+                      <div className="empty">
+                        <div className="empty-icon">
+                          <i className={Icons.FILES}></i>
+                        </div>
+                        <p className="empty-title">
+                          Select a token file to begin
+                        </p>
+                        <p className="empty-subtitle text-muted">
+                          Choose a file from the sidebar to view and edit tokens
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Token Editor - Single File View */}
+                    {!isFiltering &&
+                      selectedFile &&
+                      tokenContent &&
+                      !loading && (
+                        <TokenEditor
+                          filePath={selectedFile}
+                          content={tokenContent}
+                          onUpdate={updateTokenValue}
+                          hasChanges={draftChanges[selectedFile] !== undefined}
+                          allTokens={allTokensContent}
+                          onNavigateToToken={handleNavigateToToken}
+                          baselineContent={
+                            initialTokensContent[selectedFile] || null
+                          }
+                          onRevertToken={revertToken}
+                          onDeleteToken={deleteToken}
+                          onAddToGroup={(path, mode) =>
+                            openAddModal(mode, selectedFile, path.join("."))
+                          }
+                          onEditToken={handleEditToken}
+                          isSandboxMode={isSandboxMode}
+                        />
+                      )}
+                  </>
+                )}
+
+          {/* Commit Bar */}
+          {hasDraftChanges && (
+            <CommitBar
+              changeCount={Object.keys(draftChanges).length}
+              onCommit={commitChanges}
+              onCancel={cancelChanges}
+              disabled={loading}
+            />
+          )}
         </div>
 
-        {/* Commit Bar */}
-        {hasDraftChanges && (
-          <CommitBar
-            changeCount={Object.keys(draftChanges).length}
-            onCommit={commitChanges}
-            onCancel={cancelChanges}
-            disabled={loading}
+        {/* Figma Import Modal */}
+        {showFigmaImport && (
+          <FigmaImport
+            onImport={handleFigmaImport}
+            onClose={() => setShowFigmaImport(false)}
+            currentTokens={allTokensContent}
           />
         )}
+
+        {/* Find & Replace Modal */}
+        {showFindReplace && (
+          <FindReplaceModal
+            allTokens={allTokensContent}
+            onReplace={handleBulkReplace}
+            onClose={() => setShowFindReplace(false)}
+          />
+        )}
+
+        {/* Export Modal */}
+        <ExportModal
+          isOpen={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          selectedFile={selectedFile}
+          selectedFileContent={tokenContent}
+          allTokensContent={allTokensContent}
+        />
+
+        {/* Add/Edit Token Modal */}
+        <AddTokenModal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          mode={addModalMode}
+          modalMode={modalMode}
+          initialData={editTokenData || undefined}
+          targetFile={addModalContext.file || selectedFile}
+          targetPath={addModalContext.path || ""}
+          allTokensContent={allTokensContent}
+          onCreateFile={handleCreateFile}
+          onCreateGroup={handleCreateGroup}
+          onCreateToken={handleCreateToken}
+          onUpdateToken={handleUpdateToken}
+        />
+        </div>
       </div>
-
-      {/* Figma Import Modal */}
-      {showFigmaImport && (
-        <FigmaImport
-          onImport={handleFigmaImport}
-          onClose={() => setShowFigmaImport(false)}
-          currentTokens={allTokensContent}
-        />
-      )}
-
-      {/* Find & Replace Modal */}
-      {showFindReplace && (
-        <FindReplaceModal
-          allTokens={allTokensContent}
-          onReplace={handleBulkReplace}
-          onClose={() => setShowFindReplace(false)}
-        />
-      )}
-
-      {/* Export Modal */}
-      <ExportModal
-        isOpen={showExportModal}
-        onClose={() => setShowExportModal(false)}
-        selectedFile={selectedFile}
-        selectedFileContent={tokenContent}
-        allTokensContent={allTokensContent}
-      />
-
-      {/* Add/Edit Token Modal */}
-      <AddTokenModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        mode={addModalMode}
-        modalMode={modalMode}
-        initialData={editTokenData || undefined}
-        targetFile={addModalContext.file || selectedFile}
-        targetPath={addModalContext.path || ""}
-        allTokensContent={allTokensContent}
-        onCreateFile={handleCreateFile}
-        onCreateGroup={handleCreateGroup}
-        onCreateToken={handleCreateToken}
-        onUpdateToken={handleUpdateToken}
-      />
-    </div>
+    </ProtectedRoute>
   );
 }

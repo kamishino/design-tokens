@@ -9,6 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Authentication System & Session Management** (PRD 0055): Complete auth flow with JWT token automation
+  - **AuthContext** (`site/src/contexts/AuthContext.tsx`):
+    - React Context for global authentication state
+    - Provides `user`, `session`, `signIn`, `signInWithOAuth`, `signUp`, `signOut`
+    - Automatic session sync with `onAuthStateChange`
+    - Handles Email/Password and OAuth (GitHub, Google) authentication
+  - **LoginView Component** (`site/src/components/LoginView.tsx`):
+    - Dedicated authentication page with modern UI
+    - OAuth buttons for GitHub and Google
+    - Email/Password form with sign-in and sign-up modes
+    - Error handling and success messages
+    - Responsive design with centered card layout
+  - **UserMenu Component** (`site/src/components/UserMenu.tsx`):
+    - User profile dropdown in top bar
+    - Displays user avatar (first letter), name, and email
+    - Sign-out functionality
+    - User ID display for debugging
+  - **ProtectedRoute Component** (`site/src/components/ProtectedRoute.tsx`):
+    - Higher-Order Component for route protection
+    - Shows loading state during auth check
+    - Redirects to LoginView for unauthenticated users
+    - Renders protected content for authenticated users
+  - **JWT Interceptor** (`site/src/lib/supabase.ts`):
+    - `apiFetch()` utility function for authenticated API calls
+    - Automatically injects `Authorization: Bearer <token>` header
+    - Handles 401 responses with automatic sign-out
+    - Session token refresh handled by Supabase
+  - **Integration**:
+    - App wrapped in `AuthProvider` in `main.tsx`
+    - Dashboard wrapped in `ProtectedRoute` in `App.tsx`
+    - `UserMenu` integrated into `AppTopBar`
+    - All multi-project API calls use `apiFetch` with JWT tokens
+
 - **Project & Brand Management UI** (PRD 0054): Self-service platform for creating and managing projects
   - **AddProjectModal Component** (`site/src/components/AddProjectModal.tsx`):
     - Form for creating new projects with name, slug, description, git URL

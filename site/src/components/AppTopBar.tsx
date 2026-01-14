@@ -1,6 +1,7 @@
 import { Icons } from "./Icons";
 import ProjectSwitcher from "./ProjectSwitcher";
 import SandboxToggle from "./SandboxToggle";
+import UserMenu from "./UserMenu";
 import { isSupabaseEnabled } from "../lib/supabase";
 
 interface AppTopBarProps {
@@ -67,7 +68,7 @@ export default function AppTopBar({
             />
           </div>
 
-          {/* Right: Sandbox Toggle & Publish Button */}
+          {/* Right: Sandbox Toggle & Publish Button & User Menu */}
           <div className="d-flex align-items-center gap-3">
             <SandboxToggle
               isSandboxMode={isSandboxMode}
@@ -94,6 +95,10 @@ export default function AppTopBar({
                 </button>
               </>
             )}
+
+            {/* User Menu */}
+            <div className="vr"></div>
+            <UserMenu />
           </div>
         </div>
       </div>
