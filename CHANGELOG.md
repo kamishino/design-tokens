@@ -9,6 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Project & Brand Management UI** (PRD 0054): Self-service platform for creating and managing projects
+  - **AddProjectModal Component** (`site/src/components/AddProjectModal.tsx`):
+    - Form for creating new projects with name, slug, description, git URL
+    - Organization selection dropdown
+    - Auto-generate slug from name with validation (lowercase, numbers, hyphens)
+    - Optional "Create default brand" checkbox
+    - Real-time slug validation with error messages
+  - **AddBrandModal Component** (`site/src/components/AddBrandModal.tsx`):
+    - Form for creating new brands within a project
+    - Auto-generate slug from name
+    - "Set as default brand" checkbox
+    - Project context display
+  - **Enhanced ProjectSwitcher** (`site/src/components/ProjectSwitcher.tsx`):
+    - "Create New Project" button at bottom of dropdown
+    - "Add Brand" button next to each project
+    - Automatic list refresh after creation
+    - Modal integration for creation workflows
+  - **Enhanced Backend API** (`server/routes/multiproject.js`):
+    - Auto-assign admin role to project creator
+    - Optional default brand creation on project creation
+    - Slug validation (server-side): `/^[a-z0-9-]+$/`
+    - Enhanced error messages with details
+  - **API Client Functions** (`site/src/lib/supabase.ts`):
+    - `fetchOrganizations()` - Get all organizations
+    - `createProject()` - Create project via backend API
+    - `fetchBrands()` - Get brands for a project
+    - `createBrand()` - Create brand via backend API
+  - **Type Definitions** (`site/src/types.ts`):
+    - `Organization`, `Project`, `Brand` interfaces
+    - `CreateProjectRequest`, `CreateBrandRequest` interfaces
+  - **Icon Additions** (`site/src/components/Icons.ts`):
+    - Added `PLUS` alias for `ADD`
+    - Added `TAG` icon for brands and labels
+
 - **Automated Token Validation System** (PRD 0052): Quality guardrails for token management
   - **Validation Core Library** (`lib/utils/`):
     - `apca.js`: APCA (WCAG 3.0) contrast algorithm implementation

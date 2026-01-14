@@ -99,19 +99,32 @@ router.get("/organizations/:orgId/projects", async (req, res) => {
 
 /**
  * POST /api/mp/organizations/:orgId/projects
- * Create a new project
+ * Create a new project with auto-admin role and optional default brand
  */
 router.post("/organizations/:orgId/projects", requireAuth, async (req, res) => {
   try {
     const { orgId } = req.params;
-    const { name, slug, description, git_url } = req.body;
+    const { name, slug, description, git_url, create_default_brand } = req.body;
     
     if (!name || !slug) {
       return res.status(400).json({ error: "Name and slug are required" });
     }
     
+    // Validate slug format (lowercase, numbers, hyphens only)
+    if (!/^[a-z0-9-]+$/.test(slug)) {
+      return res.status(400).json({ 
+        error: "Slug must contain only lowercase letters, numbers, and hyphens" 
+      });
+    }
+    
+    if (!req.user) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+    
     const supabase = getSupabaseClient();
-    const { data, error } = await supabase
+    
+    // Create project
+    const { data: project, error: projectError } = await supabase
       .from("projects")
       .insert({
         organization_id: orgId,
@@ -123,12 +136,56 @@ router.post("/organizations/:orgId/projects", requireAuth, async (req, res) => {
       .select()
       .single();
     
-    if (error) throw error;
+    if (projectError) throw projectError;
     
-    res.status(201).json({ project: data });
+    // Auto-assign creator as admin
+    const { error: roleError } = await supabase
+      .from("user_roles")
+      .insert({
+        user_id: req.user.id,
+        organization_id: orgId,
+        project_id: project.id,
+        role: "admin",
+      });
+    
+    if (roleError) {
+      console.error("Failed to assign admin role:", roleError);
+      // Don't fail the request, just log the error
+    }
+    
+    // Create default brand if requested
+    let defaultBrand = null;
+    if (create_default_brand) {
+      const { data: brand, error: brandError } = await supabase
+        .from("brands")
+        .insert({
+          project_id: project.id,
+          name: "Default",
+          slug: "default",
+          description: "Default brand for " + name,
+          is_default: true,
+        })
+        .select()
+        .single();
+      
+      if (brandError) {
+        console.error("Failed to create default brand:", brandError);
+      } else {
+        defaultBrand = brand;
+      }
+    }
+    
+    res.status(201).json({ 
+      project, 
+      default_brand: defaultBrand,
+      message: "Project created successfully"
+    });
   } catch (error) {
     console.error("Error creating project:", error);
-    res.status(500).json({ error: "Failed to create project" });
+    res.status(500).json({ 
+      error: "Failed to create project",
+      details: error.message 
+    });
   }
 });
 
@@ -162,7 +219,7 @@ router.get("/projects/:projectId/brands", async (req, res) => {
 
 /**
  * POST /api/mp/projects/:projectId/brands
- * Create a new brand
+ * Create a new brand with validation
  */
 router.post("/projects/:projectId/brands", requireAuth, requireProjectRole(['editor', 'admin']), async (req, res) => {
   try {
@@ -171,6 +228,13 @@ router.post("/projects/:projectId/brands", requireAuth, requireProjectRole(['edi
     
     if (!name || !slug) {
       return res.status(400).json({ error: "Name and slug are required" });
+    }
+    
+    // Validate slug format (lowercase, numbers, hyphens only)
+    if (!/^[a-z0-9-]+$/.test(slug)) {
+      return res.status(400).json({ 
+        error: "Slug must contain only lowercase letters, numbers, and hyphens" 
+      });
     }
     
     const supabase = getSupabaseClient();
@@ -188,10 +252,16 @@ router.post("/projects/:projectId/brands", requireAuth, requireProjectRole(['edi
     
     if (error) throw error;
     
-    res.status(201).json({ brand: data });
+    res.status(201).json({ 
+      brand: data,
+      message: "Brand created successfully"
+    });
   } catch (error) {
     console.error("Error creating brand:", error);
-    res.status(500).json({ error: "Failed to create brand" });
+    res.status(500).json({ 
+      error: "Failed to create brand",
+      details: error.message
+    });
   }
 });
 

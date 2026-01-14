@@ -8,14 +8,14 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 console.log("[Supabase Debug] URL:", SUPABASE_URL ? "✓ Loaded" : "✗ Missing");
 console.log("[Supabase Debug] Key:", SUPABASE_ANON_KEY ? "✓ Loaded" : "✗ Missing");
 
-// Database types
-export interface Project {
-  id: string;
-  name: string;
-  git_url: string;
-  created_at?: string;
-  updated_at?: string;
-}
+// Import types
+import type { 
+  Organization, 
+  Project, 
+  Brand, 
+  CreateProjectRequest, 
+  CreateBrandRequest 
+} from "../types";
 
 export interface TokenDraft {
   id?: string;
@@ -165,38 +165,7 @@ export function subscribeToDrafts(
   return subscription;
 }
 
-/**
- * Create a new project
- */
-export async function createProject(
-  name: string,
-  gitUrl: string
-): Promise<Project | null> {
-  const client = getSupabaseClient();
-  if (!client) return null;
-
-  try {
-    const { data, error } = await client
-      .from("projects")
-      .insert({
-        name,
-        git_url: gitUrl,
-        created_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error creating project:", error);
-      return null;
-    }
-
-    return data;
-  } catch (err) {
-    console.error("Exception creating project:", err);
-    return null;
-  }
-}
+// Legacy createProject function removed - replaced by new multi-project API version below
 
 /**
  * Delete all drafts for a project (used when publishing to production)
@@ -222,3 +191,119 @@ export async function clearDrafts(projectId: string): Promise<boolean> {
     return false;
   }
 }
+
+// ============================================================================
+// Multi-Project API Functions (PRD 0054)
+// ============================================================================
+
+/**
+ * Fetch all organizations
+ */
+export async function fetchOrganizations(): Promise<Organization[]> {
+  const client = getSupabaseClient();
+  if (!client) return [];
+
+  try {
+    const { data, error } = await client
+      .from("organizations")
+      .select("*")
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching organizations:", error);
+      return [];
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error("Exception fetching organizations:", err);
+    return [];
+  }
+}
+
+/**
+ * Create a new project via backend API
+ */
+export async function createProject(
+  orgId: string,
+  projectData: CreateProjectRequest
+): Promise<{ success: boolean; project?: Project; error?: string }> {
+  try {
+    const response = await fetch(`/api/mp/organizations/${orgId}/projects`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(projectData),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: result.error || "Failed to create project" };
+    }
+
+    return { success: true, project: result.project };
+  } catch (err) {
+    console.error("Exception creating project:", err);
+    return { success: false, error: "Network error" };
+  }
+}
+
+/**
+ * Fetch brands for a project
+ */
+export async function fetchBrands(projectId: string): Promise<Brand[]> {
+  const client = getSupabaseClient();
+  if (!client) return [];
+
+  try {
+    const { data, error } = await client
+      .from("brands")
+      .select("*")
+      .eq("project_id", projectId)
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching brands:", error);
+      return [];
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error("Exception fetching brands:", err);
+    return [];
+  }
+}
+
+/**
+ * Create a new brand via backend API
+ */
+export async function createBrand(
+  projectId: string,
+  brandData: CreateBrandRequest
+): Promise<{ success: boolean; brand?: Brand; error?: string }> {
+  try {
+    const response = await fetch(`/api/mp/projects/${projectId}/brands`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(brandData),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: result.error || "Failed to create brand" };
+    }
+
+    return { success: true, brand: result.brand };
+  } catch (err) {
+    console.error("Exception creating brand:", err);
+    return { success: false, error: "Network error" };
+  }
+}
+
+// Re-export types for convenience
+export type { Organization, Project, Brand, CreateProjectRequest, CreateBrandRequest };

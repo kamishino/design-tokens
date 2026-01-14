@@ -18,11 +18,13 @@ export const Icons = {
 
   // CRUD Actions
   ADD: "ti ti-plus",
+  PLUS: "ti ti-plus", // Alias for ADD
   EDIT: "ti ti-edit",
   DELETE: "ti ti-trash",
   SAVE: "ti ti-device-floppy",
   CHECK: "ti ti-check",
   CANCEL: "ti ti-x",
+  TAG: "ti ti-tag", // For brands and labels
 
   // Navigation Actions
   CHEVRON_DOWN: "ti ti-chevron-down",
