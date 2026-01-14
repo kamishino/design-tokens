@@ -6,6 +6,7 @@ import {
   type Organization,
   type CreateProjectRequest,
 } from "../lib/supabase";
+import AddOrganizationModal from "./AddOrganizationModal";
 
 interface AddProjectModalProps {
   show: boolean;
@@ -28,6 +29,7 @@ export default function AddProjectModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [slugError, setSlugError] = useState<string | null>(null);
+  const [showOrgModal, setShowOrgModal] = useState(false);
 
   useEffect(() => {
     if (show) {
@@ -38,9 +40,14 @@ export default function AddProjectModal({
   const loadOrganizations = async () => {
     const orgs = await fetchOrganizations();
     setOrganizations(orgs);
-    if (orgs.length > 0) {
+    if (orgs.length > 0 && !selectedOrgId) {
       setSelectedOrgId(orgs[0].id);
     }
+  };
+
+  const handleOrgCreated = (orgId: string) => {
+    loadOrganizations();
+    setSelectedOrgId(orgId);
   };
 
   const validateSlug = (value: string): boolean => {
@@ -64,8 +71,9 @@ export default function AddProjectModal({
     validateSlug(value);
   };
 
-  const autoGenerateSlug = () => {
-    const generated = name
+  const autoGenerateSlug = (fromName?: string) => {
+    const sourceName = fromName !== undefined ? fromName : name;
+    const generated = sourceName
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, "")
       .replace(/\s+/g, "-")
@@ -73,6 +81,20 @@ export default function AddProjectModal({
       .trim();
     setSlug(generated);
     validateSlug(generated);
+  };
+
+  const handleNameChange = (value: string) => {
+    setName(value);
+    // Auto-generate slug as user types (smart slug)
+    const currentSlugFromPrevName = name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .trim();
+    if (!slug || slug === currentSlugFromPrevName) {
+      autoGenerateSlug(value);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -160,27 +182,36 @@ export default function AddProjectModal({
                 <label className="form-label">
                   Organization <span className="text-danger">*</span>
                 </label>
-                <select
-                  className="form-select"
-                  value={selectedOrgId}
-                  onChange={(e) => setSelectedOrgId(e.target.value)}
-                  required
-                  disabled={loading || organizations.length === 0}
-                >
-                  {organizations.length === 0 && (
-                    <option value="">No organizations found</option>
-                  )}
-                  {organizations.map((org) => (
-                    <option key={org.id} value={org.id}>
-                      {org.name}
-                    </option>
-                  ))}
-                </select>
-                {organizations.length === 0 && (
-                  <div className="form-text text-muted">
-                    Create an organization in Supabase first
-                  </div>
-                )}
+                <div className="input-group">
+                  <select
+                    className="form-select"
+                    value={selectedOrgId}
+                    onChange={(e) => setSelectedOrgId(e.target.value)}
+                    required
+                    disabled={loading}
+                  >
+                    {organizations.length === 0 && (
+                      <option value="">No organizations found</option>
+                    )}
+                    {organizations.map((org) => (
+                      <option key={org.id} value={org.id}>
+                        {org.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowOrgModal(true)}
+                    disabled={loading}
+                    title="Create new organization"
+                  >
+                    <i className={Icons.PLUS}></i>
+                  </button>
+                </div>
+                <div className="form-text">
+                  Select an organization or create a new one
+                </div>
               </div>
 
               {/* Project Name */}
@@ -192,11 +223,14 @@ export default function AddProjectModal({
                   type="text"
                   className="form-control"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="e.g., Mobile App"
                   required
                   disabled={loading}
                 />
+                <div className="form-text">
+                  Slug will be auto-generated as you type
+                </div>
               </div>
 
               {/* Slug */}
@@ -217,7 +251,7 @@ export default function AddProjectModal({
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
-                    onClick={autoGenerateSlug}
+                    onClick={() => autoGenerateSlug()}
                     disabled={!name || loading}
                     title="Generate slug from name"
                   >
@@ -311,6 +345,13 @@ export default function AddProjectModal({
           </form>
         </div>
       </div>
+
+      {/* Organization Modal */}
+      <AddOrganizationModal
+        show={showOrgModal}
+        onClose={() => setShowOrgModal(false)}
+        onSuccess={handleOrgCreated}
+      />
     </div>
   );
 }
