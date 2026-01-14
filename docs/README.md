@@ -56,8 +56,10 @@ Complete daily workflow and collaboration guide.
 
 Advanced topics for developers maintaining or extending the system:
 
-### [Development Workflow](./development/WORKFLOW.md)
-Development practices and contribution guidelines.
+### Development
+
+- **[WORKFLOW.md](development/WORKFLOW.md)** - Daily development workflow, Git best practices, and contribution guide
+- **[VALIDATION.md](development/VALIDATION.md)** - Token validation system, quality guardrails, and accessibility standards
 
 **Topics covered:**
 - Development environment setup
