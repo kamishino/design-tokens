@@ -1,0 +1,83 @@
+name: Build Multi-Project Tokens
+
+# Triggered by Supabase Edge Function via repository_dispatch
+on:
+  repository_dispatch:
+    types: [build-tokens]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Extract build metadata
+        id: metadata
+        run: |
+          echo "brand_id=${{ github.event.client_payload.brand_id }}" >> $GITHUB_OUTPUT
+          echo "version=${{ github.event.client_payload.version }}" >> $GITHUB_OUTPUT
+          echo "release_id=${{ github.event.client_payload.release_id }}" >> $GITHUB_OUTPUT
+      
+      - name: Fetch tokens from Supabase
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          BRAND_ID: ${{ steps.metadata.outputs.brand_id }}
+        run: |
+          node scripts/fetch-tokens-from-db.js --brand=$BRAND_ID --output=tokens-resolved.json
+      
+      - name: Build tokens with Style Dictionary
+        run: |
+          npm run tokens:compile -- --source=tokens-resolved.json
+      
+      - name: Create distribution archive
+        run: |
+          cd dist
+          tar -czf tokens-${{ steps.metadata.outputs.version }}.tar.gz *
+          cd ..
+      
+      - name: Upload to Supabase Storage
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          VERSION: ${{ steps.metadata.outputs.version }}
+          BRAND_ID: ${{ steps.metadata.outputs.brand_id }}
+        run: |
+          node scripts/upload-to-supabase-storage.js \
+            --file=dist/tokens-$VERSION.tar.gz \
+            --brand=$BRAND_ID \
+            --version=$VERSION
+      
+      - name: Update release status
+        if: always()
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          RELEASE_ID: ${{ steps.metadata.outputs.release_id }}
+        run: |
+          STATUS="${{ job.status }}"
+          node scripts/update-release-status.js \
+            --release=$RELEASE_ID \
+            --status=$STATUS \
+            --build-url=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: token-artifacts-${{ steps.metadata.outputs.version }}
+          path: |
+            dist/
+            tokens-resolved.json
+          retention-days: 30

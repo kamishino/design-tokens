@@ -11,6 +11,8 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
+import multiProjectRouter from "./routes/multiproject.js";
+import { isSupabaseEnabled } from "./lib/supabase-client.js";
 
 const execAsync = promisify(exec);
 
@@ -24,6 +26,14 @@ const TOKENS_DIR = path.join(__dirname, "../tokens");
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Mount multi-project routes (PRD 0051)
+if (isSupabaseEnabled()) {
+  app.use("/api/mp", multiProjectRouter);
+  console.log("✓ Multi-project API routes enabled");
+} else {
+  console.log("ℹ Multi-project mode disabled (Supabase not configured)");
+}
 
 /**
  * GET /api/files

@@ -55,7 +55,8 @@
     "tasks:archive": "node scripts/archive-tasks.js",
     "health:cdn": "node scripts/check-cdn.js",
     "project:clone": "node scripts/clone-project.js",
-    "test:supabase": "node scripts/test-supabase.js"
+    "test:supabase": "node scripts/test-supabase.js",
+    "db:migrate": "node scripts/migrate-tokens-to-db.js"
   },
   "keywords": [
     "design-tokens",
