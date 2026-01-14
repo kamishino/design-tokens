@@ -9,9 +9,9 @@ import {
   slashPathToDotPath,
 } from "@shared/utils/token-logic";
 import { Icons } from "@shared/components/Icons";
-import AliasPicker from "./AliasPicker";
-import Autocomplete from "./Autocomplete";
-import TokenTypeSelect from "./TokenTypeSelect";
+import AliasPicker from "../../components/AliasPicker";
+import Autocomplete from "../../components/Autocomplete";
+import TokenTypeSelect from "../../components/TokenTypeSelect";
 
 type CreationMode = "file" | "group" | "token";
 type ModalMode = "create" | "edit";

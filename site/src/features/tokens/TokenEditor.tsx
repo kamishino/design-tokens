@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TokenContent } from "@core/types";
-import TokenTree from "./TokenTree";
-import JSONEditor from "./JSONEditor";
+import TokenTree from "../../components/TokenTree";
+import JSONEditor from "../../components/JSONEditor";
 import { Icons } from "@shared/components/Icons";
 
 type ViewMode = "tree" | "code";

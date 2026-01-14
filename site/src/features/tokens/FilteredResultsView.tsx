@@ -1,8 +1,8 @@
 import { Icons } from "@shared/components/Icons";
 import { TokenValue, TokenContent } from "@core/types";
 import { resolveToken } from "@shared/utils/token-logic";
-import Swatch from "./Swatch";
-import InlineValue from "./InlineValue";
+import Swatch from "@shared/components/Swatch";
+import InlineValue from "../../components/InlineValue";
 
 interface FilteredResultsViewProps {
   groupedTokens: Record<string, Array<{ path: string; token: TokenValue }>>;
