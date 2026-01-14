@@ -94,10 +94,11 @@ async function validate() {
 
       // Fourth pass: Check for broken references
       console.log(chalk.gray("Checking references..."));
-      // Enhanced validation with new utilities
-      console.log(chalk.gray("Running enhanced validation checks...\n"));
+      await checkReferences(allTokens, errors, warnings);
 
-      const tokenList = flattenTokens(allTokens);
+      // Fifth pass: Enhanced validation with new utilities (PRD 0052)
+      console.log(chalk.gray("Running enhanced validation checks..."));
+      const tokenList = flattenToArray(allTokens);
       const contrastIssues = [];
 
       for (const token of tokenList) {
