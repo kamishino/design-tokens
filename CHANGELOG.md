@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Onboarding Automation & Impact Analysis** (PRD 0057): Zero-config setup and dependency tracking for design tokens
+  - **Setup CLI** (`scripts/setup.js`):
+    - Interactive environment configuration wizard
+    - Checks Node.js and NPM versions
+    - Creates .env file from template with prompts
+    - Runs initial build automatically
+    - Colored terminal output for better UX
+    - Run with: `npm run setup`
+  - **Impact Analysis Engine** (`site/src/shared/utils/impact-analysis.ts`):
+    - `buildReverseUsageMap()` - Creates reverse dependency graph
+    - `getImpactAnalysis()` - Shows direct and indirect token references
+    - `getBlastRadiusSeverity()` - Calculates change impact severity
+    - Tracks transitive dependencies to show full blast radius
+  - **Pre-commit Validation** (Husky + Lint-staged):
+    - Automatically validates JSON files before commit
+    - Prevents invalid token files from being committed
+    - Configured via `.husky/pre-commit` hook
+    - Runs `npm run validate:pre-commit` on staged tokens
+  - **Onboarding Checklist** (`site/src/features/onboarding/OnboardingChecklist.tsx`):
+    - System health checks (env vars, Supabase, build artifacts)
+    - Step-by-step setup guidance
+    - Real-time status indicators
+    - Ready for Dashboard integration
+  - **Benefits**: Faster onboarding, prevents breaking changes, clear impact visibility
+
 ### Changed
 
 - **Architectural Refactor to Feature-Based Organization** (PRD 0056): Major codebase reorganization for improved maintainability and scalability
