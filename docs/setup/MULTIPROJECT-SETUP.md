@@ -99,11 +99,17 @@ Add to `.env`:
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 
-# For Edge Functions and CI/CD
+# Service Role Key (required for migrations and CI/CD)
+# Find this in: Supabase Dashboard → Settings → API → service_role key
+# ⚠️ Keep this secret! Never commit to version control
 SUPABASE_SERVICE_KEY=your-service-role-key
+
+# For GitHub Actions automation
 GITHUB_TOKEN=your-github-pat
 GITHUB_REPOSITORY=owner/repo
 ```
+
+**Important:** The `SUPABASE_SERVICE_KEY` is required for migration scripts because it bypasses RLS policies. Get this from your Supabase Dashboard under Settings → API → service_role key.
 
 ---
 
@@ -362,6 +368,16 @@ Use semantic versioning for releases:
 1. Verify Edge Function secrets: `supabase secrets list`
 2. Check GitHub token has `repo` scope
 3. Review Edge Function logs in Supabase Dashboard
+
+### "new row violates row-level security policy"
+
+**Cause:** Migration script using anon key instead of service key
+
+**Solution:**
+1. Add `SUPABASE_SERVICE_KEY` to `.env` file
+2. Get service key from: Supabase Dashboard → Settings → API → service_role
+3. This key bypasses RLS policies and is required for migrations
+4. ⚠️ **Never commit service key to Git!**
 
 ---
 

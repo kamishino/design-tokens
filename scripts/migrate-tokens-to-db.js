@@ -20,15 +20,18 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
+const SUPABASE_SERVICE_KEY =
+  process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
   console.error("❌ Supabase credentials not found in .env");
-  console.error("   Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY");
+  console.error("   Set VITE_SUPABASE_URL and SUPABASE_SERVICE_KEY");
+  console.error("   Note: Migration requires service role key to bypass RLS");
   process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Use service key to bypass RLS policies during migration
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // ============================================================================
 // Helper Functions

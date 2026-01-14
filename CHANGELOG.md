@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Multi-Tenant Database Architecture** (PRD 0051): Complete backend infrastructure for multi-project token management
+  - **Database Schema**:
+    - `organizations` table for top-level grouping
+    - `projects` table (enhanced with org linkage)
+    - `brands` table for theme variants within projects
+    - `tokens` table for individual token storage (replaces file-based approach)
+    - `token_versions` table for versioned snapshots
+    - `releases` table for build tracking
+    - `user_profiles` and `user_roles` tables for RBAC
+  - **Token Inheritance System**:
+    - PostgreSQL function `resolve_brand_tokens()` implements 3-tier inheritance
+    - Inheritance priority: Brand (highest) → Project → Global (lowest)
+    - Database view `resolved_tokens_view` for quick access to merged tokens
+    - Automatic triggers for timestamp updates
+  - **Authentication & Authorization**:
+    - Supabase Auth integration with middleware
+    - Role-Based Access Control (Admin, Editor, Viewer)
+    - Comprehensive Row Level Security (RLS) policies for all tables
+    - Support for Email/Password, Google, and GitHub authentication
+  - **REST API** (`/api/mp/` prefix):
+    - Organization CRUD operations
+    - Project management per organization
+    - Brand management per project
+    - Token operations with inheritance resolution
+    - Global token management (admin-only)
+    - Authentication middleware for all protected routes
+  - **CI/CD Automation**:
+    - Supabase Edge Function `trigger-github-build` for automated builds
+    - GitHub Actions workflow for `repository_dispatch` events
+    - Automated token compilation with Style Dictionary from database
+    - Supabase Storage integration for CDN hosting
+    - Release status tracking with build URLs
+  - **Migration Tools**:
+    - SQL migration script from legacy schema
+    - Node.js migration script (`npm run db:migrate`) for file-to-database
+    - Recursive token extraction from JSON files
+    - Batch insert optimization for large token sets
+  - **Utility Scripts**:
+    - `fetch-tokens-from-db.js` - Fetch resolved tokens for a brand
+    - `migrate-tokens-to-db.js` - Migrate file-based tokens to database
+    - Token tree builder for nested structure conversion
+  - **Documentation**:
+    - Comprehensive multi-project setup guide (`docs/setup/MULTIPROJECT-SETUP.md`)
+    - API usage examples and endpoints
+    - Migration guide from file-based system
+    - Architecture and inheritance explanation
+    - CI/CD configuration instructions
+
 ### Changed
 
 - **Documentation Reorganization** (PRD 0050): Restructured documentation for better discoverability and navigation
