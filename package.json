@@ -30,6 +30,7 @@
     "LICENSE"
   ],
   "scripts": {
+    "setup": "node scripts/setup.js",
     "dev": "concurrently \"npm run server:dev\" \"npm run site:dev\"",
     "server:dev": "nodemon server/index.js",
     "site:dev": "vite",
@@ -43,6 +44,8 @@
     "tokens:compile": "style-dictionary build",
     "exports:index": "node scripts/build/generate-index.js",
     "exports:css": "node scripts/build/build-css.js",
+    "prepare": "husky install",
+    "validate:pre-commit": "node scripts/utils/validate-tokens.js",
     "tokens:test": "node scripts/utils/validate-tokens.js",
     "tokens:watch": "nodemon --watch tokens --ignore tokens/generated --ext json --exec \"npm run build:core && npm run build:exports\"",
     "tokens:export-backend": "node scripts/build-backend.js",
@@ -91,8 +94,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
-    "@types/react": "^18.2.45",
-    "@types/react-dom": "^18.2.18",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
     "ajv": "^8.12.0",
     "chalk": "^4.1.2",
@@ -100,6 +103,8 @@
     "dotenv": "^17.2.3",
     "fs-extra": "^11.1.0",
     "glob": "^8.1.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
     "nodemon": "^3.1.11",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
