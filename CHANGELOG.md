@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Architectural Refactor to Feature-Based Organization** (PRD 0056): Major codebase reorganization for improved maintainability and scalability
+  - **Path Aliases** (`tsconfig.json`, `vite.config.ts`):
+    - `@features/*` → Feature modules (auth, tokens, projects)
+    - `@shared/*` → Reusable components, hooks, utilities
+    - `@layouts/*` → Application layout components
+    - `@core/*` → Core types and libraries
+  - **Frontend Structure**:
+    - `site/src/features/auth/` - Authentication feature (LoginView, UserMenu, AuthContext, ProtectedRoute)
+    - `site/src/features/tokens/` - Token management (TokenEditor, modals, tabs, filters, KitchenSink)
+    - `site/src/features/projects/` - Project management (ProjectSwitcher, AddProjectModal, AddBrandModal, AddOrganizationModal)
+    - `site/src/shared/components/` - Shared UI components (Icons, SearchBar, Swatch)
+    - `site/src/shared/utils/` - Shared utilities (token-logic, diff-logic)
+    - `site/src/layouts/` - Layout components (AppTopBar, Sidebar, CommitBar, SandboxToggle)
+    - `site/src/core/` - Core files (types.ts, lib/supabase.ts)
+  - **Barrel Exports**: Created `index.ts` for each feature module for cleaner imports
+  - **Scripts Organization**:
+    - `scripts/utils/` - Utility scripts (validate-tokens.js)
+    - `scripts/build/`, `scripts/db/` - Directories created for future organization
+  - **Updated**: All import statements across 50+ files to use new path aliases
+  - **Updated**: `package.json` script paths to match new structure
+  - **Benefits**: Improved code organization, easier navigation, better separation of concerns, cleaner imports
+
 ### Added
 
 - **Authentication System & Session Management** (PRD 0055): Complete auth flow with JWT token automation
