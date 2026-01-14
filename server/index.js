@@ -12,6 +12,7 @@ import { dirname } from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
 import multiProjectRouter from "./routes/multiproject.js";
+import validationRouter from "./routes/validation.js";
 import { isSupabaseEnabled } from "./lib/supabase-client.js";
 
 const execAsync = promisify(exec);
@@ -34,6 +35,10 @@ if (isSupabaseEnabled()) {
 } else {
   console.log("ℹ Multi-project mode disabled (Supabase not configured)");
 }
+
+// Mount validation routes (PRD 0052)
+app.use("/api/validation", validationRouter);
+console.log("✓ Token validation API routes enabled");
 
 /**
  * GET /api/files

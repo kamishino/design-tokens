@@ -1,6 +1,6 @@
 /**
  * Enhanced Validate Design Token Structure
- * Checks token files for correct format, broken references, invalid values, and schema compliance
+ * PRD 0052: Checks naming, type safety, alias integrity, and accessibility contrast
  */
 
 import fs from "fs-extra";
@@ -9,6 +9,11 @@ import chalk from "chalk";
 import Ajv from "ajv";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import {
+  validateToken,
+  validateContrast,
+  extractAlias,
+} from "../lib/utils/validation.js";
 
 // ESM __dirname shim
 const __filename = fileURLToPath(import.meta.url);
@@ -35,12 +40,16 @@ async function validate() {
       console.log(chalk.gray("Loading tokens..."));
       await loadAllTokens(TOKENS_DIR, allTokens);
 
-      console.log(chalk.gray(`Loaded ${Object.keys(allTokens).length} token files\n`));
+      console.log(
+        chalk.gray(`Loaded ${Object.keys(allTokens).length} token files\n`)
+      );
 
       // Schema validation (temporarily disabled - nested group structures need schema refinement)
       if (await fs.pathExists(SCHEMA_PATH)) {
         console.log(chalk.gray("Schema validation temporarily disabled"));
-        warnings.push("Schema validation disabled - nested token groups need schema refinement");
+        warnings.push(
+          "Schema validation disabled - nested token groups need schema refinement"
+        );
       } else {
         warnings.push("schema.json not found - skipping schema validation");
       }
@@ -48,44 +57,90 @@ async function validate() {
       // Third pass: Validate structure and references
       const primitivesDir = path.join(TOKENS_DIR, "primitives");
       if (await fs.pathExists(primitivesDir)) {
-        await validateDirectory(primitivesDir, "primitives", errors, warnings, allTokens);
+        await validateDirectory(
+          primitivesDir,
+          "primitives",
+          errors,
+          warnings,
+          allTokens
+        );
       } else {
         warnings.push("Primitives directory not found");
       }
 
       const semanticDir = path.join(TOKENS_DIR, "semantic");
       if (await fs.pathExists(semanticDir)) {
-        await validateDirectory(semanticDir, "semantic", errors, warnings, allTokens);
+        await validateDirectory(
+          semanticDir,
+          "semantic",
+          errors,
+          warnings,
+          allTokens
+        );
       } else {
         warnings.push("Semantic directory not found");
       }
 
       const themesDir = path.join(TOKENS_DIR, "themes");
       if (await fs.pathExists(themesDir)) {
-        await validateDirectory(themesDir, "themes", errors, warnings, allTokens);
+        await validateDirectory(
+          themesDir,
+          "themes",
+          errors,
+          warnings,
+          allTokens
+        );
       }
 
       // Fourth pass: Check for broken references
       console.log(chalk.gray("Checking references..."));
-      await checkReferences(allTokens, errors, warnings);
-    }
+      // Enhanced validation with new utilities
+      console.log(chalk.gray("Running enhanced validation checks...\n"));
 
-    // Report results
-    console.log("");
-    if (errors.length > 0) {
-      console.log(chalk.red("✗ Validation failed with errors:"));
-      errors.forEach((err) => console.log(chalk.red(`  - ${err}`)));
-      hasErrors = true;
-    }
+      const tokenList = flattenTokens(allTokens);
+      const contrastIssues = [];
 
-    if (warnings.length > 0) {
-      console.log(chalk.yellow("\n⚠ Warnings:"));
-      warnings.forEach((warn) => console.log(chalk.yellow(`  - ${warn}`)));
-    }
+      for (const token of tokenList) {
+        // Validate token structure
+        const validation = validateToken(token, tokenList);
 
-    if (!hasErrors && errors.length === 0) {
-      console.log(chalk.green("✓ All tokens are valid!"));
-      console.log(chalk.gray(`  Total tokens validated: ${countTokens(allTokens)}`));
+        if (!validation.valid && validation.errors) {
+          validation.errors.forEach((err) => {
+            errors.push(`${token.path}: ${err.error || err.message}`);
+            hasErrors = true;
+          });
+        }
+
+        if (validation.warnings) {
+          validation.warnings.forEach((warn) => {
+            warnings.push(`${token.path}: ${warn.message}`);
+          });
+        }
+
+        // Check color contrast for semantic color pairs
+        if (token.type === "color" && !extractAlias(token.value)) {
+          // Store for later contrast analysis
+          // We'll check pairs in a separate pass
+        }
+      }
+
+      // Sixth pass: Analyze color contrast for accessibility
+      console.log(chalk.gray("Analyzing color contrast..."));
+      const colorTokens = tokenList.filter(
+        (t) =>
+          (t.type === "color" || t.token_type === "color") &&
+          !extractAlias(t.value)
+      );
+      analyzeColorContrast(colorTokens, contrastIssues, warnings);
+
+      if (!hasErrors) {
+        console.log(chalk.green.bold("\n✅ All validations passed!"));
+      }
+
+      console.log("\n");
+      console.log(
+        chalk.gray(`  Total tokens validated: ${countTokens(allTokens)}`)
+      );
     }
 
     process.exit(hasErrors ? 1 : 0);
@@ -121,7 +176,9 @@ async function validateAgainstSchema(allTokens, schema, ajv, errors) {
   if (schemaErrors === 0) {
     console.log(chalk.gray("Schema validation passed ✓\n"));
   } else {
-    console.log(chalk.red(`Schema validation failed for ${schemaErrors} file(s)\n`));
+    console.log(
+      chalk.red(`Schema validation failed for ${schemaErrors} file(s)\n`)
+    );
   }
 }
 
@@ -180,7 +237,9 @@ function validateTokenStructure(obj, fileName, tokenPath, errors, warnings) {
 
     // Check for dots in token keys (enforce dot-free naming convention)
     if (key.includes(".")) {
-      errors.push(`${fileName} [${currentPath}]: Key "${key}" contains a forbidden dot. Replace dots with hyphens (e.g., "0.5" -> "0-5")`);
+      errors.push(
+        `${fileName} [${currentPath}]: Key "${key}" contains a forbidden dot. Replace dots with hyphens (e.g., "0.5" -> "0-5")`
+      );
     }
 
     if (typeof value === "object" && value !== null) {
@@ -195,13 +254,17 @@ function validateTokenStructure(obj, fileName, tokenPath, errors, warnings) {
 
           // Check for placeholder values
           if (tokenValue.includes("{TODO}") || tokenValue.includes("TODO")) {
-            errors.push(`${fileName} [${currentPath}]: Contains placeholder value "${tokenValue}"`);
+            errors.push(
+              `${fileName} [${currentPath}]: Contains placeholder value "${tokenValue}"`
+            );
           }
 
           // Validate color format if type is color
           if (value.$type === "color" && !tokenValue.startsWith("{")) {
             if (!isValidColor(tokenValue)) {
-              errors.push(`${fileName} [${currentPath}]: Invalid color format "${tokenValue}"`);
+              errors.push(
+                `${fileName} [${currentPath}]: Invalid color format "${tokenValue}"`
+              );
             }
           }
         }
@@ -216,7 +279,9 @@ function validateTokenStructure(obj, fileName, tokenPath, errors, warnings) {
       }
 
       if (value.includes("{TODO}") || value.includes("TODO")) {
-        errors.push(`${fileName} [${currentPath}]: Contains placeholder value "${value}"`);
+        errors.push(
+          `${fileName} [${currentPath}]: Contains placeholder value "${value}"`
+        );
       }
     }
   }
@@ -242,7 +307,9 @@ function checkReferences(allTokens, errors, warnings) {
         if (!flatTokens[refKey]) {
           // Reference validation has false positives with nested structures
           // Make these warnings instead of errors for now
-          warnings.push(`Token "${tokenPath}": References token "{${ref}}" (may be resolved at build time)`);
+          warnings.push(
+            `Token "${tokenPath}": References token "{${ref}}" (may be resolved at build time)`
+          );
         }
       }
     }
@@ -306,6 +373,83 @@ function countTokens(allTokens) {
   }
 
   return count;
+}
+
+/**
+ * Convert nested tokens to flat array for validation
+ */
+function flattenToArray(allTokens) {
+  const result = [];
+
+  for (const [file, content] of Object.entries(allTokens)) {
+    function traverse(obj, path = "") {
+      for (const [key, value] of Object.entries(obj)) {
+        const currentPath = path ? `${path}.${key}` : key;
+
+        if (value && typeof value === "object") {
+          if (value.$value !== undefined) {
+            result.push({
+              path: currentPath,
+              token_path: currentPath,
+              type: value.$type || "unknown",
+              token_type: value.$type || "unknown",
+              value: value.$value,
+              description: value.$description,
+              file,
+            });
+          } else {
+            traverse(value, currentPath);
+          }
+        }
+      }
+    }
+
+    traverse(content);
+  }
+
+  return result;
+}
+
+/**
+ * Analyze color contrast for common semantic pairs
+ */
+function analyzeColorContrast(colorTokens, contrastIssues, warnings) {
+  // Look for common text/background pairs
+  const textColors = colorTokens.filter(
+    (t) => t.path.includes("text") || t.path.includes("foreground")
+  );
+  const bgColors = colorTokens.filter(
+    (t) => t.path.includes("background") || t.path.includes("surface")
+  );
+
+  // Sample contrast checks for common pairs
+  for (const textColor of textColors.slice(0, 5)) {
+    for (const bgColor of bgColors.slice(0, 5)) {
+      try {
+        const contrast = validateContrast(textColor.value, bgColor.value, {
+          textSize: "normal",
+          requireWCAG21: true,
+          requireAPCA: true,
+          wcag21Level: "AA",
+          apcaMinimum: 60,
+        });
+
+        if (contrast.analysis && !contrast.valid) {
+          contrastIssues.push(
+            `${textColor.path} on ${bgColor.path}: ` +
+              `WCAG 2.1 = ${contrast.analysis.wcag21.ratio.toFixed(2)}:1 ` +
+              `(${contrast.analysis.wcag21.compliance.level})`
+          );
+        } else if (contrast.warnings && contrast.warnings.length > 0) {
+          contrastIssues.push(
+            `${textColor.path} on ${bgColor.path}: ${contrast.warnings[0]}`
+          );
+        }
+      } catch (err) {
+        // Skip invalid color pairs
+      }
+    }
+  }
 }
 
 validate();

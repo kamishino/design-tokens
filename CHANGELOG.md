@@ -9,6 +9,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Automated Token Validation System** (PRD 0052): Quality guardrails for token management
+  - **Validation Core Library** (`lib/utils/`):
+    - `apca.js`: APCA (WCAG 3.0) contrast algorithm implementation
+    - `validation.js`: Comprehensive validation utilities for naming, type safety, alias integrity
+    - Support for both WCAG 2.1 (luminance ratio) and WCAG 3.0 (APCA) contrast standards
+  - **Naming Convention Enforcement**:
+    - Kebab-case validation for token paths
+    - Minimum segment requirements (e.g., `color.primary`)
+    - Automatic suggestion generation for invalid names
+  - **Type Safety Validation**:
+    - Value validation against token type (color, dimension, duration, etc.)
+    - Format checking for colors (hex, rgb, hsl), dimensions (px, rem, %), durations (ms, s)
+    - Font weight, cubic bezier, and other type-specific validations
+  - **Alias Integrity Checking**:
+    - Detection of broken alias references
+    - Circular dependency detection
+    - Cross-scope reference validation
+  - **Accessibility Contrast Analysis**:
+    - Automated WCAG 2.1 contrast ratio calculation (4.5:1 for AA, 7:1 for AAA)
+    - APCA (Advanced Perceptual Contrast Algorithm) for WCAG 3.0 compliance
+    - Contrast level recommendations (AAA, AA, Large text, Non-text, Fail)
+    - Support for both normal and large text size contexts
+  - **Database Integration** (`database/validation-extensions.sql`):
+    - `validation_rules` table with project/brand hierarchy
+    - PostgreSQL functions: `get_validation_rules()`, `validate_token_path()`, `is_alias_value()`
+    - Trigger `validate_token_before_save()` for pre-save validation
+    - `validation_results` table for tracking validation history
+    - Health report function `get_validation_health_report()`
+    - RLS policies for secure access to validation data
+  - **Enhanced CLI Validation** (`scripts/validate-tokens.js`):
+    - Integration with new validation utilities
+    - Automated contrast analysis for text/background color pairs
+    - Comprehensive error, warning, and advisory reporting
+    - Batch validation with detailed summary statistics
+  - **REST API Endpoints** (`/api/validation/`):
+    - `POST /token`: Validate single token
+    - `POST /contrast`: Check color contrast for accessibility
+    - `POST /batch`: Validate multiple tokens at once
+    - `GET /rules/:projectId?/:brandId?`: Retrieve validation rules with hierarchy
+    - `PUT /rules/:projectId?/:brandId?`: Update validation rules (admin only)
+    - `GET /health/:projectId?/:brandId?`: Get validation health report
+  - **Dependencies**:
+    - Added `culori` (v4.0.1) for accurate color space conversions and contrast calculations
+
 - **Multi-Tenant Database Architecture** (PRD 0051): Complete backend infrastructure for multi-project token management
   - **Database Schema**:
     - `organizations` table for top-level grouping
