@@ -212,36 +212,36 @@ async function getOrCreateBrand(projectId, slug, name, isDefault = false) {
 /**
  * Insert tokens into database
  */
-async function insertTokens(brandId, tokens) {
-  const tokenRecords = tokens.map(token => ({
+async function insertTokens(brandId, projectId, orgId, tokens) {
+  const tokenRecords = tokens.map((token) => ({
+    organization_id: orgId,
+    project_id: projectId,
     brand_id: brandId,
     token_path: token.path,
     token_type: token.type,
     value: JSON.stringify(token.value),
     description: token.description,
   }));
-  
+
   // Insert in batches to avoid hitting limits
   const batchSize = 100;
   let inserted = 0;
-  
+
   for (let i = 0; i < tokenRecords.length; i += batchSize) {
     const batch = tokenRecords.slice(i, i + batchSize);
-    const { error } = await supabase
-      .from("tokens")
-      .upsert(batch, {
-        onConflict: "brand_id,token_path",
-      });
-    
+    const { error } = await supabase.from("tokens").upsert(batch, {
+      onConflict: "organization_id,project_id,brand_id,token_path",
+    });
+
     if (error) {
       console.error(`❌ Error inserting batch ${i / batchSize + 1}:`, error);
       throw error;
     }
-    
+
     inserted += batch.length;
     console.log(`  Inserted ${inserted}/${tokenRecords.length} tokens...`);
   }
-  
+
   return inserted;
 }
 
@@ -251,15 +251,15 @@ async function insertTokens(brandId, tokens) {
 
 async function main() {
   console.log("\n🚀 Token Migration: Files to Database\n");
-  console.log("=" .repeat(50));
-  
+  console.log("=".repeat(50));
+
   // Parse command line arguments
   const args = process.argv.slice(2).reduce((acc, arg) => {
     const [key, value] = arg.split("=");
     acc[key.replace("--", "")] = value;
     return acc;
   }, {});
-  
+
   const orgSlug = args.org || "default-org";
   const orgName = args.orgName || "Default Organization";
   const projectSlug = args.project || "default-project";
@@ -267,18 +267,18 @@ async function main() {
   const brandSlug = args.brand || "default";
   const brandName = args.brandName || "Default";
   const tokensDir = args.tokensDir || path.join(__dirname, "..", "tokens");
-  
+
   console.log("\nConfiguration:");
   console.log(`  Organization: ${orgName} (${orgSlug})`);
   console.log(`  Project: ${projectName} (${projectSlug})`);
   console.log(`  Brand: ${brandName} (${brandSlug})`);
   console.log(`  Tokens Directory: ${tokensDir}\n`);
-  
+
   try {
     // Step 1: Create/get organization
     console.log("\n📁 Step 1: Organization Setup");
     const org = await getOrCreateOrganization(orgSlug, orgName);
-    
+
     // Step 2: Create/get project
     console.log("\n📁 Step 2: Project Setup");
     const project = await getOrCreateProject(
@@ -287,7 +287,7 @@ async function main() {
       projectName,
       args.gitUrl
     );
-    
+
     // Step 3: Create/get brand
     console.log("\n📁 Step 3: Brand Setup");
     const brand = await getOrCreateBrand(
@@ -296,34 +296,33 @@ async function main() {
       brandName,
       true
     );
-    
+
     // Step 4: Read token files
     console.log("\n📖 Step 4: Reading Token Files");
     const tokenFiles = await readTokenFiles(tokensDir);
     console.log(`✓ Found ${tokenFiles.length} token files`);
-    
+
     // Step 5: Extract and migrate tokens
     console.log("\n🔄 Step 5: Extracting and Migrating Tokens");
     let totalTokens = 0;
-    
+
     for (const file of tokenFiles) {
       console.log(`\n  Processing: ${file.path}`);
       const tokens = extractTokens(file.content);
       console.log(`  Extracted ${tokens.length} tokens`);
-      
+
       if (tokens.length > 0) {
-        await insertTokens(brand.id, tokens);
+        await insertTokens(brand.id, project.id, org.id, tokens);
         totalTokens += tokens.length;
       }
     }
-    
+
     console.log("\n" + "=".repeat(50));
     console.log(`\n✨ Migration Complete!`);
     console.log(`   Total tokens migrated: ${totalTokens}`);
     console.log(`   Organization: ${org.slug}`);
     console.log(`   Project: ${project.slug}`);
     console.log(`   Brand: ${brand.slug}\n`);
-    
   } catch (error) {
     console.error("\n❌ Migration failed:", error.message);
     console.error(error);
