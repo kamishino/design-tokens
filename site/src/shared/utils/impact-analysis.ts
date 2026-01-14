@@ -36,8 +36,8 @@ export function buildReverseUsageMap(
 
       // Check if this token references another token (alias)
       if (typeof value === "object" && value !== null) {
-        if (value.$value && typeof value.$value === "string") {
-          const refMatch = value.$value.match(/\{([^}]+)\}/);
+        if ("$value" in value && typeof (value as any).$value === "string") {
+          const refMatch = (value as any).$value.match(/\{([^}]+)\}/);
           if (refMatch) {
             const referencedToken = refMatch[1];
             if (!usageMap.has(referencedToken)) {
@@ -74,7 +74,7 @@ function traverseTokens(
     const newPath = [...currentPath, key];
 
     if (typeof value === "object" && value !== null) {
-      if (value.$value !== undefined) {
+      if ("$value" in value && (value as any).$value !== undefined) {
         // This is a token leaf node
         callback(newPath, value);
       } else {

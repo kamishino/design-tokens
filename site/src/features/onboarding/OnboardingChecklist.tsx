@@ -55,7 +55,7 @@ export default function OnboardingChecklist() {
       try {
         const supabase = getSupabaseClient();
         if (supabase) {
-          const { data, error } = await supabase
+          const { error } = await supabase
             .from("organizations")
             .select("count");
           updatedChecks[1].status = error ? "error" : "success";
