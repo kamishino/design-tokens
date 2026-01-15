@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Smart Slug Validation for Projects & Brands** (PRD 0059): Automated slug generation with Vietnamese character support and real-time uniqueness checking
+  - **Slug Utility Functions** (`lib/utils/validation.js`):
+    - `generateSlug(text)` - Auto-generates URL-friendly slugs with Vietnamese transliteration
+    - `isValidSlug(slug)` - Validates slug format (a-z0-9 with hyphens)
+    - `validateSlug(slug)` - Detailed validation with error messages and suggestions
+    - Uses `slugify` library with Vietnamese locale support
+  - **Backend API Endpoint** (`server/routes/multiproject.js`):
+    - `GET /api/mp/check-slug` - Real-time slug availability checking
+    - Supports organization, project, and brand slug validation
+    - Context-aware uniqueness checks (scoped to organization/project)
+    - Returns format validation and availability status
+  - **Enhanced Project Modal** (`AddProjectModal.tsx`):
+    - Auto-generates slug as user types project name
+    - Real-time availability checking with 500ms debounce
+    - Visual feedback: spinner (checking), green check (available), red error (taken/invalid)
+    - Manual override: click to edit slug directly
+    - Vietnamese character support: "Dự án Thương hiệu" → "du-an-thuong-hieu"
+    - Smart auto-sync: resumes when user returns to auto-generated slug
+  - **Enhanced Brand Modal** (`AddBrandModal.tsx`):
+    - Same smart slug features as project modal
+    - Scoped uniqueness within parent project
+    - Supports Vietnamese brand names and special characters
+  - **User Experience**:
+    - No manual slug formatting needed for most cases
+    - Immediate feedback prevents duplicate slug errors
+    - Supports international characters (Vietnamese, accented Latin)
+    - Clear error messages with suggestions for invalid slugs
+  - **Benefits**: Faster project/brand creation, prevents duplicate slugs, international character support
+
 - **Development Authentication Bypass & Mock Identity** (PRD 0058): Zero-login development experience for faster iteration
   - **Environment Configuration** (`.env.example`):
     - `VITE_DEV_AUTH_BYPASS=true` - Enable/disable dev auth bypass

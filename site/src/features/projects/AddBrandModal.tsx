@@ -1,5 +1,4 @@
-import { useState } from "react";
-import AddOrganizationModal from "./AddOrganizationModal";
+import { useState, useRef, useCallback } from "react";
 import { Icons } from "@shared/components/Icons";
 import { createBrand, type CreateBrandRequest } from "@core/lib/supabase";
 
@@ -25,37 +24,104 @@ export default function AddBrandModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [slugError, setSlugError] = useState<string | null>(null);
+  const [slugChecking, setSlugChecking] = useState(false);
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [autoSlug, setAutoSlug] = useState(true);
+  const slugCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const validateSlug = (value: string): boolean => {
-    const slugRegex = /^[a-z0-9-]+$/;
+    const slugRegex = /^[a-z0-9]+(-[a-z0-9]+)*$/;
     if (!value) {
       setSlugError("Slug is required");
+      setSlugAvailable(null);
       return false;
     }
     if (!slugRegex.test(value)) {
       setSlugError(
-        "Slug must contain only lowercase letters, numbers, and hyphens"
+        "Slug must contain only lowercase letters, numbers, and hyphens (no leading/trailing/consecutive hyphens)"
       );
+      setSlugAvailable(null);
       return false;
     }
     setSlugError(null);
     return true;
   };
 
+  const checkSlugAvailability = useCallback(
+    async (slugValue: string, projId: string) => {
+      if (!slugValue || !projId || !validateSlug(slugValue)) {
+        return;
+      }
+
+      setSlugChecking(true);
+      try {
+        const response = await fetch(
+          `/api/mp/check-slug?type=brand&value=${encodeURIComponent(
+            slugValue
+          )}&contextId=${projId}`
+        );
+        const data = await response.json();
+
+        if (data.valid && data.available) {
+          setSlugAvailable(true);
+          setSlugError(null);
+        } else if (data.valid && !data.available) {
+          setSlugAvailable(false);
+          setSlugError("This slug is already taken in this project");
+        } else if (!data.valid) {
+          setSlugAvailable(false);
+          setSlugError(data.error || "Invalid slug format");
+        }
+      } catch (error) {
+        console.error("Error checking slug:", error);
+      } finally {
+        setSlugChecking(false);
+      }
+    },
+    []
+  );
+
   const handleSlugChange = (value: string) => {
     setSlug(value);
+    setAutoSlug(false);
     validateSlug(value);
+
+    if (slugCheckTimeoutRef.current) {
+      clearTimeout(slugCheckTimeoutRef.current);
+    }
+
+    if (value && projectId) {
+      slugCheckTimeoutRef.current = setTimeout(() => {
+        checkSlugAvailability(value, projectId);
+      }, 500);
+    }
   };
 
   const autoGenerateSlug = () => {
     const generated = name
       .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "d")
       .replace(/[^a-z0-9\s-]/g, "")
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "")
       .trim();
     setSlug(generated);
+    setAutoSlug(true);
     validateSlug(generated);
+
+    if (slugCheckTimeoutRef.current) {
+      clearTimeout(slugCheckTimeoutRef.current);
+    }
+
+    if (generated && projectId) {
+      slugCheckTimeoutRef.current = setTimeout(() => {
+        checkSlugAvailability(generated, projectId);
+      }, 500);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,6 +165,12 @@ export default function AddBrandModal({
     setIsDefault(false);
     setError(null);
     setSlugError(null);
+    setSlugAvailable(null);
+    setSlugChecking(false);
+    setAutoSlug(true);
+    if (slugCheckTimeoutRef.current) {
+      clearTimeout(slugCheckTimeoutRef.current);
+    }
     onClose();
   };
 
@@ -145,7 +217,33 @@ export default function AddBrandModal({
                   type="text"
                   className="form-control"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    if (autoSlug || !slug) {
+                      const generated = e.target.value
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .replace(/đ/g, "d")
+                        .replace(/Đ/g, "d")
+                        .replace(/[^a-z0-9\s-]/g, "")
+                        .replace(/\s+/g, "-")
+                        .replace(/-+/g, "-")
+                        .replace(/^-+|-+$/g, "")
+                        .trim();
+                      setSlug(generated);
+                      validateSlug(generated);
+
+                      if (slugCheckTimeoutRef.current) {
+                        clearTimeout(slugCheckTimeoutRef.current);
+                      }
+                      if (generated && projectId) {
+                        slugCheckTimeoutRef.current = setTimeout(() => {
+                          checkSlugAvailability(generated, projectId);
+                        }, 500);
+                      }
+                    }
+                  }}
                   placeholder="e.g., Dark Mode, Summer Campaign"
                   required
                   disabled={loading}
@@ -160,13 +258,29 @@ export default function AddBrandModal({
                 <div className="input-group">
                   <input
                     type="text"
-                    className={`form-control ${slugError ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      slugError
+                        ? "is-invalid"
+                        : slugAvailable === true
+                        ? "is-valid"
+                        : ""
+                    }`}
                     value={slug}
                     onChange={(e) => handleSlugChange(e.target.value)}
                     placeholder="e.g., dark-mode"
                     required
                     disabled={loading}
                   />
+                  {slugChecking && (
+                    <span className="input-group-text">
+                      <span className="spinner-border spinner-border-sm"></span>
+                    </span>
+                  )}
+                  {!slugChecking && slugAvailable === true && (
+                    <span className="input-group-text text-success">
+                      <i className={Icons.CHECK}></i>
+                    </span>
+                  )}
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
@@ -179,9 +293,14 @@ export default function AddBrandModal({
                   {slugError && (
                     <div className="invalid-feedback">{slugError}</div>
                   )}
+                  {slugAvailable === true && (
+                    <div className="valid-feedback">Slug is available</div>
+                  )}
                 </div>
                 <div className="form-text">
-                  Lowercase letters, numbers, and hyphens only
+                  {autoSlug
+                    ? "Auto-generated from name. Click to edit manually."
+                    : "Lowercase letters, numbers, and hyphens only. Supports Vietnamese characters."}
                 </div>
               </div>
 
@@ -229,7 +348,14 @@ export default function AddBrandModal({
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={loading || !name || !slug || !!slugError}
+                disabled={
+                  loading ||
+                  !name ||
+                  !slug ||
+                  !!slugError ||
+                  slugChecking ||
+                  slugAvailable === false
+                }
               >
                 {loading ? (
                   <>

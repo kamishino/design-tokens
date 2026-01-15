@@ -6,11 +6,106 @@
 import express from "express";
 import { getSupabaseClient, isSupabaseEnabled } from "../lib/supabase-client.js";
 import { authenticateUser, requireAuth, requireProjectRole } from "../middleware/auth.js";
+import { validateSlug } from "../../lib/utils/validation.js";
 
 const router = express.Router();
 
 // Apply authentication middleware to all routes
 router.use(authenticateUser);
+
+// ============================================================================
+// SLUG VALIDATION (PRD 0059)
+// ============================================================================
+
+/**
+ * GET /api/mp/check-slug?type=project|brand|organization&value=slug-name&contextId=xxx
+ * Check if a slug is available and valid
+ */
+router.get("/check-slug", async (req, res) => {
+  try {
+    const { type, value, contextId } = req.query;
+
+    if (!type || !value) {
+      return res.status(400).json({
+        error: "Both 'type' and 'value' query parameters are required",
+      });
+    }
+
+    // Validate slug format
+    const validation = validateSlug(value);
+    if (!validation.valid) {
+      return res.json({
+        available: false,
+        valid: false,
+        error: validation.error,
+        suggestion: validation.suggestion,
+      });
+    }
+
+    const supabase = getSupabaseClient();
+    let exists = false;
+
+    // Check uniqueness based on type
+    switch (type) {
+      case "organization": {
+        const { data } = await supabase
+          .from("organizations")
+          .select("id")
+          .eq("slug", value)
+          .limit(1);
+        exists = data && data.length > 0;
+        break;
+      }
+
+      case "project": {
+        if (!contextId) {
+          return res.status(400).json({
+            error:
+              "contextId (organization_id) is required for project slug check",
+          });
+        }
+        const { data } = await supabase
+          .from("projects")
+          .select("id")
+          .eq("slug", value)
+          .eq("organization_id", contextId)
+          .limit(1);
+        exists = data && data.length > 0;
+        break;
+      }
+
+      case "brand": {
+        if (!contextId) {
+          return res.status(400).json({
+            error: "contextId (project_id) is required for brand slug check",
+          });
+        }
+        const { data } = await supabase
+          .from("brands")
+          .select("id")
+          .eq("slug", value)
+          .eq("project_id", contextId)
+          .limit(1);
+        exists = data && data.length > 0;
+        break;
+      }
+
+      default:
+        return res.status(400).json({
+          error: "Invalid type. Must be 'organization', 'project', or 'brand'",
+        });
+    }
+
+    res.json({
+      available: !exists,
+      valid: true,
+      slug: value,
+    });
+  } catch (error) {
+    console.error("Error checking slug availability:", error);
+    res.status(500).json({ error: "Failed to check slug availability" });
+  }
+});
 
 // ============================================================================
 // ORGANIZATIONS

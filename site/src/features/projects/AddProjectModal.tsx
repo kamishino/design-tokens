@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Icons } from "@shared/components/Icons";
 import {
   fetchOrganizations,
@@ -29,7 +29,11 @@ export default function AddProjectModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [slugError, setSlugError] = useState<string | null>(null);
+  const [slugChecking, setSlugChecking] = useState(false);
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [autoSlug, setAutoSlug] = useState(true);
   const [showOrgModal, setShowOrgModal] = useState(false);
+  const slugCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (show) {
@@ -51,48 +55,104 @@ export default function AddProjectModal({
   };
 
   const validateSlug = (value: string): boolean => {
-    const slugRegex = /^[a-z0-9-]+$/;
+    const slugRegex = /^[a-z0-9]+(-[a-z0-9]+)*$/;
     if (!value) {
       setSlugError("Slug is required");
+      setSlugAvailable(null);
       return false;
     }
     if (!slugRegex.test(value)) {
       setSlugError(
-        "Slug must contain only lowercase letters, numbers, and hyphens"
+        "Slug must contain only lowercase letters, numbers, and hyphens (no leading/trailing/consecutive hyphens)"
       );
+      setSlugAvailable(null);
       return false;
     }
     setSlugError(null);
     return true;
   };
 
+  const checkSlugAvailability = useCallback(
+    async (slugValue: string, orgId: string) => {
+      if (!slugValue || !orgId || !validateSlug(slugValue)) {
+        return;
+      }
+
+      setSlugChecking(true);
+      try {
+        const response = await fetch(
+          `/api/mp/check-slug?type=project&value=${encodeURIComponent(
+            slugValue
+          )}&contextId=${orgId}`
+        );
+        const data = await response.json();
+
+        if (data.valid && data.available) {
+          setSlugAvailable(true);
+          setSlugError(null);
+        } else if (data.valid && !data.available) {
+          setSlugAvailable(false);
+          setSlugError("This slug is already taken in this organization");
+        } else if (!data.valid) {
+          setSlugAvailable(false);
+          setSlugError(data.error || "Invalid slug format");
+        }
+      } catch (error) {
+        console.error("Error checking slug:", error);
+      } finally {
+        setSlugChecking(false);
+      }
+    },
+    []
+  );
+
   const handleSlugChange = (value: string) => {
     setSlug(value);
+    setAutoSlug(false);
     validateSlug(value);
+
+    if (slugCheckTimeoutRef.current) {
+      clearTimeout(slugCheckTimeoutRef.current);
+    }
+
+    if (value && selectedOrgId) {
+      slugCheckTimeoutRef.current = setTimeout(() => {
+        checkSlugAvailability(value, selectedOrgId);
+      }, 500);
+    }
   };
 
   const autoGenerateSlug = (fromName?: string) => {
     const sourceName = fromName !== undefined ? fromName : name;
     const generated = sourceName
       .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "d")
       .replace(/[^a-z0-9\s-]/g, "")
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "")
       .trim();
     setSlug(generated);
+    setAutoSlug(true);
     validateSlug(generated);
+
+    if (slugCheckTimeoutRef.current) {
+      clearTimeout(slugCheckTimeoutRef.current);
+    }
+
+    if (generated && selectedOrgId) {
+      slugCheckTimeoutRef.current = setTimeout(() => {
+        checkSlugAvailability(generated, selectedOrgId);
+      }, 500);
+    }
   };
 
   const handleNameChange = (value: string) => {
     setName(value);
-    // Auto-generate slug as user types (smart slug)
-    const currentSlugFromPrevName = name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .trim();
-    if (!slug || slug === currentSlugFromPrevName) {
+    if (autoSlug || !slug) {
       autoGenerateSlug(value);
     }
   };
@@ -145,6 +205,12 @@ export default function AddProjectModal({
     setGitUrl("");
     setError(null);
     setSlugError(null);
+    setSlugAvailable(null);
+    setSlugChecking(false);
+    setAutoSlug(true);
+    if (slugCheckTimeoutRef.current) {
+      clearTimeout(slugCheckTimeoutRef.current);
+    }
     onClose();
   };
 
@@ -241,13 +307,29 @@ export default function AddProjectModal({
                 <div className="input-group">
                   <input
                     type="text"
-                    className={`form-control ${slugError ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      slugError
+                        ? "is-invalid"
+                        : slugAvailable === true
+                        ? "is-valid"
+                        : ""
+                    }`}
                     value={slug}
                     onChange={(e) => handleSlugChange(e.target.value)}
                     placeholder="e.g., mobile-app"
                     required
                     disabled={loading}
                   />
+                  {slugChecking && (
+                    <span className="input-group-text">
+                      <span className="spinner-border spinner-border-sm"></span>
+                    </span>
+                  )}
+                  {!slugChecking && slugAvailable === true && (
+                    <span className="input-group-text text-success">
+                      <i className={Icons.CHECK}></i>
+                    </span>
+                  )}
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
@@ -260,9 +342,14 @@ export default function AddProjectModal({
                   {slugError && (
                     <div className="invalid-feedback">{slugError}</div>
                   )}
+                  {slugAvailable === true && (
+                    <div className="valid-feedback">Slug is available</div>
+                  )}
                 </div>
                 <div className="form-text">
-                  Lowercase letters, numbers, and hyphens only
+                  {autoSlug
+                    ? "Auto-generated from name. Click to edit manually."
+                    : "Lowercase letters, numbers, and hyphens only. Supports Vietnamese characters."}
                 </div>
               </div>
 
@@ -327,7 +414,13 @@ export default function AddProjectModal({
                 type="submit"
                 className="btn btn-primary"
                 disabled={
-                  loading || !selectedOrgId || !name || !slug || !!slugError
+                  loading ||
+                  !selectedOrgId ||
+                  !name ||
+                  !slug ||
+                  !!slugError ||
+                  slugChecking ||
+                  slugAvailable === false
                 }
               >
                 {loading ? (
@@ -355,4 +448,3 @@ export default function AddProjectModal({
     </div>
   );
 }
-
