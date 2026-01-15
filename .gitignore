@@ -240,3 +240,7 @@ $RECYCLE.BIN/
 # Site
 site/docs/
 /build/
+
+# Local Learning Logs
+GEMINI_ARCH_LOG.md
+GEMINI_ARCH_LOG_VI.md

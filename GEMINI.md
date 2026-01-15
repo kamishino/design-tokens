@@ -35,3 +35,9 @@ The AI Agent must act as a **Senior Tech Lead** rather than a mere task executor
 2. **Options Presentation**: Provide at least 2-3 architectural options with ⭐ ratings and pros/cons.
 3. **Consensus Building**: Wait for the user (Lead Architect) to confirm the preferred direction.
 4. **Planning & Implementation**: Proceed with PRD, Task List generation, and coding only after the architecture is approved.
+
+### Architectural Learning Log (Local)
+For every major problem or architectural decision, the AI Agent must document a deep analysis in `GEMINI_ARCH_LOG.md`. This file is for local learning and reference, containing:
+- **Problem Analytics**: Root cause analysis and impact.
+- **Solution Suggestions**: Comparison of options with pros/cons and star ratings. Highlight the selected option with a **✅ [SELECTED]** tag.
+- **Lessons Learned**: Technical insights for future reference.
