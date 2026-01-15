@@ -107,6 +107,107 @@ router.get("/check-slug", async (req, res) => {
   }
 });
 
+/**
+ * GET /api/mp/suggest-slug?type=project|brand|organization&base=slug-name&contextId=xxx
+ * Suggest a unique slug by auto-resolving conflicts with numeric suffixes
+ * PRD 0060: Smart Slug Generator & Auto-Resolution Engine
+ */
+router.get("/suggest-slug", async (req, res) => {
+  try {
+    const { type, base, contextId } = req.query;
+
+    if (!type || !base) {
+      return res.status(400).json({
+        error: "Both 'type' and 'base' query parameters are required",
+      });
+    }
+
+    const supabase = getSupabaseClient();
+    const MAX_ATTEMPTS = 100; // Prevent infinite loops
+
+    // Helper function to check if a slug exists
+    async function checkSlugExists(slug) {
+      switch (type) {
+        case "organization": {
+          const { data } = await supabase
+            .from("organizations")
+            .select("id")
+            .eq("slug", slug)
+            .limit(1);
+          return data && data.length > 0;
+        }
+
+        case "project": {
+          if (!contextId) {
+            throw new Error("contextId (organization_id) is required for project slug");
+          }
+          const { data } = await supabase
+            .from("projects")
+            .select("id")
+            .eq("slug", slug)
+            .eq("organization_id", contextId)
+            .limit(1);
+          return data && data.length > 0;
+        }
+
+        case "brand": {
+          if (!contextId) {
+            throw new Error("contextId (project_id) is required for brand slug");
+          }
+          const { data } = await supabase
+            .from("brands")
+            .select("id")
+            .eq("slug", slug)
+            .eq("project_id", contextId)
+            .limit(1);
+          return data && data.length > 0;
+        }
+
+        default:
+          throw new Error("Invalid type. Must be 'organization', 'project', or 'brand'");
+      }
+    }
+
+    // Start with the base slug
+    let candidateSlug = base;
+    let suffix = 0;
+    let wasModified = false;
+
+    // Loop until we find a unique slug
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const exists = await checkSlugExists(candidateSlug);
+
+      if (!exists) {
+        // Found a unique slug!
+        return res.json({
+          slug: candidateSlug,
+          available: true,
+          wasModified,
+          originalBase: base,
+          suffix: suffix > 0 ? suffix : null,
+        });
+      }
+
+      // Slug exists, try with suffix
+      suffix++;
+      candidateSlug = `${base}-${suffix}`;
+      wasModified = true;
+    }
+
+    // If we exhausted all attempts, return error
+    return res.status(409).json({
+      error: `Could not find unique slug after ${MAX_ATTEMPTS} attempts`,
+      lastAttempt: candidateSlug,
+    });
+  } catch (error) {
+    console.error("Error suggesting slug:", error);
+    res.status(500).json({
+      error: "Failed to suggest slug",
+      details: error.message,
+    });
+  }
+});
+
 // ============================================================================
 // ORGANIZATIONS
 // ============================================================================

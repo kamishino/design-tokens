@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Smart Slug Generator & Auto-Resolution Engine** (PRD 0060): Automatic conflict resolution with numeric suffixes to eliminate duplicate slug errors
+  - **Backend Auto-Resolution API** (`server/routes/multiproject.js`):
+    - `GET /api/mp/suggest-slug` - Intelligent slug suggestion with automatic conflict resolution
+    - Automatically appends numeric suffixes (-1, -2, etc.) when base slug exists
+    - Context-aware: scoped to organization for projects, project for brands
+    - Prevents infinite loops with MAX_ATTEMPTS limit (100)
+    - Returns metadata: `wasModified`, `suffix`, `originalBase`
+  - **Enhanced Project Modal** (`AddProjectModal.tsx`):
+    - Replaced availability checking with intelligent suggestion system
+    - Automatically resolves conflicts: "Marketing" → "marketing-1" if "marketing" exists
+    - Visual feedback: "⚡ Auto-resolved to ensure uniqueness" when suffix added
+    - Reduced debounce to 300ms for faster feedback
+    - Zero duplicate slug errors - system always finds unique slug
+  - **Enhanced Brand Modal** (`AddBrandModal.tsx`):
+    - Same auto-resolution capabilities as project modal
+    - Scoped conflict resolution within parent project
+    - Seamless user experience with automatic conflict handling
+  - **User Experience Benefits**:
+    - **0% duplicate slug errors** - conflicts auto-resolved transparently
+    - Faster project/brand creation - no manual slug fixing required
+    - Clear visual indicators when auto-resolution occurs
+    - Maintains manual override capability for full control
+  - **Benefits**: Eliminates duplicate slug errors, faster project creation, seamless conflict resolution
+
 - **Smart Slug Validation for Projects & Brands** (PRD 0059): Automated slug generation with Vietnamese character support and real-time uniqueness checking
   - **Slug Utility Functions** (`lib/utils/validation.js`):
     - `generateSlug(text)` - Auto-generates URL-friendly slugs with Vietnamese transliteration

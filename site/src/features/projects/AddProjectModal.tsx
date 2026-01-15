@@ -32,6 +32,7 @@ export default function AddProjectModal({
   const [slugChecking, setSlugChecking] = useState(false);
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
   const [autoSlug, setAutoSlug] = useState(true);
+  const [slugWasModified, setSlugWasModified] = useState(false);
   const [showOrgModal, setShowOrgModal] = useState(false);
   const slugCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -72,33 +73,40 @@ export default function AddProjectModal({
     return true;
   };
 
-  const checkSlugAvailability = useCallback(
-    async (slugValue: string, orgId: string) => {
-      if (!slugValue || !orgId || !validateSlug(slugValue)) {
+  const suggestUniqueSlug = useCallback(
+    async (baseSlug: string, orgId: string) => {
+      if (!baseSlug || !orgId) {
         return;
       }
 
       setSlugChecking(true);
       try {
         const response = await fetch(
-          `/api/mp/check-slug?type=project&value=${encodeURIComponent(
-            slugValue
+          `/api/mp/suggest-slug?type=project&base=${encodeURIComponent(
+            baseSlug
           )}&contextId=${orgId}`
         );
         const data = await response.json();
 
-        if (data.valid && data.available) {
+        if (data.available) {
+          setSlug(data.slug);
           setSlugAvailable(true);
           setSlugError(null);
-        } else if (data.valid && !data.available) {
+          setSlugWasModified(data.wasModified);
+
+          if (data.wasModified && data.suffix) {
+            // Slug was auto-resolved with a suffix
+            console.log(
+              `Slug auto-resolved: ${data.originalBase} → ${data.slug}`
+            );
+          }
+        } else {
           setSlugAvailable(false);
-          setSlugError("This slug is already taken in this organization");
-        } else if (!data.valid) {
-          setSlugAvailable(false);
-          setSlugError(data.error || "Invalid slug format");
+          setSlugError("Unable to generate unique slug");
         }
       } catch (error) {
-        console.error("Error checking slug:", error);
+        console.error("Error suggesting slug:", error);
+        setSlugError("Failed to check slug availability");
       } finally {
         setSlugChecking(false);
       }
@@ -109,6 +117,7 @@ export default function AddProjectModal({
   const handleSlugChange = (value: string) => {
     setSlug(value);
     setAutoSlug(false);
+    setSlugWasModified(false);
     validateSlug(value);
 
     if (slugCheckTimeoutRef.current) {
@@ -117,8 +126,8 @@ export default function AddProjectModal({
 
     if (value && selectedOrgId) {
       slugCheckTimeoutRef.current = setTimeout(() => {
-        checkSlugAvailability(value, selectedOrgId);
-      }, 500);
+        suggestUniqueSlug(value, selectedOrgId);
+      }, 300);
     }
   };
 
@@ -135,9 +144,8 @@ export default function AddProjectModal({
       .replace(/-+/g, "-")
       .replace(/^-+|-+$/g, "")
       .trim();
-    setSlug(generated);
+
     setAutoSlug(true);
-    validateSlug(generated);
 
     if (slugCheckTimeoutRef.current) {
       clearTimeout(slugCheckTimeoutRef.current);
@@ -145,8 +153,11 @@ export default function AddProjectModal({
 
     if (generated && selectedOrgId) {
       slugCheckTimeoutRef.current = setTimeout(() => {
-        checkSlugAvailability(generated, selectedOrgId);
-      }, 500);
+        suggestUniqueSlug(generated, selectedOrgId);
+      }, 300);
+    } else {
+      setSlug(generated);
+      validateSlug(generated);
     }
   };
 
@@ -208,6 +219,7 @@ export default function AddProjectModal({
     setSlugAvailable(null);
     setSlugChecking(false);
     setAutoSlug(true);
+    setSlugWasModified(false);
     if (slugCheckTimeoutRef.current) {
       clearTimeout(slugCheckTimeoutRef.current);
     }
@@ -347,9 +359,15 @@ export default function AddProjectModal({
                   )}
                 </div>
                 <div className="form-text">
-                  {autoSlug
-                    ? "Auto-generated from name. Click to edit manually."
-                    : "Lowercase letters, numbers, and hyphens only. Supports Vietnamese characters."}
+                  {slugWasModified && autoSlug ? (
+                    <span className="text-info">
+                      ⚡ Auto-resolved to ensure uniqueness
+                    </span>
+                  ) : autoSlug ? (
+                    "Auto-generated from name. Click to edit manually."
+                  ) : (
+                    "Lowercase letters, numbers, and hyphens only. Supports Vietnamese characters."
+                  )}
                 </div>
               </div>
 

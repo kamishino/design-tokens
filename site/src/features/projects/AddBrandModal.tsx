@@ -27,6 +27,7 @@ export default function AddBrandModal({
   const [slugChecking, setSlugChecking] = useState(false);
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
   const [autoSlug, setAutoSlug] = useState(true);
+  const [slugWasModified, setSlugWasModified] = useState(false);
   const slugCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const validateSlug = (value: string): boolean => {
@@ -47,33 +48,39 @@ export default function AddBrandModal({
     return true;
   };
 
-  const checkSlugAvailability = useCallback(
-    async (slugValue: string, projId: string) => {
-      if (!slugValue || !projId || !validateSlug(slugValue)) {
+  const suggestUniqueSlug = useCallback(
+    async (baseSlug: string, projId: string) => {
+      if (!baseSlug || !projId) {
         return;
       }
 
       setSlugChecking(true);
       try {
         const response = await fetch(
-          `/api/mp/check-slug?type=brand&value=${encodeURIComponent(
-            slugValue
+          `/api/mp/suggest-slug?type=brand&base=${encodeURIComponent(
+            baseSlug
           )}&contextId=${projId}`
         );
         const data = await response.json();
 
-        if (data.valid && data.available) {
+        if (data.available) {
+          setSlug(data.slug);
           setSlugAvailable(true);
           setSlugError(null);
-        } else if (data.valid && !data.available) {
+          setSlugWasModified(data.wasModified);
+
+          if (data.wasModified && data.suffix) {
+            console.log(
+              `Slug auto-resolved: ${data.originalBase} → ${data.slug}`
+            );
+          }
+        } else {
           setSlugAvailable(false);
-          setSlugError("This slug is already taken in this project");
-        } else if (!data.valid) {
-          setSlugAvailable(false);
-          setSlugError(data.error || "Invalid slug format");
+          setSlugError("Unable to generate unique slug");
         }
       } catch (error) {
-        console.error("Error checking slug:", error);
+        console.error("Error suggesting slug:", error);
+        setSlugError("Failed to check slug availability");
       } finally {
         setSlugChecking(false);
       }
@@ -84,6 +91,7 @@ export default function AddBrandModal({
   const handleSlugChange = (value: string) => {
     setSlug(value);
     setAutoSlug(false);
+    setSlugWasModified(false);
     validateSlug(value);
 
     if (slugCheckTimeoutRef.current) {
@@ -92,8 +100,8 @@ export default function AddBrandModal({
 
     if (value && projectId) {
       slugCheckTimeoutRef.current = setTimeout(() => {
-        checkSlugAvailability(value, projectId);
-      }, 500);
+        suggestUniqueSlug(value, projectId);
+      }, 300);
     }
   };
 
@@ -109,9 +117,8 @@ export default function AddBrandModal({
       .replace(/-+/g, "-")
       .replace(/^-+|-+$/g, "")
       .trim();
-    setSlug(generated);
+
     setAutoSlug(true);
-    validateSlug(generated);
 
     if (slugCheckTimeoutRef.current) {
       clearTimeout(slugCheckTimeoutRef.current);
@@ -119,8 +126,11 @@ export default function AddBrandModal({
 
     if (generated && projectId) {
       slugCheckTimeoutRef.current = setTimeout(() => {
-        checkSlugAvailability(generated, projectId);
-      }, 500);
+        suggestUniqueSlug(generated, projectId);
+      }, 300);
+    } else {
+      setSlug(generated);
+      validateSlug(generated);
     }
   };
 
@@ -168,6 +178,7 @@ export default function AddBrandModal({
     setSlugAvailable(null);
     setSlugChecking(false);
     setAutoSlug(true);
+    setSlugWasModified(false);
     if (slugCheckTimeoutRef.current) {
       clearTimeout(slugCheckTimeoutRef.current);
     }
@@ -239,8 +250,8 @@ export default function AddBrandModal({
                       }
                       if (generated && projectId) {
                         slugCheckTimeoutRef.current = setTimeout(() => {
-                          checkSlugAvailability(generated, projectId);
-                        }, 500);
+                          suggestUniqueSlug(generated, projectId);
+                        }, 300);
                       }
                     }
                   }}
@@ -298,9 +309,15 @@ export default function AddBrandModal({
                   )}
                 </div>
                 <div className="form-text">
-                  {autoSlug
-                    ? "Auto-generated from name. Click to edit manually."
-                    : "Lowercase letters, numbers, and hyphens only. Supports Vietnamese characters."}
+                  {slugWasModified && autoSlug ? (
+                    <span className="text-info">
+                      ⚡ Auto-resolved to ensure uniqueness
+                    </span>
+                  ) : autoSlug ? (
+                    "Auto-generated from name. Click to edit manually."
+                  ) : (
+                    "Lowercase letters, numbers, and hyphens only. Supports Vietnamese characters."
+                  )}
                 </div>
               </div>
 
