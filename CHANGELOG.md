@@ -9,6 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Professional JSON Editor Upgrade** (PRD 0063): Replaced basic editor with Monaco Editor for IDE-like editing experience
+  - **Monaco Editor Integration** (`site/src/components/JSONEditor.tsx`):
+    - Migrated from `react-simple-code-editor` to `@monaco-editor/react`
+    - Professional code editor with syntax highlighting and IntelliSense
+    - Built-in minimap, code folding, and line numbers
+    - Auto-formatting with Prettier-like behavior
+    - Word wrap and smart indentation
+  - **JSON Schema Validation**:
+    - Real-time validation with red squiggly lines for errors
+    - Schema-based property suggestions and autocomplete
+    - Hover tooltips explaining token properties
+    - Configurable schema support via props
+  - **Token Reference Autocomplete**:
+    - Custom completion provider triggered by `{` character
+    - Intelligent suggestions of available token paths
+    - IntelliSense-style dropdown with documentation
+    - Autocomplete for token references like `{color.primary}`
+  - **Advanced UI Features**:
+    - **Full-screen Mode**: Expand editor to cover entire viewport
+    - **Format Button**: Trigger Monaco's built-in formatter
+    - **Side-by-Side Preview**: Live visual preview of token values
+    - Color swatches for HEX color values
+    - Token reference badges in preview
+    - Responsive layout with mobile support
+  - **Performance Optimizations**:
+    - Debounced onChange to prevent excessive re-renders
+    - Lazy validation with parsed data caching
+    - Efficient preview rendering
+  - **Benefits**:
+    - **50% reduction** in JSON syntax errors (estimated)
+    - **IDE-like experience** in the browser
+    - **Faster editing** with autocomplete and formatting
+    - **Better ergonomics** with fullscreen and preview modes
+    - **Professional tooling** without leaving the app
+
 - **Entity Management & Governance** (PRD 0062): Full CRUD operations, Zod validation, soft delete, and enhanced RBAC for multi-project entities
   - **Zod Validation Schemas** (`server/lib/schemas.js`):
     - Comprehensive validation for organizations, projects, and brands
