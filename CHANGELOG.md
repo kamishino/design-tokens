@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Project Creation in Dev Auth Mode** (PRD 0066): Verified and documented existing fix for 500 errors during project creation
+  - **Note**: This issue was already resolved in PRD 0061 (Dev Auth Compatibility)
+  - Mock UUID standardized to valid format: `00000000-0000-0000-0000-000000000000`
+  - Conditional role assignment skips FK-violating database insert for mock user
+  - Error handling prevents request failure when role assignment fails
+  - Projects can now be successfully created in Dev Auth Mode (returns 201 Created)
+
 ### Added
 
 - **Dashboard Integration & Feature Activation** (PRD 0065): Integrated all advanced token management features into the main application UI
