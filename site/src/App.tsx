@@ -1,12 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "@layouts/Sidebar";
-import TokenEditor from "@features/tokens/TokenEditor";
 import CommitBar from "@layouts/CommitBar";
 import KitchenSink from "@features/tokens/KitchenSink";
-import TokenTabs from "@features/tokens/TokenTabs";
-import SearchBar from "@shared/components/SearchBar";
+import TokenDashboard from "@features/tokens/components/TokenDashboard";
 import FigmaImport from "@features/tokens/FigmaImport";
-import FilteredResultsView from "@features/tokens/FilteredResultsView";
 import FindReplaceModal from "@features/tokens/FindReplaceModal";
 import ExportModal from "@features/tokens/ExportModal";
 import AddTokenModal from "@features/tokens/AddTokenModal";
@@ -14,16 +11,7 @@ import AppTopBar from "@layouts/AppTopBar";
 import ProtectedRoute from "@features/auth/ProtectedRoute";
 import { Icons } from "@shared/components/Icons";
 import { TokenFile, TokenContent, DraftChanges } from "@core/types";
-import {
-  getTokenCategories,
-  filterTokensByCategory,
-  searchTokens,
-  groupTokensByFile,
-  getTokenCountsByCategory,
-  getAllTokensFlattened,
-  findTokenLocation,
-  parseSlashPath,
-} from "@shared/utils/token-logic";
+import { findTokenLocation, parseSlashPath } from "@shared/utils/token-logic";
 
 type View = "dashboard" | "kitchenSink";
 
@@ -41,8 +29,6 @@ export default function App() {
   const [draftChanges, setDraftChanges] = useState<DraftChanges>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState<string>("");
   const [showFigmaImport, setShowFigmaImport] = useState(false);
   const [showFindReplace, setShowFindReplace] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -318,65 +304,11 @@ export default function App() {
 
   const hasDraftChanges = Object.keys(draftChanges).length > 0;
 
-  // Get all categories from loaded tokens
-  const categories = useMemo(() => {
-    return getTokenCategories(allTokensContent);
-  }, [allTokensContent]);
-
-  // Filter tokens based on category and search query
-  const filteredTokens = useMemo(() => {
-    let tokens = getAllTokensFlattened(allTokensContent);
-
-    // Apply category filter first
-    if (activeCategory !== "all") {
-      tokens = filterTokensByCategory(allTokensContent, activeCategory);
-    }
-
-    // Apply search filter second
-    if (searchQuery.trim()) {
-      const allTokensArray =
-        activeCategory === "all"
-          ? getAllTokensFlattened(allTokensContent)
-          : tokens;
-      tokens = searchTokens(allTokensContent, searchQuery).filter((token) =>
-        allTokensArray.some(
-          (t) => t.path === token.path && t.fileName === token.fileName
-        )
-      );
-    }
-
-    return tokens;
-  }, [allTokensContent, activeCategory, searchQuery]);
-
-  // Calculate token counts for category badges based on current search
-  const tokenCounts = useMemo(() => {
-    const tokensToCount = searchQuery.trim()
-      ? searchTokens(allTokensContent, searchQuery)
-      : getAllTokensFlattened(allTokensContent);
-    return getTokenCountsByCategory(tokensToCount);
-  }, [allTokensContent, searchQuery]);
-
-  // Determine if filtering is active
-  const isFiltering = activeCategory !== "all" || searchQuery.trim() !== "";
-
-  // Group filtered tokens by file for display
-  const groupedTokens = useMemo(() => {
-    return groupTokensByFile(filteredTokens);
-  }, [filteredTokens]);
-
-  // Clear filters function
-  const clearFilters = () => {
-    setActiveCategory("all");
-    setSearchQuery("");
-  };
-
   // Handle file selection from sidebar
   const handleSelectFile = (filePath: string) => {
     setSelectedFile(filePath);
     // Auto-switch to dashboard view
     setView("dashboard");
-    // Clear filters to show full file content
-    clearFilters();
   };
 
   // Navigate to a token reference
@@ -384,9 +316,6 @@ export default function App() {
     const location = findTokenLocation(tokenPath, allTokensContent);
     if (location) {
       setSelectedFile(location.fileName);
-      // Clear filters to show the file
-      setActiveCategory("all");
-      setSearchQuery("");
     } else {
       alert(`Token "${tokenPath}" not found`);
     }
@@ -740,23 +669,6 @@ export default function App() {
                   <KitchenSink />
                 ) : (
                   <>
-                    {/* Unified Filter Toolbar */}
-                    <div className="content-toolbar">
-                      {/* Category Tabs */}
-                      <TokenTabs
-                        categories={categories}
-                        activeCategory={activeCategory}
-                        onCategoryChange={setActiveCategory}
-                        tokenCounts={tokenCounts}
-                      />
-
-                      {/* Search Bar */}
-                      <SearchBar
-                        onSearch={setSearchQuery}
-                        showFilters={false}
-                      />
-                    </div>
-
                     {error && (
                       <div
                         className="alert alert-danger alert-dismissible"
@@ -774,70 +686,28 @@ export default function App() {
                       </div>
                     )}
 
-                    {loading && (
-                      <div
-                        className="d-flex justify-content-center align-items-center"
-                        style={{ minHeight: "400px" }}
-                      >
-                        <div
-                          className="spinner-border text-primary"
-                          role="status"
-                        >
-                          <span className="visually-hidden">Loading...</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Filtered Results View */}
-                    {isFiltering && !loading && (
-                      <FilteredResultsView
-                        groupedTokens={groupedTokens}
-                        allTokens={allTokensContent}
-                        onClearFilters={clearFilters}
-                        activeCategory={activeCategory}
-                        searchQuery={searchQuery}
-                      />
-                    )}
-
-                    {/* Empty State - No File Selected */}
-                    {!isFiltering && !selectedFile && !loading && (
-                      <div className="empty">
-                        <div className="empty-icon">
-                          <i className={Icons.FILES}></i>
-                        </div>
-                        <p className="empty-title">
-                          Select a token file to begin
-                        </p>
-                        <p className="empty-subtitle text-muted">
-                          Choose a file from the sidebar to view and edit tokens
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Token Editor - Single File View */}
-                    {!isFiltering &&
-                      selectedFile &&
-                      tokenContent &&
-                      !loading && (
-                        <TokenEditor
-                          filePath={selectedFile}
-                          content={tokenContent}
-                          onUpdate={updateTokenValue}
-                          hasChanges={draftChanges[selectedFile] !== undefined}
-                          allTokens={allTokensContent}
-                          onNavigateToToken={handleNavigateToToken}
-                          baselineContent={
-                            initialTokensContent[selectedFile] || null
-                          }
-                          onRevertToken={revertToken}
-                          onDeleteToken={deleteToken}
-                          onAddToGroup={(path, mode) =>
-                            openAddModal(mode, selectedFile, path.join("."))
-                          }
-                          onEditToken={handleEditToken}
-                          isSandboxMode={isSandboxMode}
-                        />
-                      )}
+                    {/* Integrated Token Dashboard with Advanced Features */}
+                    <TokenDashboard
+                      selectedFile={selectedFile}
+                      tokenContent={tokenContent}
+                      allTokensContent={allTokensContent}
+                      initialTokensContent={initialTokensContent}
+                      draftChanges={draftChanges}
+                      onUpdate={updateTokenValue}
+                      onRevertToken={revertToken}
+                      onDeleteToken={deleteToken}
+                      onEditToken={handleEditToken}
+                      onNavigateToToken={handleNavigateToToken}
+                      onAddToGroup={(path, mode) =>
+                        openAddModal(
+                          mode,
+                          selectedFile || undefined,
+                          path.join(".")
+                        )
+                      }
+                      loading={loading}
+                      isSandboxMode={isSandboxMode}
+                    />
                   </>
                 )}
 

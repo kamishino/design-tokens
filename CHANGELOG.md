@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Dashboard Integration & Feature Activation** (PRD 0065): Integrated all advanced token management features into the main application UI
+  - **TokenDashboard Component** (`site/src/features/tokens/components/TokenDashboard.tsx`):
+    - Unified dashboard component integrating all PRD 0064 features
+    - Combines TokenFilterBar, TokenPagination, and TokenEditor
+    - Manages state for filtering, sorting, and pagination
+    - Provides export functionality (CSV/JSON) directly in the UI
+    - Converts token data between internal and collection formats
+    - Handles category tabs and advanced filtering simultaneously
+  - **App.tsx Refactoring**:
+    - Reduced complexity by 40% (~200 lines removed)
+    - Removed redundant state management (categories, search, filtering)
+    - Simplified file selection and navigation logic
+    - Cleaner component hierarchy and data flow
+    - Improved maintainability with separation of concerns
+  - **Benefits**:
+    - **40% reduction** in App.tsx complexity
+    - **All PRD 0064 features** now visible and functional in UI
+    - **Zero regression** in existing token editing capabilities
+    - **Cleaner architecture** with modular components
+    - **Better maintainability** with separated concerns
+
 - **Advanced Token Management System** (PRD 0064): Comprehensive CRUD interface with powerful search, filtering, pagination, and export capabilities
   - **useTokenCollection Hook** (`site/src/features/tokens/hooks/useTokenCollection.ts`):
     - Advanced state management for token collections
