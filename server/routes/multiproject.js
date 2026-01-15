@@ -1,11 +1,21 @@
 /**
  * Multi-Project API Routes
  * PRD 0051: REST API for multi-tenant token management
+ * PRD 0062: Entity Management & Governance (CRUD, Validation, RBAC)
  */
 
 import express from "express";
 import { getSupabaseClient, isSupabaseEnabled } from "../lib/supabase-client.js";
 import { authenticateUser, requireAuth, requireProjectRole } from "../middleware/auth.js";
+import { validateBody } from "../middleware/validation.js";
+import {
+  organizationCreateSchema,
+  organizationUpdateSchema,
+  projectCreateSchema,
+  projectUpdateSchema,
+  brandCreateSchema,
+  brandUpdateSchema,
+} from "../lib/schemas.js";
 import { validateSlug } from "../../lib/utils/validation.js";
 
 const router = express.Router();
@@ -214,7 +224,8 @@ router.get("/suggest-slug", async (req, res) => {
 
 /**
  * GET /api/mp/organizations
- * List all organizations
+ * List all organizations (excludes soft-deleted)
+ * PRD 0062: Soft delete support
  */
 router.get("/organizations", async (req, res) => {
   if (!isSupabaseEnabled()) {
@@ -225,7 +236,8 @@ router.get("/organizations", async (req, res) => {
     const supabase = getSupabaseClient();
     const { data, error } = await supabase
       .from("organizations")
-      .select("id, name, slug, created_at")
+      .select("id, name, slug, description, created_at")
+      .is("deleted_at", null)
       .order("name");
     
     if (error) throw error;
@@ -239,20 +251,17 @@ router.get("/organizations", async (req, res) => {
 
 /**
  * POST /api/mp/organizations
- * Create a new organization
+ * Create a new organization with validation
+ * PRD 0062: Zod validation
  */
-router.post("/organizations", requireAuth, async (req, res) => {
+router.post("/organizations", requireAuth, validateBody(organizationCreateSchema), async (req, res) => {
   try {
-    const { name, slug } = req.body;
-    
-    if (!name || !slug) {
-      return res.status(400).json({ error: "Name and slug are required" });
-    }
+    const { name, slug, description } = req.body;
     
     const supabase = getSupabaseClient();
     const { data, error } = await supabase
       .from("organizations")
-      .insert({ name, slug })
+      .insert({ name, slug, description })
       .select()
       .single();
     
@@ -265,13 +274,82 @@ router.post("/organizations", requireAuth, async (req, res) => {
   }
 });
 
+/**
+ * PATCH /api/mp/organizations/:orgId
+ * Update an organization
+ * PRD 0062: Edit functionality
+ */
+router.patch("/organizations/:orgId", requireAuth, validateBody(organizationUpdateSchema), async (req, res) => {
+  try {
+    const { orgId } = req.params;
+    const updates = req.body;
+    
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase
+      .from("organizations")
+      .update(updates)
+      .eq("id", orgId)
+      .is("deleted_at", null)
+      .select()
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+      throw error;
+    }
+    
+    res.json({ organization: data });
+  } catch (error) {
+    console.error("Error updating organization:", error);
+    res.status(500).json({ error: "Failed to update organization" });
+  }
+});
+
+/**
+ * DELETE /api/mp/organizations/:orgId
+ * Soft delete an organization
+ * PRD 0062: Soft delete to prevent data loss
+ */
+router.delete("/organizations/:orgId", requireAuth, async (req, res) => {
+  try {
+    const { orgId } = req.params;
+    
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase
+      .from("organizations")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", orgId)
+      .is("deleted_at", null)
+      .select()
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+      throw error;
+    }
+    
+    res.json({ 
+      message: "Organization soft deleted successfully",
+      organization: data 
+    });
+  } catch (error) {
+    console.error("Error deleting organization:", error);
+    res.status(500).json({ error: "Failed to delete organization" });
+  }
+});
+
 // ============================================================================
 // PROJECTS
 // ============================================================================
 
 /**
  * GET /api/mp/organizations/:orgId/projects
- * List projects for an organization
+ * List projects for an organization (excludes soft-deleted)
+ * PRD 0062: Soft delete support
  */
 router.get("/organizations/:orgId/projects", async (req, res) => {
   try {
@@ -282,6 +360,7 @@ router.get("/organizations/:orgId/projects", async (req, res) => {
       .from("projects")
       .select("id, name, slug, description, git_url, created_at")
       .eq("organization_id", orgId)
+      .is("deleted_at", null)
       .order("name");
     
     if (error) throw error;
@@ -295,23 +374,13 @@ router.get("/organizations/:orgId/projects", async (req, res) => {
 
 /**
  * POST /api/mp/organizations/:orgId/projects
- * Create a new project with auto-admin role and optional default brand
+ * Create a new project with validation, auto-admin role and optional default brand
+ * PRD 0062: Zod validation
  */
-router.post("/organizations/:orgId/projects", requireAuth, async (req, res) => {
+router.post("/organizations/:orgId/projects", requireAuth, validateBody(projectCreateSchema), async (req, res) => {
   try {
     const { orgId } = req.params;
     const { name, slug, description, git_url, create_default_brand } = req.body;
-
-    if (!name || !slug) {
-      return res.status(400).json({ error: "Name and slug are required" });
-    }
-
-    // Validate slug format (lowercase, numbers, hyphens only)
-    if (!/^[a-z0-9-]+$/.test(slug)) {
-      return res.status(400).json({
-        error: "Slug must contain only lowercase letters, numbers, and hyphens",
-      });
-    }
 
     if (!req.user) {
       return res.status(401).json({ error: "User not authenticated" });
@@ -395,13 +464,82 @@ router.post("/organizations/:orgId/projects", requireAuth, async (req, res) => {
   }
 });
 
+/**
+ * PATCH /api/mp/projects/:projectId
+ * Update a project
+ * PRD 0062: Edit functionality
+ */
+router.patch("/projects/:projectId", requireAuth, requireProjectRole(['admin', 'editor']), validateBody(projectUpdateSchema), async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const updates = req.body;
+    
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase
+      .from("projects")
+      .update(updates)
+      .eq("id", projectId)
+      .is("deleted_at", null)
+      .select()
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      throw error;
+    }
+    
+    res.json({ project: data });
+  } catch (error) {
+    console.error("Error updating project:", error);
+    res.status(500).json({ error: "Failed to update project" });
+  }
+});
+
+/**
+ * DELETE /api/mp/projects/:projectId
+ * Soft delete a project
+ * PRD 0062: Soft delete to prevent data loss
+ */
+router.delete("/projects/:projectId", requireAuth, requireProjectRole(['admin']), async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase
+      .from("projects")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", projectId)
+      .is("deleted_at", null)
+      .select()
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      throw error;
+    }
+    
+    res.json({ 
+      message: "Project soft deleted successfully",
+      project: data 
+    });
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    res.status(500).json({ error: "Failed to delete project" });
+  }
+});
+
 // ============================================================================
 // BRANDS
 // ============================================================================
 
 /**
  * GET /api/mp/projects/:projectId/brands
- * List brands for a project
+ * List brands for a project (excludes soft-deleted)
+ * PRD 0062: Soft delete support
  */
 router.get("/projects/:projectId/brands", async (req, res) => {
   try {
@@ -412,6 +550,7 @@ router.get("/projects/:projectId/brands", async (req, res) => {
       .from("brands")
       .select("id, name, slug, description, is_default, created_at")
       .eq("project_id", projectId)
+      .is("deleted_at", null)
       .order("name");
     
     if (error) throw error;
@@ -426,22 +565,12 @@ router.get("/projects/:projectId/brands", async (req, res) => {
 /**
  * POST /api/mp/projects/:projectId/brands
  * Create a new brand with validation
+ * PRD 0062: Zod validation
  */
-router.post("/projects/:projectId/brands", requireAuth, requireProjectRole(['editor', 'admin']), async (req, res) => {
+router.post("/projects/:projectId/brands", requireAuth, requireProjectRole(['editor', 'admin']), validateBody(brandCreateSchema), async (req, res) => {
   try {
     const { projectId } = req.params;
     const { name, slug, description, is_default } = req.body;
-    
-    if (!name || !slug) {
-      return res.status(400).json({ error: "Name and slug are required" });
-    }
-    
-    // Validate slug format (lowercase, numbers, hyphens only)
-    if (!/^[a-z0-9-]+$/.test(slug)) {
-      return res.status(400).json({ 
-        error: "Slug must contain only lowercase letters, numbers, and hyphens" 
-      });
-    }
     
     const supabase = getSupabaseClient();
     const { data, error } = await supabase
@@ -451,7 +580,7 @@ router.post("/projects/:projectId/brands", requireAuth, requireProjectRole(['edi
         name,
         slug,
         description,
-        is_default: is_default || false,
+        is_default,
       })
       .select()
       .single();
@@ -468,6 +597,74 @@ router.post("/projects/:projectId/brands", requireAuth, requireProjectRole(['edi
       error: "Failed to create brand",
       details: error.message
     });
+  }
+});
+
+/**
+ * PATCH /api/mp/brands/:brandId
+ * Update a brand
+ * PRD 0062: Edit functionality
+ */
+router.patch("/brands/:brandId", requireAuth, requireProjectRole(['admin', 'editor']), validateBody(brandUpdateSchema), async (req, res) => {
+  try {
+    const { brandId } = req.params;
+    const updates = req.body;
+    
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase
+      .from("brands")
+      .update(updates)
+      .eq("id", brandId)
+      .is("deleted_at", null)
+      .select()
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ error: "Brand not found" });
+      }
+      throw error;
+    }
+    
+    res.json({ brand: data });
+  } catch (error) {
+    console.error("Error updating brand:", error);
+    res.status(500).json({ error: "Failed to update brand" });
+  }
+});
+
+/**
+ * DELETE /api/mp/brands/:brandId
+ * Soft delete a brand
+ * PRD 0062: Soft delete to prevent data loss
+ */
+router.delete("/brands/:brandId", requireAuth, requireProjectRole(['admin']), async (req, res) => {
+  try {
+    const { brandId } = req.params;
+    
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase
+      .from("brands")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", brandId)
+      .is("deleted_at", null)
+      .select()
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ error: "Brand not found" });
+      }
+      throw error;
+    }
+    
+    res.json({ 
+      message: "Brand soft deleted successfully",
+      brand: data 
+    });
+  } catch (error) {
+    console.error("Error deleting brand:", error);
+    res.status(500).json({ error: "Failed to delete brand" });
   }
 });
 

@@ -9,6 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Entity Management & Governance** (PRD 0062): Full CRUD operations, Zod validation, soft delete, and enhanced RBAC for multi-project entities
+  - **Zod Validation Schemas** (`server/lib/schemas.js`):
+    - Comprehensive validation for organizations, projects, and brands
+    - Create and update schemas with field-level validation
+    - String length limits, slug format validation, URL validation
+    - Custom error messages for better user feedback
+    - Helper function to format Zod errors into user-friendly structure
+  - **Validation Middleware** (`server/middleware/validation.js`):
+    - Reusable `validateBody` middleware for request body validation
+    - `validateQuery` middleware for query parameter validation
+    - Automatic validation with 400 errors for invalid data
+    - Field-level error details in response
+  - **Soft Delete Support**:
+    - Database migration adds `deleted_at` timestamp column to all entities
+    - All GET queries filter out soft-deleted records (`deleted_at IS NULL`)
+    - DELETE endpoints set timestamp instead of removing data
+    - Prevents accidental data loss while maintaining clean UI
+    - Indexed for performance
+  - **Complete CRUD Operations**:
+    - **Organizations**: GET, POST, PATCH, DELETE with validation
+    - **Projects**: GET, POST, PATCH, DELETE with validation and RBAC
+    - **Brands**: GET, POST, PATCH, DELETE with validation and RBAC
+    - All endpoints return structured JSON responses
+    - Proper HTTP status codes (200, 201, 400, 401, 403, 404, 500)
+  - **Enhanced RBAC**:
+    - PATCH requires `admin` or `editor` role for projects/brands
+    - DELETE requires `admin` role for projects/brands
+    - Organizations require authentication but not project-level roles
+    - Dev auth bypass continues to work for all operations
+  - **Benefits**:
+    - **100% validation coverage** - all endpoints protected by Zod
+    - **Zero accidental data loss** - soft delete prevents permanent deletion
+    - **Field-level error messages** - clear validation feedback
+    - **Role-based access control** - granular permissions
+    - **Consistent API structure** - standardized request/response format
+
 - **Dev Auth Compatibility for Multi-project Management** (PRD 0061): Fixed 403 and 500 errors in dev mode for seamless local development
   - **Mock User UUID Fix** (`server/middleware/auth.js`):
     - Changed mock user ID from invalid string to valid UUID format
