@@ -301,24 +301,24 @@ router.post("/organizations/:orgId/projects", requireAuth, async (req, res) => {
   try {
     const { orgId } = req.params;
     const { name, slug, description, git_url, create_default_brand } = req.body;
-    
+
     if (!name || !slug) {
       return res.status(400).json({ error: "Name and slug are required" });
     }
-    
+
     // Validate slug format (lowercase, numbers, hyphens only)
     if (!/^[a-z0-9-]+$/.test(slug)) {
-      return res.status(400).json({ 
-        error: "Slug must contain only lowercase letters, numbers, and hyphens" 
+      return res.status(400).json({
+        error: "Slug must contain only lowercase letters, numbers, and hyphens",
       });
     }
-    
+
     if (!req.user) {
       return res.status(401).json({ error: "User not authenticated" });
     }
-    
+
     const supabase = getSupabaseClient();
-    
+
     // Create project
     const { data: project, error: projectError } = await supabase
       .from("projects")
@@ -331,24 +331,34 @@ router.post("/organizations/:orgId/projects", requireAuth, async (req, res) => {
       })
       .select()
       .single();
-    
+
     if (projectError) throw projectError;
-    
+
     // Auto-assign creator as admin
-    const { error: roleError } = await supabase
-      .from("user_roles")
-      .insert({
+    // PRD 0061: Skip role assignment for mock user in dev mode to avoid FK constraints
+    const DEV_MOCK_USER_ID = "00000000-0000-0000-0000-000000000000";
+    const isDevMockUser =
+      req.user.id === DEV_MOCK_USER_ID &&
+      process.env.VITE_DEV_AUTH_BYPASS === "true";
+
+    if (!isDevMockUser) {
+      const { error: roleError } = await supabase.from("user_roles").insert({
         user_id: req.user.id,
         organization_id: orgId,
         project_id: project.id,
         role: "admin",
       });
-    
-    if (roleError) {
-      console.error("Failed to assign admin role:", roleError);
-      // Don't fail the request, just log the error
+
+      if (roleError) {
+        console.error("Failed to assign admin role:", roleError);
+        // Don't fail the request, just log the error
+      }
+    } else {
+      console.warn(
+        "🚨 DEV AUTH BYPASS: Skipping role assignment for mock user"
+      );
     }
-    
+
     // Create default brand if requested
     let defaultBrand = null;
     if (create_default_brand) {
@@ -363,18 +373,18 @@ router.post("/organizations/:orgId/projects", requireAuth, async (req, res) => {
         })
         .select()
         .single();
-      
+
       if (brandError) {
         console.error("Failed to create default brand:", brandError);
       } else {
         defaultBrand = brand;
       }
     }
-    
-    res.status(201).json({ 
-      project, 
+
+    res.status(201).json({
+      project,
       default_brand: defaultBrand,
-      message: "Project created successfully"
+      message: "Project created successfully",
     });
   } catch (error) {
     console.error("Error creating project:", error);

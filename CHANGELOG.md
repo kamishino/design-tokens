@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Dev Auth Compatibility for Multi-project Management** (PRD 0061): Fixed 403 and 500 errors in dev mode for seamless local development
+  - **Mock User UUID Fix** (`server/middleware/auth.js`):
+    - Changed mock user ID from invalid string to valid UUID format
+    - Now uses `00000000-0000-0000-0000-000000000000` for database compatibility
+    - Prevents PostgreSQL UUID constraint violations
+  - **Permission Bypass Enhancement** (`server/middleware/auth.js`):
+    - `requireProjectRole` now grants super admin access to mock user in dev mode
+    - Eliminates 403 Forbidden errors for dev operations
+    - Security-wrapped: only active when `VITE_DEV_AUTH_BYPASS=true` and `NODE_ENV !== 'production'`
+  - **Graceful Role Assignment** (`server/routes/multiproject.js`):
+    - Project creation skips `user_roles` insertion for mock user
+    - Prevents 500 Internal Server Error from foreign key constraints
+    - Mock user treated as implicit admin without database record
+  - **Developer Experience Benefits**:
+    - **Zero authentication errors** in dev mode
+    - Create organizations, projects, and brands without database setup
+    - Mock user acts as super admin across all resources
+    - No need for real Supabase users during local development
+  - **Security**: All bypass logic protected by environment checks and dev-only activation
+
 - **Smart Slug Generator & Auto-Resolution Engine** (PRD 0060): Automatic conflict resolution with numeric suffixes to eliminate duplicate slug errors
   - **Backend Auto-Resolution API** (`server/routes/multiproject.js`):
     - `GET /api/mp/suggest-slug` - Intelligent slug suggestion with automatic conflict resolution
