@@ -42,11 +42,41 @@ export default function AddProjectModal({
     }
   }, [show]);
 
+  // PRD 0070: Dynamic organization sync - validate selectedOrgId whenever organizations list changes
+  useEffect(() => {
+    if (organizations.length > 0) {
+      // Check if current selectedOrgId exists in the organizations list
+      const isValidSelection = organizations.some(
+        (org) => org.id === selectedOrgId
+      );
+
+      if (!isValidSelection) {
+        // Stale ID detected - auto-select first available organization
+        console.warn(
+          `[PRD 0070] Stale organization ID detected: ${selectedOrgId}. ` +
+            `Auto-selecting first available organization: ${organizations[0].name}`
+        );
+        setSelectedOrgId(organizations[0].id);
+      }
+    }
+  }, [organizations, selectedOrgId]);
+
   const loadOrganizations = async () => {
     const orgs = await fetchOrganizations();
     setOrganizations(orgs);
-    if (orgs.length > 0 && !selectedOrgId) {
-      setSelectedOrgId(orgs[0].id);
+
+    // PRD 0070: Validate current selection against fetched list
+    if (orgs.length > 0) {
+      const currentIdExists = orgs.some((org) => org.id === selectedOrgId);
+
+      if (!currentIdExists) {
+        // Current ID is stale or empty - default to first organization
+        console.log(
+          `[PRD 0070] Re-validating organization selection. ` +
+            `Setting to: ${orgs[0].name} (${orgs[0].id})`
+        );
+        setSelectedOrgId(orgs[0].id);
+      }
     }
   };
 
@@ -171,8 +201,18 @@ export default function AddProjectModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // PRD 0068: Validate organization selection
     if (!selectedOrgId) {
       setError("Please select an organization");
+      return;
+    }
+
+    // PRD 0068: Pre-flight check - verify organization exists in local list
+    const orgExists = organizations.find((org) => org.id === selectedOrgId);
+    if (!orgExists) {
+      setError(
+        "Selected organization not found. Please refresh and try again."
+      );
       return;
     }
 
@@ -203,7 +243,31 @@ export default function AddProjectModal({
       onSuccess(result.project.id);
       onClose();
     } else {
-      setError(result.error || "Failed to create project");
+      // PRD 0068: Enhanced error handling with user-friendly messages
+      const errorMessage = result.error || "Failed to create project";
+
+      // Check for specific error scenarios
+      if (errorMessage.includes("not found") || errorMessage.includes("404")) {
+        setError(
+          `Organization "${orgExists.name}" not found in database. ` +
+            "It may have been deleted. Please refresh and select a different organization."
+        );
+      } else if (errorMessage.includes("violates row-level security")) {
+        setError(
+          "Permission denied: You don't have access to create projects in this organization. " +
+            "Please contact your administrator or check your authentication."
+        );
+      } else if (
+        errorMessage.includes("already exists") ||
+        errorMessage.includes("duplicate")
+      ) {
+        setError(
+          `A project with slug "${slug}" already exists in this organization. ` +
+            "Please use a different slug."
+        );
+      } else {
+        setError(errorMessage);
+      }
     }
 
     setLoading(false);
@@ -438,7 +502,9 @@ export default function AddProjectModal({
                   !slug ||
                   !!slugError ||
                   slugChecking ||
-                  slugAvailable === false
+                  slugAvailable === false ||
+                  // PRD 0070: Strict validation - ensure selectedOrgId exists in organizations array
+                  !organizations.some((org) => org.id === selectedOrgId)
                 }
               >
                 {loading ? (

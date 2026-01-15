@@ -16,16 +16,22 @@ const DEV_AUTH_USER_NAME = process.env.DEV_AUTH_USER_NAME || 'Dev Admin';
 /**
  * Create mock user for dev bypass mode
  * PRD 0061: Uses valid UUID format to prevent database errors
+ * PRD 0069: Enhanced with is_mock flag for Virtual Governance
  */
 function createMockDevUser() {
   return {
     id: DEV_MOCK_USER_ID,
     email: DEV_AUTH_USER_EMAIL,
     role: 'authenticated',
+    is_mock: true, // PRD 0069: Virtual Super Admin flag
     user_metadata: {
       name: DEV_AUTH_USER_NAME,
       full_name: DEV_AUTH_USER_NAME,
       role: 'admin'
+    },
+    app_metadata: {
+      provider: 'dev-bypass',
+      is_super_admin: true // PRD 0069: Super Admin status
     }
   };
 }
@@ -37,13 +43,13 @@ function createMockDevUser() {
  * PRD 0058: Supports dev auth bypass mode for faster local development
  */
 export async function authenticateUser(req, res, next) {
-  // DEV AUTH BYPASS (PRD 0058): Security check - only in development
+  // DEV AUTH BYPASS (PRD 0058, PRD 0069): Security check - only in development
   if (DEV_AUTH_BYPASS && process.env.NODE_ENV !== 'production') {
     const authHeader = req.headers.authorization;
     const token = authHeader?.substring(7);
     
     if (token === DEV_MOCK_TOKEN) {
-      console.warn('🚨 DEV AUTH BYPASS: Using mock user for request');
+      console.warn('🚨 [PRD 0069] DEV AUTH BYPASS: Virtual Super Admin Active');
       req.user = createMockDevUser();
       return next();
     }
@@ -98,9 +104,9 @@ export function requireProjectRole(requiredRoles = ['editor', 'admin']) {
       return res.status(401).json({ error: "Authentication required" });
     }
     
-    // DEV AUTH BYPASS (PRD 0061): Grant mock user super admin access
-    if (DEV_AUTH_BYPASS && process.env.NODE_ENV !== 'production' && req.user.id === DEV_MOCK_USER_ID) {
-      console.warn('🚨 DEV AUTH BYPASS: Granting super admin access to mock user');
+    // DEV AUTH BYPASS (PRD 0061, PRD 0069): Virtual Super Admin permissions
+    if (DEV_AUTH_BYPASS && process.env.NODE_ENV !== 'production' && req.user.is_mock) {
+      console.warn('🚨 [PRD 0069] Virtual Super Admin: Bypassing role check for mock user');
       return next();
     }
     

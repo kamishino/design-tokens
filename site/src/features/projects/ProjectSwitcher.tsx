@@ -108,10 +108,11 @@ export default function ProjectSwitcher({
 
           {projects.map((project) => (
             <div key={project.id} className="dropdown-item-group">
-              <button
+              <div
                 className={`dropdown-item ${
                   project.id === activeProjectId ? "active" : ""
                 }`}
+                style={{ cursor: "pointer" }}
                 onClick={() => {
                   onProjectChange(project.id);
                   setShowDropdown(false);
@@ -141,7 +142,7 @@ export default function ProjectSwitcher({
                     )}
                   </div>
                 </div>
-              </button>
+              </div>
             </div>
           ))}
 
